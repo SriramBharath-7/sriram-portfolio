@@ -7,10 +7,20 @@ const __dirname = dirname(__filename);
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
+  recommendedConfig: { plugins: { "@typescript-eslint": {} } },
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends("next/core-web-vitals"),
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      parser: { ecmaVersion: 2022 },
+    },
+    linterOptions: {
+      reportUnusedDisableDirectives: true,
+    },
+  },
 ];
 
 export default eslintConfig;

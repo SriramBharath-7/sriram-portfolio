@@ -6,7 +6,7 @@
  * That way we don't have to update the precalculated values every time a new font is added to Google Fonts.
  */
 export declare function getFallbackFontOverrideMetrics(fontFamily: string): {
-    fallbackFont: any;
+    fallbackFont: string;
     ascentOverride: string;
     descentOverride: string;
     lineGapOverride: string;
