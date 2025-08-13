@@ -1,4 +1,4 @@
-import { webpack } from 'next/dist/compiled/webpack/webpack';
+import { webpack, sources } from 'next/dist/compiled/webpack/webpack';
 type CssMinimizerPluginOptions = {
     postcssOptions: {
         map: false | {
@@ -12,7 +12,7 @@ export declare class CssMinimizerPlugin {
     __next_css_remove: boolean;
     private options;
     constructor(options: CssMinimizerPluginOptions);
-    optimizeAsset(file: string, asset: any): Promise<import("webpack-sources1").RawSource | import("webpack-sources1").SourceMapSource>;
+    optimizeAsset(file: string, asset: any): Promise<sources.RawSource | sources.SourceMapSource>;
     apply(compiler: webpack.Compiler): void;
 }
 export {};

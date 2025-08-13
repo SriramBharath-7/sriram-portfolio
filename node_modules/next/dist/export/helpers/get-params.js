@@ -24,7 +24,11 @@ function getParams(page, pathname) {
     }
     const params = matcher(pathname);
     if (!params) {
-        throw new Error(`The provided export path '${pathname}' doesn't match the '${page}' page.\nRead more: https://nextjs.org/docs/messages/export-path-mismatch`);
+        throw Object.defineProperty(new Error(`The provided export path '${pathname}' doesn't match the '${page}' page.\nRead more: https://nextjs.org/docs/messages/export-path-mismatch`), "__NEXT_ERROR_CODE", {
+            value: "E20",
+            enumerable: false,
+            configurable: true
+        });
     }
     return params;
 }

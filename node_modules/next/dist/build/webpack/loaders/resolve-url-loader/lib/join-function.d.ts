@@ -8,7 +8,11 @@
 export declare const defaultJoin: ((filename: string, options: {
     debug?: any | boolean;
     root: string;
-}) => (uri: string, baseOrIteratorOrAbsent: any) => any) & ("" | {
+}) => (
+/** A uri path, relative or absolute */
+uri: string, 
+/** Optional absolute base path or iterator thereof */
+baseOrIteratorOrAbsent: any) => any) & ("" | {
     valueOf: () => string;
     toString: () => string;
 });

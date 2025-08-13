@@ -5,6 +5,7 @@ import type { NEXT_DATA } from '../shared/lib/utils';
 declare global {
     interface Window {
         __NEXT_HYDRATED?: boolean;
+        __NEXT_HYDRATED_AT?: number;
         __NEXT_HYDRATED_CB?: () => void;
         __NEXT_DATA__: NEXT_DATA;
         __NEXT_P: any[];

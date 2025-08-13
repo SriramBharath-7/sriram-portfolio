@@ -8,7 +8,7 @@ function _getRequireWildcardCache(nodeInterop) {
         return nodeInterop ? cacheNodeInterop : cacheBabelInterop;
     })(nodeInterop);
 }
-export function _interop_require_wildcard(obj, nodeInterop) {
+function _interop_require_wildcard(obj, nodeInterop) {
     if (!nodeInterop && obj && obj.__esModule) return obj;
     if (obj === null || typeof obj !== "object" && typeof obj !== "function") return { default: obj };
 
@@ -16,7 +16,7 @@ export function _interop_require_wildcard(obj, nodeInterop) {
 
     if (cache && cache.has(obj)) return cache.get(obj);
 
-    var newObj = {};
+    var newObj = { __proto__: null };
     var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
 
     for (var key in obj) {

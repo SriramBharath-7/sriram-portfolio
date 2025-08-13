@@ -6,8 +6,9 @@ export type EventCliSessionStopped = {
     durationMilliseconds?: number | null;
     pagesDir?: boolean;
     appDir?: boolean;
+    isRspack: boolean;
 };
-export declare function eventCliSessionStopped(event: Omit<EventCliSessionStopped, 'nextVersion' | 'nodeVersion'>): {
+export declare function eventCliSessionStopped(event: Omit<EventCliSessionStopped, 'nextVersion' | 'nodeVersion' | 'isRspack'>): {
     eventName: string;
     payload: EventCliSessionStopped;
 }[];

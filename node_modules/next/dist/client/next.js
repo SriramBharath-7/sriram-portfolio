@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 require("./webpack");
+require("../lib/require-instrumentation-client");
 const _ = require("./");
 window.next = {
     version: _.version,

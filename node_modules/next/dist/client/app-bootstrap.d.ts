@@ -4,4 +4,4 @@
  * - Polyfills
  * - next/script with `beforeInteractive` strategy
  */
-export declare function appBootstrap(callback: () => void): void;
+export declare function appBootstrap(hydrate: () => void): void;

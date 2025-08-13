@@ -23,3 +23,5 @@ Thumbs.db
 .vscode/
 *.iml
 .idea/
+node_modules
+node_modules

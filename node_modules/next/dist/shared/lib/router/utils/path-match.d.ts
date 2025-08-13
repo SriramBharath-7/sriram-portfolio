@@ -19,7 +19,7 @@ interface Options {
      */
     sensitive?: boolean;
 }
-export type PatchMatcher = (pathname?: string | null, params?: Record<string, any>) => Record<string, any> | false;
+export type PatchMatcher = (pathname: string, params?: Record<string, any>) => Record<string, any> | false;
 /**
  * Generates a path matcher function for a given path and options based on
  * path-to-regexp. By default the match will be case insensitive, non strict

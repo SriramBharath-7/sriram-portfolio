@@ -17,6 +17,6 @@ export default class PagesManifestPlugin implements webpack.WebpackPluginInstanc
         isEdgeRuntime: boolean;
         appDirEnabled: boolean;
     });
-    createAssets(compilation: any, assets: any): Promise<void>;
+    createAssets(compilation: any): Promise<void>;
     apply(compiler: webpack.Compiler): void;
 }
