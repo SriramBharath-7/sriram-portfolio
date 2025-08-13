@@ -1,10 +1,9 @@
 /*!
- * Observer 3.12.7
+ * Observer 3.13.0
  * https://gsap.com
  *
  * @license Copyright 2008-2025, GreenSock. All rights reserved.
- * Subject to the terms at https://gsap.com/standard-license or for
- * Club GSAP members, the agreement issued with that membership.
+ * Subject to the terms at https://gsap.com/standard-license
  * @author: Jack Doyle, jack@greensock.com
 */
 /* eslint-disable */
@@ -57,6 +56,15 @@ let gsap, _coreInitted, _clamp, _win, _doc, _docEl, _body, _isTouch, _pointerTyp
 	_vertical = {s: _scrollTop, p: "top", p2: "Top", os: "bottom", os2: "Bottom", d: "height", d2: "Height", a: "y", op: _horizontal, sc: _scrollCacheFunc(function(value) { return arguments.length ? _win.scrollTo(_horizontal.sc(), value) : _win.pageYOffset || _doc[_scrollTop] || _docEl[_scrollTop] || _body[_scrollTop] || 0})},
 	_getTarget = (t, self) => ((self && self._ctx && self._ctx.selector) || gsap.utils.toArray)(t)[0] || (typeof(t) === "string" && gsap.config().nullTargetWarn !== false ? console.warn("Element not found:", t) : null),
 
+	_isWithin = (element, list) => { // check if the element is in the list or is a descendant of an element in the list.
+		let i = list.length;
+		while (i--) {
+			if (list[i] === element || list[i].contains(element)) {
+				return true;
+			}
+		}
+		return false;
+	},
 	_getScrollFunc = (element, {s, sc}) => { // we store the scroller functions in an alternating sequenced Array like [element, verticalScrollFunc, horizontalScrollFunc, ...] so that we can minimize memory, maximize performance, and we also record the last position as a ".rec" property in order to revert to that after refreshing to ensure things don't shift around.
 		_isViewport(element) && (element = _doc.scrollingElement || _docEl);
 		let i = _scrollers.indexOf(element),
@@ -171,7 +179,7 @@ export class Observer {
 			deltaY = [0, 0, 0],
 			onClickTime = 0,
 			clickCapture = () => onClickTime = _getTime(),
-			_ignoreCheck = (e, isPointerOrTouch) => (self.event = e) && (ignore && ~ignore.indexOf(e.target)) || (isPointerOrTouch && limitToTouch && e.pointerType !== "touch") || (ignoreCheck && ignoreCheck(e, isPointerOrTouch)),
+			_ignoreCheck = (e, isPointerOrTouch) => (self.event = e) && (ignore && _isWithin(e.target, ignore)) || (isPointerOrTouch && limitToTouch && e.pointerType !== "touch") || (ignoreCheck && ignoreCheck(e, isPointerOrTouch)),
 			onStopFunc = () => {
 				self._vx.reset();
 				self._vy.reset();
@@ -420,7 +428,7 @@ export class Observer {
 
 }
 
-Observer.version = "3.12.7";
+Observer.version = "3.13.0";
 Observer.create = vars => new Observer(vars);
 Observer.register = _initCore;
 Observer.getAll = () => _observers.slice();

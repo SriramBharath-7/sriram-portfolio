@@ -2,8 +2,9 @@ declare class SplitText {
   readonly chars: Element[];
   readonly lines: Element[];
   readonly words: Element[];
+  readonly masks: Element[];
   readonly elements: Element[];
-  readonly selector: string | Function;
+  readonly isSplit: boolean;
 
   constructor(target: gsap.DOMTarget, vars?: SplitText.Vars);
 
@@ -33,20 +34,52 @@ declare class SplitText {
    * @link https://greensock.com/docs/v3/Plugins/SplitText/split()
    */
   split(vars: SplitText.Vars): SplitText;
+
+  /**
+   * Creates a SplitText instance according to the vars provided.
+   *
+   * ```js
+   * SplitText.create(".split", {type: "lines,chars"});
+   * ```
+   *
+   * @param {gsap.DOMTarget} target
+   * @param {SplitText.Vars} vars
+   * @returns {SplitText} The SplitText object created
+   * @memberof SplitText
+   * @link https://greensock.com/docs/v3/Plugins/SplitText/static.create()
+   */
+  static create(target: gsap.DOMTarget, vars?: SplitText.Vars): SplitText;
+
 }
 
 declare namespace SplitText {
+
+  type SplitTextTarget = string | NodeList | Node | Node[];
+  type PrepareTextFunction = (text: string, element: Element) => string;
+  interface WordDelimiterConfig {
+    delimiter: RegExp | string;
+    replaceWith?: string;
+  }
   interface Vars {
     [key: string]: any;
-    type?: string;
-    charsClass?: string;
-    wordsClass?: string;
+    type: string;
+    mask?: "lines" | "words" | "chars";
+    wordDelimiter?: string | RegExp | WordDelimiterConfig;
     linesClass?: string;
-    position?: string;
-    lineThreshold?: number;
+    wordsClass?: string;
+    charsClass?: string;
+    aria?: "auto" | "hidden" | "none";
+    tag?: string;
+    propIndex?: boolean;
+    deepSlice?: boolean;
+    smartWrap?: boolean;
+    specialChars?: string[] | RegExp;
     reduceWhiteSpace?: boolean;
-    specialChars?: string[] | Function;
-    wordDelimiter?: string;
+    autoSplit?: boolean;
+    ignore?: SplitTextTarget;
+    prepareText?: PrepareTextFunction;
+    onSplit?: (splitText: SplitText) => void;
+    onRevert?: (splitText: SplitText) => void;
   }
 }
 

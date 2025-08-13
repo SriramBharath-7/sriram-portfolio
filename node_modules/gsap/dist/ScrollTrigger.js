@@ -21,12 +21,11 @@
   }
 
   /*!
-   * Observer 3.12.7
+   * Observer 3.13.0
    * https://gsap.com
    *
    * @license Copyright 2008-2025, GreenSock. All rights reserved.
-   * Subject to the terms at https://gsap.com/standard-license or for
-   * Club GSAP members, the agreement issued with that membership.
+   * Subject to the terms at https://gsap.com/standard-license
    * @author: Jack Doyle, jack@greensock.com
   */
   var gsap,
@@ -137,6 +136,17 @@
   },
       _getTarget = function _getTarget(t, self) {
     return (self && self._ctx && self._ctx.selector || gsap.utils.toArray)(t)[0] || (typeof t === "string" && gsap.config().nullTargetWarn !== false ? console.warn("Element not found:", t) : null);
+  },
+      _isWithin = function _isWithin(element, list) {
+    var i = list.length;
+
+    while (i--) {
+      if (list[i] === element || list[i].contains(element)) {
+        return true;
+      }
+    }
+
+    return false;
   },
       _getScrollFunc = function _getScrollFunc(element, _ref) {
     var s = _ref.s,
@@ -327,7 +337,7 @@
         return onClickTime = _getTime();
       },
           _ignoreCheck = function _ignoreCheck(e, isPointerOrTouch) {
-        return (self.event = e) && ignore && ~ignore.indexOf(e.target) || isPointerOrTouch && limitToTouch && e.pointerType !== "touch" || ignoreCheck && ignoreCheck(e, isPointerOrTouch);
+        return (self.event = e) && ignore && _isWithin(e.target, ignore) || isPointerOrTouch && limitToTouch && e.pointerType !== "touch" || ignoreCheck && ignoreCheck(e, isPointerOrTouch);
       },
           onStopFunc = function onStopFunc() {
         self._vx.reset();
@@ -671,7 +681,7 @@
 
     return Observer;
   }();
-  Observer.version = "3.12.7";
+  Observer.version = "3.13.0";
 
   Observer.create = function (vars) {
     return new Observer(vars);
@@ -692,12 +702,11 @@
   _getGSAP() && gsap.registerPlugin(Observer);
 
   /*!
-   * ScrollTrigger 3.12.7
+   * ScrollTrigger 3.13.0
    * https://gsap.com
    *
    * @license Copyright 2008-2025, GreenSock. All rights reserved.
-   * Subject to the terms at https://gsap.com/standard-license or for
-   * Club GSAP members, the agreement issued with that membership.
+   * Subject to the terms at https://gsap.com/standard-license
    * @author: Jack Doyle, jack@greensock.com
   */
 
@@ -1945,16 +1954,23 @@
         }
 
         scrubTween && scrubTween.pause();
-        invalidateOnRefresh && animation && animation.revert({
-          kill: false
-        }).invalidate();
+
+        if (invalidateOnRefresh && animation) {
+          animation.revert({
+            kill: false
+          }).invalidate();
+          animation.getChildren && animation.getChildren(true, true, false).forEach(function (t) {
+            return t.vars.immediateRender && t.render(0, true, true);
+          });
+        }
+
         self.isReverted || self.revert(true, true);
         self._subPinOffset = false;
 
         var size = getScrollerSize(),
             scrollerBounds = getScrollerOffsets(),
             max = containerAnimation ? containerAnimation.duration() : _maxScroll(scroller, direction),
-            isFirstRefresh = change <= 0.01,
+            isFirstRefresh = change <= 0.01 || !change,
             offset = 0,
             otherPinOffset = pinOffset || 0,
             parsedEnd = _isObject(position) ? position.end : vars.end,
@@ -2183,7 +2199,7 @@
         animation && isToggle && (animation._initted || prevAnimProgress) && animation.progress() !== prevAnimProgress && animation.progress(prevAnimProgress || 0, true).render(animation.time(), true, true);
 
         if (isFirstRefresh || prevProgress !== self.progress || containerAnimation || invalidateOnRefresh || animation && !animation._initted) {
-          animation && !isToggle && animation.totalProgress(containerAnimation && start < -0.001 && !prevProgress ? gsap$1.utils.normalize(start, end, 0) : prevProgress, true);
+          animation && !isToggle && (animation._initted || prevProgress || animation.vars.immediateRender !== false) && animation.totalProgress(containerAnimation && start < -0.001 && !prevProgress ? gsap$1.utils.normalize(start, end, 0) : prevProgress, true);
           self.progress = isFirstRefresh || (scroll1 - start) / change === prevProgress ? 0 : prevProgress;
         }
 
@@ -2790,7 +2806,7 @@
 
     return ScrollTrigger;
   }();
-  ScrollTrigger$1.version = "3.12.7";
+  ScrollTrigger$1.version = "3.13.0";
 
   ScrollTrigger$1.saveStyles = function (targets) {
     return targets ? _toArray(targets).forEach(function (target) {

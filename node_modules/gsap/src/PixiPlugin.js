@@ -1,10 +1,9 @@
 /*!
- * PixiPlugin 3.12.7
+ * PixiPlugin 3.13.0
  * https://gsap.com
  *
  * @license Copyright 2008-2025, GreenSock. All rights reserved.
- * Subject to the terms at https://gsap.com/standard-license or for
- * Club GSAP members, the agreement issued with that membership.
+ * Subject to the terms at https://gsap.com/standard-license
  * @author: Jack Doyle, jack@greensock.com
 */
 /* eslint-disable */
@@ -68,10 +67,13 @@ let gsap, _splitColor, _coreInitted, _PIXI, PropTween, _getSetter, _isV4, _isV8P
 		}
 		filter = new filterClass();
 		if (type === "BlurFilter") {
-			filter.blur = 0;
+			if (_isV8Plus) {
+				filter.strength = 0;
+			} else {
+				filter.blur = 0;
+			}
 		}
-		filters.push(filter);
-		target.filters = filters;
+		target.filters = [...filters, filter];
 		return filter;
 	},
 	_addColorMatrixFilterCacheTween = (p, plugin, cache, vars) => { //we cache the ColorMatrixFilter components in a _gsColorMatrixFilter object attached to the target object so that it's easy to grab the current value at any time.
@@ -265,7 +267,7 @@ for (i = 0; i < _xyContexts.length; i++) {
 
 
 export const PixiPlugin = {
-	version: "3.12.7",
+	version: "3.13.0",
 	name: "pixi",
 	register(core, Plugin, propTween) {
 		gsap = core;

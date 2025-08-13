@@ -1,10 +1,9 @@
 /*!
- * Flip 3.12.7
+ * Flip 3.13.0
  * https://gsap.com
  *
  * @license Copyright 2008-2025, GreenSock. All rights reserved.
- * Subject to the terms at https://gsap.com/standard-license or for
- * Club GSAP members, the agreement issued with that membership.
+ * Subject to the terms at https://gsap.com/standard-license
  * @author: Jack Doyle, jack@greensock.com
 */
 /* eslint-disable */
@@ -715,6 +714,7 @@ class ElementState {
 			bounds = element.getBoundingClientRect(),
 			bbox = element.getBBox && typeof(element.getBBox) === "function" && element.nodeName.toLowerCase() !== "svg" && element.getBBox(),
 			m = simple ? new Matrix2D(1, 0, 0, 1, bounds.left + _getDocScrollLeft(), bounds.top + _getDocScrollTop()) : getGlobalMatrix(element, false, false, true);
+		cache.uncache = 1; // in case there are CSS rules that affect the element. Example: https://gsap.com/community/forums/topic/44321-bug-on-fixed-position-using-flip/
 		self.getProp = getProp;
 		self.element = element;
 		self.id = _getID(element);
@@ -964,7 +964,7 @@ export class Flip {
 			};
 		}
 		absolute && _makeAbsolute(after, before);
-		v = _fit(after, before, scale || fitChild, props, fitChild, v.duration || getVars ? v : 0);
+		v = _fit(after, before, scale || fitChild, !v.duration && props, fitChild, v.duration || getVars ? v : 0);
 		typeof(vars) === "object" && "zIndex" in vars && (v.zIndex = vars.zIndex);
 		ctx && !getVars && ctx.add(() => () => _applyInlineStyles(after));
 		return getVars ? v : v.duration ? gsap.to(after.element, v) : null;
@@ -1015,7 +1015,7 @@ export class Flip {
 	}
 }
 
-Flip.version = "3.12.7";
+Flip.version = "3.13.0";
 
 // function whenImagesLoad(el, func) {
 // 	let pending = [],

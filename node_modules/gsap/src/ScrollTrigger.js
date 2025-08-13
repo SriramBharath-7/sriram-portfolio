@@ -1,10 +1,9 @@
 /*!
- * ScrollTrigger 3.12.7
+ * ScrollTrigger 3.13.0
  * https://gsap.com
  *
  * @license Copyright 2008-2025, GreenSock. All rights reserved.
- * Subject to the terms at https://gsap.com/standard-license or for
- * Club GSAP members, the agreement issued with that membership.
+ * Subject to the terms at https://gsap.com/standard-license
  * @author: Jack Doyle, jack@greensock.com
 */
 /* eslint-disable */
@@ -834,13 +833,18 @@ export class ScrollTrigger {
 				tweenTo.tween = 0;
 			}
 			scrubTween && scrubTween.pause();
-			invalidateOnRefresh && animation && animation.revert({kill: false}).invalidate();
+
+			if (invalidateOnRefresh && animation) {
+				animation.revert({kill: false}).invalidate();
+				animation.getChildren && animation.getChildren(true, true, false).forEach(t => t.vars.immediateRender && t.render(0, true, true)); // any from() or fromTo() tweens inside a timeline should render immediately (well, unless they have immediateRender: false)
+			}
+
 			self.isReverted || self.revert(true, true);
 			self._subPinOffset = false; // we'll set this to true in the sub-pins if we find any
 			let size = getScrollerSize(),
 				scrollerBounds = getScrollerOffsets(),
 				max = containerAnimation ? containerAnimation.duration() : _maxScroll(scroller, direction),
-				isFirstRefresh = change <= 0.01,
+				isFirstRefresh = change <= 0.01 || !change,
 				offset = 0,
 				otherPinOffset = pinOffset || 0,
 				parsedEnd = _isObject(position) ? position.end : vars.end,
@@ -1017,7 +1021,7 @@ export class ScrollTrigger {
 			_refreshing = 0;
 			animation && isToggle && (animation._initted || prevAnimProgress) && animation.progress() !== prevAnimProgress && animation.progress(prevAnimProgress || 0, true).render(animation.time(), true, true); // must force a re-render because if saveStyles() was used on the target(s), the styles could have been wiped out during the refresh().
 			if (isFirstRefresh || prevProgress !== self.progress || containerAnimation || invalidateOnRefresh || (animation && !animation._initted)) { // ensures that the direction is set properly (when refreshing, progress is set back to 0 initially, then back again to wherever it needs to be) and that callbacks are triggered.
-				animation && !isToggle && animation.totalProgress(containerAnimation && start < -0.001 && !prevProgress ? gsap.utils.normalize(start, end, 0) : prevProgress, true); // to avoid issues where animation callbacks like onStart aren't triggered.
+				animation && !isToggle && (animation._initted || prevProgress || animation.vars.immediateRender !== false) && animation.totalProgress(containerAnimation && start < -0.001 && !prevProgress ? gsap.utils.normalize(start, end, 0) : prevProgress, true); // to avoid issues where animation callbacks like onStart aren't triggered.
 				self.progress = isFirstRefresh || ((scroll1 - start) / change === prevProgress) ? 0 : prevProgress;
 			}
 			pin && pinSpacing && (spacer._pinOffset = Math.round(self.progress * pinChange));
@@ -1475,7 +1479,7 @@ export class ScrollTrigger {
 
 }
 
-ScrollTrigger.version = "3.12.7";
+ScrollTrigger.version = "3.13.0";
 ScrollTrigger.saveStyles = targets => targets ? _toArray(targets).forEach(target => { // saved styles are recorded in a consecutive alternating Array, like [element, cssText, transform attribute, cache, matchMedia, ...]
 	if (target && target.style) {
 		let i = _savedStyles.indexOf(target);

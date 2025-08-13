@@ -88,7 +88,7 @@ const encodeValue = (memfs, value, type) => {
 const decodeValue = (memfs, payload, type) => {
   if (type === 0) return undefined
   if (type === 1) return null
-  if (type === 2) return Boolean(payload[0])
+  if (type === 2) return Boolean(new Int32Array(payload.buffer, payload.byteOffset, 1)[0])
   if (type === 3) return new Float64Array(payload.buffer, payload.byteOffset, 1)[0]
   if (type === 4) return new TextDecoder().decode(payload.slice())
   if (type === 6) {
@@ -152,20 +152,20 @@ module.exports.createOnMessage = (fs) => function onMessage(e) {
     const fn = fs[type]
     try {
       const ret = fn.apply(fs, payload)
-      Atomics.store(sab, 0, 0)
       const t = getType(ret)
       Atomics.store(sab, 1, t)
       const v = encodeValue(fs, ret, t)
       Atomics.store(sab, 2, v.length)
       new Uint8Array(sab.buffer).set(v, 16)
+      Atomics.store(sab, 0, 0) // success
 
     } catch (/** @type {any} */ err) {
-      Atomics.store(sab, 0, 1)
       const t = getType(err)
       Atomics.store(sab, 1, t)
       const v = encodeValue(fs, err, t)
       Atomics.store(sab, 2, v.length)
       new Uint8Array(sab.buffer).set(v, 16)
+      Atomics.store(sab, 0, 1) // error
     } finally {
       Atomics.notify(sab, 0)
     }

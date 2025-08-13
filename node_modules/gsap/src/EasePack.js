@@ -1,10 +1,9 @@
 /*!
- * EasePack 3.12.7
+ * EasePack 3.13.0
  * https://gsap.com
  *
  * @license Copyright 2008-2025, GreenSock. All rights reserved.
- * Subject to the terms at https://gsap.com/standard-license or for
- * Club GSAP members, the agreement issued with that membership.
+ * Subject to the terms at https://gsap.com/standard-license
  * @author: Jack Doyle, jack@greensock.com
 */
 /* eslint-disable */
@@ -155,7 +154,7 @@ export const EasePack = {
 
 for (let p in EasePack) {
 	EasePack[p].register = _initCore;
-	EasePack[p].version = "3.12.7";
+	EasePack[p].version = "3.13.0";
 }
 
 _getGSAP() && gsap.registerPlugin(SlowMo);

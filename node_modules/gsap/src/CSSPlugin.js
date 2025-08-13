@@ -1,10 +1,9 @@
 /*!
- * CSSPlugin 3.12.7
+ * CSSPlugin 3.13.0
  * https://gsap.com
  *
  * Copyright 2008-2025, GreenSock. All rights reserved.
- * Subject to the terms at https://gsap.com/standard-license or for
- * Club GSAP members, the agreement issued with that membership.
+ * Subject to the terms at https://gsap.com/standard-license
  * @author: Jack Doyle, jack@greensock.com
 */
 /* eslint-disable */
@@ -318,6 +317,9 @@ let _win, _doc, _docElement, _pluginInitted, _tempDiv, _tempDivStyler, _recentSe
 		pt.e = end;
 		start += ""; // ensure values are strings
 		end += "";
+		if (end.substring(0, 6) === "var(--") {
+			end = _getComputedProperty(target, end.substring(4, end.indexOf(")")));
+		}
 		if (end === "auto") {
 			startValue = target.style[prop];
 			target.style[prop] = end;
@@ -1040,6 +1042,10 @@ export const CSSPlugin = {
 				//--- TRANSFORM-RELATED ---
 				if (isTransformRelated) {
 					this.styles.save(p);
+					if (type === "string" && endValue.substring(0, 6) === "var(--") {
+						endValue = _getComputedProperty(target, endValue.substring(4, endValue.indexOf(")")));
+						endNum = parseFloat(endValue);
+					}
 					if (!transformPropTween) {
 						cache = target._gsap;
 						(cache.renderTransform && !vars.parseTransform) || _parseTransform(target, vars.parseTransform); // if, for example, gsap.set(... {transform:"translateX(50vw)"}), the _get() call doesn't parse the transform, thus cache.renderTransform won't be set yet so force the parsing of the transform here.

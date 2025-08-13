@@ -5,12 +5,11 @@
 }(this, (function (exports) { 'use strict';
 
 	/*!
-	 * PixiPlugin 3.12.7
+	 * PixiPlugin 3.13.0
 	 * https://gsap.com
 	 *
 	 * @license Copyright 2008-2025, GreenSock. All rights reserved.
-	 * Subject to the terms at https://gsap.com/standard-license or for
-	 * Club GSAP members, the agreement issued with that membership.
+	 * Subject to the terms at https://gsap.com/standard-license
 	 * @author: Jack Doyle, jack@greensock.com
 	*/
 	var gsap,
@@ -100,11 +99,14 @@
 	  filter = new filterClass();
 
 	  if (type === "BlurFilter") {
-	    filter.blur = 0;
+	    if (_isV8Plus) {
+	      filter.strength = 0;
+	    } else {
+	      filter.blur = 0;
+	    }
 	  }
 
-	  filters.push(filter);
-	  target.filters = filters;
+	  target.filters = [].concat(filters, [filter]);
 	  return filter;
 	},
 	    _addColorMatrixFilterCacheTween = function _addColorMatrixFilterCacheTween(p, plugin, cache, vars) {
@@ -379,7 +381,7 @@
 	}
 
 	var PixiPlugin = {
-	  version: "3.12.7",
+	  version: "3.13.0",
 	  name: "pixi",
 	  register: function register(core, Plugin, propTween) {
 	    gsap = core;

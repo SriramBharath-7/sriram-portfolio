@@ -1,10 +1,9 @@
 /*!
- * CSSPlugin 3.12.7
+ * CSSPlugin 3.13.0
  * https://gsap.com
  *
  * Copyright 2008-2025, GreenSock. All rights reserved.
- * Subject to the terms at https://gsap.com/standard-license or for
- * Club GSAP members, the agreement issued with that membership.
+ * Subject to the terms at https://gsap.com/standard-license
  * @author: Jack Doyle, jack@greensock.com
 */
 
@@ -457,6 +456,10 @@ _convertToUnit = function _convertToUnit(target, property, value, unit) {
   start += ""; // ensure values are strings
 
   end += "";
+
+  if (end.substring(0, 6) === "var(--") {
+    end = _getComputedProperty(target, end.substring(4, end.indexOf(")")));
+  }
 
   if (end === "auto") {
     startValue = target.style[prop];
@@ -1430,6 +1433,11 @@ export var CSSPlugin = {
 
         if (isTransformRelated) {
           this.styles.save(p);
+
+          if (type === "string" && endValue.substring(0, 6) === "var(--") {
+            endValue = _getComputedProperty(target, endValue.substring(4, endValue.indexOf(")")));
+            endNum = parseFloat(endValue);
+          }
 
           if (!transformPropTween) {
             cache = target._gsap;

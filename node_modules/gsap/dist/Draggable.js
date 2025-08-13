@@ -168,6 +168,7 @@
         isRootSVG = element === svg,
         siblings = svg ? _svgTemps : _divTemps,
         parent = element.parentNode,
+        appendToEl = parent && !svg && parent.shadowRoot && parent.shadowRoot.appendChild ? parent.shadowRoot : parent,
         container,
         m,
         b,
@@ -239,7 +240,7 @@
       b[_transformProp] = cs[_transformProp];
       b[_transformOriginProp] = cs[_transformOriginProp];
       b.position = cs.position === "fixed" ? "fixed" : "absolute";
-      element.parentNode.appendChild(container);
+      appendToEl.appendChild(container);
     }
 
     return container;
@@ -2955,7 +2956,7 @@
   });
 
   Draggable.zIndex = 1000;
-  Draggable.version = "3.12.7";
+  Draggable.version = "3.13.0";
   _getGSAP() && gsap.registerPlugin(Draggable);
 
   exports.Draggable = Draggable;

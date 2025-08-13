@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/all";
 import {
   DEFAULT_GITHUB_USERNAME,
   DEFAULT_LINKEDIN_URL,
   DEFAULT_BRAND_NAME,
-  DEFAULT_WEBSITE_URL,
   DEFAULT_WELCOME_TEXT,
   DEFAULT_NAME,
   DEFAULT_EMAIL,
@@ -296,14 +296,14 @@ export default function Firefox({
   });
 
   // Function to get responsive sizes
-  const getResponsiveSizes = () => {
+  const getResponsiveSizes = useCallback(() => {
     if (windowSize.width < 768) {
       return FIREFOX_SIZES.small;
     } else if (windowSize.width < 1024) {
       return FIREFOX_SIZES.medium;
     }
     return FIREFOX_SIZES.large;
-  };
+  }, [windowSize.width]);
 
   // Update initial position calculation
   useEffect(() => {
@@ -333,8 +333,7 @@ export default function Firefox({
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firefoxState.isMaximized]);
+  }, [firefoxState.isMaximized, getResponsiveSizes]);
 
   // Modify maximize/minimize handlers
   const handleMaximize = () => {
@@ -513,7 +512,7 @@ export default function Firefox({
   };
 
   // Add smooth scrolling function for GitHub projects
-  const scrollToProjectsTop = () => {
+  const scrollToProjectsTop = useCallback(() => {
     if (projectsContainerRef.current) {
       // Use GSAP to scroll smoothly to the top
       gsap.to(projectsContainerRef.current, {
@@ -523,7 +522,7 @@ export default function Firefox({
         overwrite: true,
       });
     }
-  };
+  }, []);
 
   // Update pagination to use smooth scrolling
   useEffect(() => {
@@ -553,7 +552,7 @@ export default function Firefox({
       gsap.set(progressBar, { width: "0%" });
 
       // Function to update scroll progress
-      const updateScrollProgress = () => {
+      const updateScrollProgress = useCallback(() => {
         if (!container) return;
 
         const scrollTop = container.scrollTop;
@@ -570,7 +569,7 @@ export default function Firefox({
           duration: 0.3,
           ease: "power2.out",
         });
-      };
+      }, [container, progressBar]);
 
       // Add scroll event listener
       container.addEventListener("scroll", updateScrollProgress);
@@ -583,7 +582,7 @@ export default function Firefox({
         container.removeEventListener("scroll", updateScrollProgress);
       };
     }
-  }, [currentUrl]);
+  }, [currentUrl, projectsContainerRef]);
 
   // Add an effect to animate the repo cards with GSAP
   useEffect(() => {
@@ -717,7 +716,7 @@ export default function Firefox({
   };
 
   // Navigation functions
-  const navigateTo = (url: string) => {
+  const navigateTo = useCallback((url: string) => {
     if (!url) return;
 
     // Handle special schemes and external sites
@@ -751,32 +750,32 @@ export default function Firefox({
     setHistory((prev) => [...prev.slice(0, historyIndex + 1), url]);
     setCurrentUrl(url);
     setHistoryIndex((prev) => prev + 1);
-  };
+  }, [currentUrl, history, historyIndex]);
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     if (historyIndex > 0) {
       setHistoryIndex((prev) => prev - 1);
       setCurrentUrl(history[historyIndex - 1]);
     }
-  };
+  }, [historyIndex, history]);
 
-  const goForward = () => {
+  const goForward = useCallback(() => {
     if (historyIndex < history.length - 1) {
       setHistoryIndex((prev) => prev + 1);
       setCurrentUrl(history[historyIndex + 1]);
     }
-  };
+  }, [historyIndex, history]);
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     // For now, just simulate a refresh by resetting currentUrl
     const currentUrlValue = currentUrl;
     setCurrentUrl("");
     setTimeout(() => {
       setCurrentUrl(currentUrlValue);
     }, 100);
-  };
+  }, [currentUrl]);
 
-  const toggleBookmark = () => {
+  const toggleBookmark = useCallback(() => {
     if (bookmarks.includes(currentUrl)) {
       // Remove bookmark
       setBookmarks((prev) => prev.filter((b) => b !== currentUrl));
@@ -784,7 +783,7 @@ export default function Firefox({
       // Add bookmark
       setBookmarks((prev) => [...prev, currentUrl]);
     }
-  };
+  }, [bookmarks, currentUrl]);
 
   // Function to get paginated repos
   const paginatedRepos = useMemo(() => {
@@ -794,7 +793,7 @@ export default function Firefox({
   }, [repos, currentPage, reposPerPage]);
 
   // Add this new function to completely clear and refresh GitHub repos
-  const forceRefreshRepos = async () => {
+  const forceRefreshRepos = useCallback(async () => {
     try {
       console.log('🔄 Performing complete GitHub repo refresh...');
       setIsLoading(true);
@@ -815,7 +814,7 @@ export default function Firefox({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // Add an effect to update repos per page based on screen size
   useEffect(() => {
@@ -843,20 +842,7 @@ export default function Firefox({
   }, []);
 
   // Update the useEffect for loading projects
-  useEffect(() => {
-    if (showProjects || currentUrl.includes("github.com")) {
-      // Introduce a small delay before fetching repos to ensure smooth rendering
-      const timer = setTimeout(() => {
-        fetchGitHubRepos();
-      }, 100);
-
-      return () => clearTimeout(timer);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showProjects, currentUrl]);
-
-  // Function to fetch GitHub repos
-  const fetchGitHubRepos = async () => {
+  const fetchGitHubRepos = useCallback(async () => {
     setIsLoading(true);
 
     try {
@@ -963,10 +949,21 @@ export default function Firefox({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [username, scrollToProjectsTop, sampleRepos, currentUrl]);
+
+  useEffect(() => {
+    if (showProjects || currentUrl.includes("github.com")) {
+      // Introduce a small delay before fetching repos to ensure smooth rendering
+      const timer = setTimeout(() => {
+        fetchGitHubRepos();
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showProjects, currentUrl, fetchGitHubRepos]);
 
   // Function to update the cache in the background without blocking the UI
-  const updateCacheInBackground = async (
+  const updateCacheInBackground = useCallback(async (
     username: string,
     cacheKey: string
   ) => {
@@ -1034,7 +1031,7 @@ export default function Firefox({
     } catch {
       // Silently fail background updates
     }
-  };
+  }, [currentUrl, username]);
 
   // Return the Firefox browser component JSX
   return (
@@ -1458,7 +1455,7 @@ export default function Firefox({
                             <div className="card-inner">
                               <div className="card-face card-front">
                                 <div className="h-40 w-40 bg-gray-900/50 rounded-xl border border-blue-500/30 flex items-center justify-center shadow-[0_10px_30px_rgba(37,99,235,0.25)]">
-                                  <img src={c.image} alt={c.title} className="h-24 w-24 object-contain opacity-90" />
+                                  <Image src={c.image} alt={c.title} className="h-24 w-24 object-contain opacity-90" width={96} height={96} />
                       </div>
                       </div>
                               <div className="card-face card-back">
@@ -1489,7 +1486,7 @@ export default function Firefox({
                   ) : (
                   <>
                   <div className="bg-gray-800/60 backdrop-blur-md p-6 rounded-lg border border-purple-500/30 shadow-lg mb-6">
-                    <h1 className="text-2xl font-bold text-white mb-2">Hi, I'm {DEFAULT_NAME} 👋</h1>
+                    <h1 className="text-2xl font-bold text-white mb-2">Hi, I&apos;m {DEFAULT_NAME} 👋</h1>
                     <p className="text-gray-300">{DEFAULT_WELCOME_TEXT}</p>
                           </div>
                   <div className="bg-gray-800/50 rounded-lg border border-purple-500/20 p-4 mb-6">
@@ -1558,7 +1555,7 @@ export default function Firefox({
               {activeCert.title}
                   </div>
             <div className="bg-gray-900/80 border border-blue-500/30 rounded-lg shadow-[0_0_25px_rgba(59,130,246,0.35)] overflow-hidden">
-              <img src={activeCert.image} alt={activeCert.title} className="w-full h-auto object-contain" />
+              <Image src={activeCert.image} alt={activeCert.title} className="w-full h-auto object-contain" width={1000} height={700} />
             </div>
             {(activeCert.provider || activeCert.issued) && (
               <div className="text-blue-300/90 text-sm mt-3 text-center">

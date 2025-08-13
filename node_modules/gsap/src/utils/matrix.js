@@ -1,10 +1,9 @@
 /*!
- * matrix 3.12.7
+ * matrix 3.13.0
  * https://gsap.com
  *
  * Copyright 2008-2025, GreenSock. All rights reserved.
- * Subject to the terms at https://gsap.com/standard-license or for
- * Club GSAP members, the agreement issued with that membership.
+ * Subject to the terms at https://gsap.com/standard-license
  * @author: Jack Doyle, jack@greensock.com
 */
 /* eslint-disable */
@@ -145,6 +144,7 @@ let _doc, _win, _docElement, _body,	_divContainer, _svgContainer, _identityMatri
 			isRootSVG = element === svg,
 			siblings = svg ? _svgTemps : _divTemps,
 			parent = element.parentNode,
+			appendToEl = parent && !svg && parent.shadowRoot && parent.shadowRoot.appendChild ? parent.shadowRoot : parent,
 			container, m, b, x, y, cs;
 		if (element === _win) {
 			return element;
@@ -205,7 +205,7 @@ let _doc, _win, _docElement, _body,	_divContainer, _svgContainer, _identityMatri
 			// b.borderLeftWidth = m.borderLeftWidth;
 			// b.borderTopWidth = m.borderTopWidth;
 			b.position = cs.position === "fixed" ? "fixed" : "absolute";
-			element.parentNode.appendChild(container);
+			appendToEl.appendChild(container);
 		}
 		return container;
 	},

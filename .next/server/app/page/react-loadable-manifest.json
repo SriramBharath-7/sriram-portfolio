@@ -1,9 +1,0 @@
-{
-  "[project]/components/Firefox.tsx [app-client] (ecmascript, next/dynamic entry)": {
-    "id": "[project]/components/Firefox.tsx [app-client] (ecmascript, next/dynamic entry)",
-    "files": [
-      "static/chunks/components_Firefox_tsx_87e96ff9._.js",
-      "static/chunks/components_Firefox_tsx_54b7cb29._.js"
-    ]
-  }
-}

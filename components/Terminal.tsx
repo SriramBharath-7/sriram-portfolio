@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/all";
 
@@ -866,7 +866,7 @@ Working on various cybersecurity projects including vulnerability assessment too
     });
 
     return () => cancelAnimationFrame(rafId);
-  }, [history, isTyping, typingText, isLoading]);
+  }, [history, isTyping, typingText, isLoading, checkIfNeedsScrolling]);
 
   // Window dragging handlers
   const handleMouseDown = (e: React.MouseEvent) => {

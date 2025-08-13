@@ -24,7 +24,7 @@ export default function RootLayout({
         <meta charSet="utf-8" />
         <meta name="description" content="Cybersecurity specialist portfolio" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Sriram's Portfolio</title>
+        <title>Sriram&apos;s Portfolio</title>
         <link rel="icon" href="/assets/ico/hacker.ico" />
       </head>
       <body className="antialiased">

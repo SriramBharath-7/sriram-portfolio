@@ -1,10 +1,9 @@
 /*!
- * GSAP 3.12.7
+ * GSAP 3.13.0
  * https://gsap.com
  *
  * @license Copyright 2008-2025, GreenSock. All rights reserved.
- * Subject to the terms at https://gsap.com/standard-license or for
- * Club GSAP members, the agreement issued with that membership.
+ * Subject to the terms at https://gsap.com/standard-license
  * @author: Jack Doyle, jack@greensock.com
 */
 /* eslint-disable */
@@ -111,9 +110,10 @@ let _config = {
 			tween && tween._lazy && (tween.render(tween._lazy[0], tween._lazy[1], true)._lazy = 0);
 		}
 	},
+	_isRevertWorthy = (animation) => !!(animation._initted || animation._startAt || animation.add),
 	_lazySafeRender = (animation, time, suppressEvents, force) => {
 		_lazyTweens.length && !_reverting && _lazyRender();
-		animation.render(time, suppressEvents, force || (_reverting && time < 0 && (animation._initted || animation._startAt)));
+		animation.render(time, suppressEvents, force || !!(_reverting && time < 0 && _isRevertWorthy(animation)));
 		_lazyTweens.length && !_reverting && _lazyRender(); //in case rendering caused any tweens to lazy-init, we should render them because typically when someone calls seek() or time() or progress(), they expect an immediate render.
 	},
 	_numericIfPossible = value => {
@@ -1284,7 +1284,7 @@ export class Animation {
 		// prioritize rendering where the parent's playhead lines up instead of this._tTime because there could be a tween that's animating another tween's timeScale in the same rendering loop (same parent), thus if the timeScale tween renders first, it would alter _start BEFORE _tTime was set on that tick (in the rendering loop), effectively freezing it until the timeScale tween finishes.
 		this._rts = +value || 0;
 		this._ts = (this._ps || value === -_tinyNum) ? 0 : this._rts; // _ts is the functional timeScale which would be 0 if the animation is paused.
-		this.totalTime(_clamp(-Math.abs(this._delay), this._tDur, tTime), suppressEvents !== false);
+		this.totalTime(_clamp(-Math.abs(this._delay), this.totalDuration(), tTime), suppressEvents !== false);
 		_setEnd(this); // if parent.smoothChildTiming was false, the end time didn't get updated in the _alignPlayhead() method, so do it here.
 		return _recacheAncestors(this);
 	}
@@ -1329,10 +1329,10 @@ export class Animation {
 		return !parent ? this._tTime : (wrapRepeats && (!this._ts || (this._repeat && this._time && this.totalProgress() < 1))) ? this._tTime % (this._dur + this._rDelay) : !this._ts ? this._tTime : _parentToChildTotalTime(parent.rawTime(wrapRepeats), this);
 	}
 
-	revert(config= _revertConfig) {
+	revert(config = _revertConfig) {
 		let prevIsReverting = _reverting;
 		_reverting = config;
-		if (this._initted || this._startAt) {
+		if (_isRevertWorthy(this)) {
 			this.timeline && this.timeline.revert(config);
 			this.totalTime(-0.01, config.suppressEvents);
 		}
@@ -1658,7 +1658,7 @@ export class Timeline extends Animation {
 				this._zTime = totalTime;
 				prevTime = 0; // upon init, the playhead should always go forward; someone could invalidate() a completed timeline and then if they restart(), that would make child tweens render in reverse order which could lock in the wrong starting values if they build on each other, like tl.to(obj, {x: 100}).to(obj, {x: 0}).
 			}
-			if (!prevTime && time && !suppressEvents && !iteration) {
+			if (!prevTime && tTime && !suppressEvents && !prevIteration) {
 				_callback(this, "onStart");
 				if (this._tTime !== tTime) { // in case the onStart triggered a render at a different spot, eject. Like if someone did animation.pause(0.5) or something inside the onStart.
 					return this;
@@ -1690,7 +1690,7 @@ export class Timeline extends Animation {
 						if (child.parent !== this) { // an extreme edge case - the child's render could do something like kill() the "next" one in the linked list, or reparent it. In that case we must re-initiate the whole render to be safe.
 							return this.render(totalTime, suppressEvents, force);
 						}
-						child.render(child._ts > 0 ? (adjustedTime - child._start) * child._ts : (child._dirty ? child.totalDuration() : child._tDur) + (adjustedTime - child._start) * child._ts, suppressEvents, force || (_reverting && (child._initted || child._startAt)));  // if reverting, we should always force renders of initted tweens (but remember that .fromTo() or .from() may have a _startAt but not _initted yet). If, for example, a .fromTo() tween with a stagger (which creates an internal timeline) gets reverted BEFORE some of its child tweens render for the first time, it may not properly trigger them to revert.
+						child.render(child._ts > 0 ? (adjustedTime - child._start) * child._ts : (child._dirty ? child.totalDuration() : child._tDur) + (adjustedTime - child._start) * child._ts, suppressEvents, force || (_reverting && _isRevertWorthy(child)));  // if reverting, we should always force renders of initted tweens (but remember that .fromTo() or .from() may have a _startAt but not _initted yet). If, for example, a .fromTo() tween with a stagger (which creates an internal timeline) gets reverted BEFORE some of its child tweens render for the first time, it may not properly trigger them to revert.
 						if (time !== this._time || (!this._ts && !prevPaused)) { //in case a tween pauses or seeks the timeline when rendering, like inside of an onUpdate/onComplete
 							pauseTween = 0;
 							next && (tTime += (this._zTime = adjustedTime ? -_tinyNum : _tinyNum)); // it didn't finish rendering, so adjust zTime so that so that the next time render() is called it'll be forced (to render any remaining children)
@@ -2518,7 +2518,7 @@ export class Tween extends Animation {
 				this.ratio = ratio = 1 - ratio;
 			}
 
-			if (time && !prevTime && !suppressEvents && !iteration) {
+			if (!prevTime && tTime && !suppressEvents && !prevIteration) {
 				_callback(this, "onStart");
 				if (this._tTime !== tTime) { // in case the onStart triggered a render at a different spot, eject. Like if someone did animation.pause(0.5) or something inside the onStart.
 					return this;
@@ -3201,6 +3201,7 @@ let _getPluginPropTween = (plugin, prop) => {
 	_buildModifierPlugin = (name, modifier) => {
 		return {
 			name: name,
+			headless: 1,
 			rawVars: 1, //don't pre-process function-based values or "random()" strings.
 			init(target, vars, tween) {
 				tween._onInit = tween => {
@@ -3246,6 +3247,7 @@ export const gsap = _gsap.registerPlugin({
 		}
 	}, {
 		name:"endArray",
+		headless: 1,
 		init(target, value) {
 			let i = value.length;
 			while (i--) {
@@ -3258,7 +3260,7 @@ export const gsap = _gsap.registerPlugin({
 	_buildModifierPlugin("snap", snap)
 ) || _gsap; //to prevent the core plugins from being dropped via aggressive tree shaking, we must include them in the variable declaration in this way.
 
-Tween.version = Timeline.version = gsap.version = "3.12.7";
+Tween.version = Timeline.version = gsap.version = "3.13.0";
 _coreReady = 1;
 _windowExists() && _wake();
 

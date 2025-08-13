@@ -1248,6 +1248,7 @@
 	      isRootSVG = element === svg,
 	      siblings = svg ? _svgTemps : _divTemps,
 	      parent = element.parentNode,
+	      appendToEl = parent && !svg && parent.shadowRoot && parent.shadowRoot.appendChild ? parent.shadowRoot : parent,
 	      container,
 	      m,
 	      b,
@@ -1319,7 +1320,7 @@
 	    b[_transformProp] = cs[_transformProp];
 	    b[_transformOriginProp] = cs[_transformOriginProp];
 	    b.position = cs.position === "fixed" ? "fixed" : "absolute";
-	    element.parentNode.appendChild(container);
+	    appendToEl.appendChild(container);
 	  }
 
 	  return container;
@@ -1458,12 +1459,11 @@
 	}
 
 	/*!
-	 * MotionPathPlugin 3.12.7
+	 * MotionPathPlugin 3.13.0
 	 * https://gsap.com
 	 *
 	 * @license Copyright 2008-2025, GreenSock. All rights reserved.
-	 * Subject to the terms at https://gsap.com/standard-license or for
-	 * Club GSAP members, the agreement issued with that membership.
+	 * Subject to the terms at https://gsap.com/standard-license
 	 * @author: Jack Doyle, jack@greensock.com
 	*/
 
@@ -1654,7 +1654,7 @@
 	};
 
 	var MotionPathPlugin = {
-	  version: "3.12.7",
+	  version: "3.13.0",
 	  name: "motionPath",
 	  register: function register(core, Plugin, propTween) {
 	    gsap = core;

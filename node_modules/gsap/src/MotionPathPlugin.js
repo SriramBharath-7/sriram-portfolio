@@ -1,10 +1,9 @@
 /*!
- * MotionPathPlugin 3.12.7
+ * MotionPathPlugin 3.13.0
  * https://gsap.com
  *
  * @license Copyright 2008-2025, GreenSock. All rights reserved.
- * Subject to the terms at https://gsap.com/standard-license or for
- * Club GSAP members, the agreement issued with that membership.
+ * Subject to the terms at https://gsap.com/standard-license
  * @author: Jack Doyle, jack@greensock.com
 */
 /* eslint-disable */
@@ -155,7 +154,7 @@ let _xProps = "x,translateX,left,marginLeft,xPercent".split(","),
 
 
 export const MotionPathPlugin = {
-	version: "3.12.7",
+	version: "3.13.0",
 	name: "motionPath",
 	register(core, Plugin, propTween) {
 		gsap = core;

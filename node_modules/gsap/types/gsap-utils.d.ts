@@ -136,7 +136,7 @@ declare namespace gsap.utils {
    * gsap.utils.mapRange(-10, 10, 100, 200, 0); // 150
    * 
    * const mapper = gsap.utils.mapRange(0, 100, 0, 250); // no value = reusable function
-   * console.log( mapper(50) ); // 250
+   * console.log( mapper(50) ); // 125
    * ```
    *
    * @param {number} inMin

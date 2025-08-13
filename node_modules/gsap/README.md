@@ -8,7 +8,7 @@ No other library delivers such advanced sequencing, reliability, and tight contr
 
 GSAP is completely flexible; sprinkle it wherever you want. **Zero dependencies.**
 
-There are many optional <a href="https://gsap.com/docs/v3/Plugins">plugins</a> and <a href="https://gsap.com/docs/v3/Eases">easing</a> functions for achieving advanced effects easily like <a href="https://gsap.com/docs/v3/Plugins/ScrollTrigger/">scrolling</a>, <a href="https://gsap.com/docs/v3/Plugins/MorphSVGPlugin">morphing</a>, animating along a <a href="https://gsap.com/docs/v3/Plugins/MotionPathPlugin">motion path</a> or <a href="https://gsap.com/docs/v3/Plugins/Flip/">FLIP</a> animations. There's even a handy <a href="https://gsap.com/docs/v3/Plugins/Observer/">Observer</a> for normalizing event detection across browsers/devices. 
+There are many optional <a href="https://gsap.com/docs/v3/Plugins">plugins</a> and <a href="https://gsap.com/docs/v3/Eases">easing</a> functions for achieving advanced effects easily like <a href="https://gsap.com/docs/v3/Plugins/ScrollTrigger/">scrolling</a>, <a href="https://gsap.com/docs/v3/Plugins/MorphSVGPlugin">morphing</a>, [text splitting](https://gsap.com/docs/v3/Plugins/SplitText), animating along a <a href="https://gsap.com/docs/v3/Plugins/MotionPathPlugin">motion path</a> or <a href="https://gsap.com/docs/v3/Plugins/Flip/">FLIP</a> animations. There's even a handy <a href="https://gsap.com/docs/v3/Plugins/Observer/">Observer</a> for normalizing event detection across browsers/devices. 
 
 
 ### Get Started
@@ -23,7 +23,7 @@ View the <a href="https://gsap.com/docs">full documentation here</a>, including 
 ### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13/dist/gsap.min.js"></script>
 ```
 
 See <a href="https://www.jsdelivr.com/gsap">JSDelivr's dedicated GSAP page</a> for quick CDN links to the core files/plugins. There are more <a href="https://gsap.com/install">installation instructions</a> at gsap.com.
@@ -57,11 +57,13 @@ gsap.registerPlugin(ScrollTrigger, Draggable, Flip, MotionPathPlugin);
 
 The NPM files are ES modules, but there's also a /dist/ directory with <a href="https://www.davidbcalhoun.com/2014/what-is-amd-commonjs-and-umd/">UMD</a> files for extra compatibility.
 
-Download <a href="https://gsap.com/pricing/">Club GSAP</a> members-only plugins from your gsap.com account and then include them in your own JS payload. There's even a <a href="https://www.youtube.com/watch?v=znVi89_gazE">tarball file you can install with NPM/Yarn</a>. GSAP has a <a href="https://gsap.com/docs/v3/Installation#private">private NPM registry</a> for members too. Post questions in our <a href="https://gsap.com/community/">forums</a> and we'd be happy to help.
+## GSAP is FREE! 
+
+Thanks to [Webflow](https://webflow.com), GSAP is now **100% FREE** including ALL of the bonus plugins like [SplitText](https://gsap.com/docs/v3/Plugins/SplitText), [MorphSVG](https://gsap.com/docs/v3/Plugins/MorphSVGPlugin), and all the others that were exclusively available to Club GSAP members. That's right - the entire GSAP toolset is FREE, even for commercial use! 🤯  Read more [here](https://webflow.com/blog/gsap-becomes-free)
 
 ### ScrollTrigger &amp; ScrollSmoother
 
-If you're looking for scroll-driven animations, GSAP's <a href="https://gsap.com/docs/v3/Plugins/ScrollTrigger/">ScrollTrigger</a> plugin is the new standard. There's a companion <a href="https://gsap.com/docs/v3/Plugins/ScrollSmoother/">ScrollSmoother</a> as well.
+If you're looking for scroll-driven animations, GSAP's <a href="https://gsap.com/docs/v3/Plugins/ScrollTrigger/">ScrollTrigger</a> plugin is the standard. There's a companion <a href="https://gsap.com/docs/v3/Plugins/ScrollSmoother/">ScrollSmoother</a> as well.
 
 [![ScrollTrigger](http://gsap.com/_img/github/scrolltrigger.jpg)](https://gsap.com/docs/v3/Plugins/ScrollTrigger)
 
@@ -80,25 +82,12 @@ There's a <a href="https://www.npmjs.com/package/@gsap/react">@gsap/react</a> pa
 * <a href="https://gsap.com/showcase">Showcase</a>
 * <a href="https://www.youtube.com/@GreenSockLearning">YouTube Channel</a>
 * <a href="https://gsap.com/cheatsheet">Cheat sheet</a>
-* <a href="https://gsap.com/trial">Try bonus plugins for free</a>
-* <a href="https://gsap.com/pricing/">Club GSAP</a> (get access to unrestricted bonus plugins that are not in this repository)
-
-### What is Club GSAP?
-
-There are 3 main reasons anyone signs up for <a href="https://gsap.com/pricing">Club GSAP</a>: 
-* To get access to snazzy <a href="https://gsap.com/pricing">members-only plugins</a> like MorphSVG, SplitText, ScrollSmoother, etc.
-* To get the special <a href="https://gsap.com/licensing/">commercial license</a>.
-* To support ongoing development efforts and **cheer us on**.
-
-<a href="https://gsap.com/pricing/">Learn more</a>.
-
-### Try all bonus plugins for free!
-<a href="https://gsap.com/trial">https://gsap.com/trial</a>
+* <a href="https://webflow.com">Webflow</a>
 
 ### Need help?
 Ask in the friendly <a href="https://gsap.com/community/">GSAP forums</a>. Or share your knowledge and help someone else - it's a great way to sharpen your skills! Report any bugs there too (or <a href="https://github.com/greensock/GSAP/issues">file an issue here</a> if you prefer).
 
 ### License
-GreenSock's standard "no charge" license can be viewed at <a href="https://gsap.com/standard-license">https://gsap.com/standard-license</a>. <a href="https://gsap.com/pricing/">Club GSAP</a> members are granted additional rights. See <a href="https://gsap.com/licensing/">https://gsap.com/licensing/</a> for details. Why doesn't GSAP use an MIT (or similar) open source license, and why is that a **good** thing? This article explains it all: <a href="https://gsap.com/why-license/" target="_blank">https://gsap.com/why-license/</a>
+GreenSock's standard "no charge" license can be viewed at <a href="https://gsap.com/standard-license">https://gsap.com/standard-license</a>.
 
-Copyright (c) 2008-2025, GreenSock Inc. All rights reserved.
+Copyright (c) 2008-2025, GreenSock. All rights reserved.
