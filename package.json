@@ -29,5 +29,8 @@
   },
   "overrides": {
     "eslint": "8.57.1"
+  },
+  "engines": {
+    "node": "20.x"
   }
 }
