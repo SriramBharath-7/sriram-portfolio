@@ -49,6 +49,13 @@ const nextConfig = {
     }
     config.resolve.fallback.punycode = require.resolve('punycode');
     
+    // Add alias for @ path to match tsconfig.json
+    if (!config.resolve.alias) {
+      config.resolve.alias = {};
+    }
+    const path = require('path');
+    config.resolve.alias['@'] = path.resolve(__dirname);
+    
     return config;
   },
   compiler: {

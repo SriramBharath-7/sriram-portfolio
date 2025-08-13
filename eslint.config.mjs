@@ -10,15 +10,21 @@ const compat = new FlatCompat({
   recommendedConfig: { plugins: { "@typescript-eslint": {} } },
 });
 
+// Simplified configuration to reduce peer dependency conflicts
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals"),
   {
     files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
-      parser: { ecmaVersion: 2022 },
+      ecmaVersion: 2022,
+      sourceType: "module",
+      parserOptions: {
+        project: "./tsconfig.json"
+      }
     },
     linterOptions: {
       reportUnusedDisableDirectives: true,
+      noInlineConfig: false
     },
   },
 ];
