@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "vercel-build": "npm install && npm run build"
+    "vercel-build": "npm install --legacy-peer-deps && npm run build"
   },
   "dependencies": {
     "gsap": "^3.12.7",
@@ -32,6 +32,6 @@
     "typescript": "5.8.3"
   },
   "engines": {
-    "node": "20.x"
+    "node": ">=18.0.0"
   }
 }
