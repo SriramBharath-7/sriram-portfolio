@@ -55,7 +55,7 @@ git clone https://github.com/SriramBharath-7/sriram-portfolio.git
 cd sriram-portfolio
 
 # Install dependencies
-npm install.
+npm install
 
 # Run the development server
 npm run dev
