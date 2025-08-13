@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "npx next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "npx --yes update-browserslist-db@latest"
   },
   "dependencies": {
     "gsap": "^3.12.7",
@@ -26,9 +27,7 @@
     "eslint": "8.57.1",
     "eslint-config-next": "13.5.6",
     "tailwindcss": "^4",
-    "typescript": "5.8.3",
-    "browserslist": "^4.23.3",
-    "caniuse-lite": "^1.0.30001600"
+    "typescript": "5.8.3"
   },
   "engines": {
     "node": "20.x"
