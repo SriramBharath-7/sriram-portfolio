@@ -1,6 +1,6 @@
-# Terminal Portfolio
+# Sriram Portfolio (Next.js + React + Tailwind)
 
-A modern, interactive web-based portfolio that simulates an Arch Linux environment with Hyprland desktop. Experience a unique way of exploring my projects and skills through a terminal interface combined with a graphical desktop environment.
+A modern, interactive portfolio that simulates an Arch Linux desktop with a terminal and an in-window Firefox-like browser. It includes a command-driven terminal, draggable/min/max windows, a projects view that pulls GitHub repositories, a custom start page with quick actions, and a certifications gallery with flip cards and modal preview.
 
 ## 🌟 Features
 
@@ -49,10 +49,10 @@ A modern, interactive web-based portfolio that simulates an Arch Linux environme
 
 ```bash
 # Clone the repository
-git clone https://github.com/CrypterENC/web_ter.git
+git clone https://github.com/SriramBharath-7/sriram-portfolio.git
 
 # Navigate to project directory
-cd web_ter
+cd sriram-portfolio
 
 # Install dependencies
 npm install
@@ -68,8 +68,9 @@ Visit `http://localhost:3000` in your browser to view the portfolio.
 ### Terminal Commands
 Type `help` in the terminal to see all available commands:
 - `about` - View personal information
-- `projects` - List all projects
-- `services` - View offered services
+- `projects` - View GitHub projects in Firefox
+- `toolspage` - Open the tools placeholder page in Firefox
+- `certs` - View certifications (flip cards + modal)
 - `contact` - Display contact information
 - `clear` - Clear terminal screen
 - `banner` - Display the welcome banner
@@ -108,7 +109,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Terminal design influenced by modern CLI tools
 - Icons and assets from various open-source projects
 
-## Support
+## Documentation and Deployment
 
-If you find this component helpful, please give it a ⭐️ on GitHub!
+- Detailed code explanation with MDN links: [docs/DETAILED_GUIDE.md](docs/DETAILED_GUIDE.md)
+- Vercel deployment guide: [docs/DEPLOY_VERCEL.md](docs/DEPLOY_VERCEL.md)
 

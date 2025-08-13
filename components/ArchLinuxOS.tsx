@@ -256,7 +256,7 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
             setShowFirefox(false);
             setShowFirefoxProjects(false);
           }}
-          initialUrl="https://crypter.security"
+          initialUrl={`home://start`}
           showProjects={showFirefoxProjects}
           showTools={false}
           initialPosition={initialWindowPosition}
@@ -424,7 +424,7 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
       {/* GitHub Star Button */}
       <div className="fixed bottom-4 right-4 z-50 group">
         <a
-          href="https://github.com/SriramBharath-7/OS_PORTFOLIO.git"
+          href="https://github.com/SriramBharath-7/sriram-portfolio"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 bg-gradient-to-r from-gray-900/90 to-gray-800/90 hover:from-gray-800/90 hover:to-gray-700/90 text-white px-4 py-2 rounded-lg border border-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 group-hover:border-blue-500/50"

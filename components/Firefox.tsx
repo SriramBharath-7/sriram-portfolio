@@ -3,6 +3,15 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/all";
+import {
+  DEFAULT_GITHUB_USERNAME,
+  DEFAULT_LINKEDIN_URL,
+  DEFAULT_BRAND_NAME,
+  DEFAULT_WEBSITE_URL,
+  DEFAULT_WELCOME_TEXT,
+  DEFAULT_NAME,
+  DEFAULT_EMAIL,
+} from "../constants/profile";
 
 // Register ScrollToPlugin for smooth scrolling
 if (typeof window !== "undefined") {
@@ -76,30 +85,30 @@ const formatDate = (dateString: string): string => {
 
 export default function Firefox({
   onClose,
-  initialUrl = "https://github.com/SriramBharath-7",
+  initialUrl = `home://start`,
   showProjects = false, // Default to false
   showTools = false, // Default to false
-  githubUsername = "SriramBharath-7", // User's actual GitHub username
+  githubUsername = DEFAULT_GITHUB_USERNAME, // User's actual GitHub username
   initialPosition = { x: 0, y: 0 }, // Default initial position
 }: FirefoxProps) {
   const [currentUrl, setCurrentUrl] = useState(
     showProjects
       ? `https://github.com/${githubUsername}`
       : showTools
-      ? "https://github.com/SriramBharath-7"
+      ? `https://github.com/${DEFAULT_GITHUB_USERNAME}`
       : initialUrl
   );
   const [history, setHistory] = useState<string[]>([
     showProjects
       ? `https://github.com/${githubUsername}`
       : showTools
-      ? "https://github.com/SriramBharath-7"
+      ? `https://github.com/${DEFAULT_GITHUB_USERNAME}`
       : initialUrl,
   ]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [bookmarks, setBookmarks] = useState<string[]>([
-    "https://github.com/SriramBharath-7",
-    "https://linkedin.com/in/sriram-bharath-852335306/",
+    `https://github.com/${DEFAULT_GITHUB_USERNAME}`,
+    DEFAULT_LINKEDIN_URL,
   ]);
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [position, setPosition] = useState(initialPosition);
@@ -112,6 +121,69 @@ export default function Firefox({
   const [reposPerPage, setReposPerPage] = useState(8); // Default to 8 repos per page for larger screens
   const username = githubUsername; // Use the provided GitHub username
   const [isLoading, setIsLoading] = useState(false);
+  const [startSearch, setStartSearch] = useState("");
+  
+  interface Certification {
+    id: number;
+    title: string;
+    status: string;
+    issued?: string;
+    completed?: string;
+    expires?: string;
+    provider?: string;
+    description: string;
+    image: string;
+  }
+
+  // Sample certifications to display on the start/certs page
+  const certifications: Certification[] = [
+    {
+      id: 1,
+      title: "How to use AI effectively",
+      status: "Completed",
+      issued: "",
+      completed: "Apr 22, 2025",
+      expires: "",
+      provider: "",
+      description:
+        "Fundamentals of leveraging AI tools efficiently for learning and productivity.",
+      image: "/assets/certs/How%20to%20use%20Ai.jpg",
+    },
+    {
+      id: 2,
+      title: "ZTM – Efficient Learning",
+      status: "Completed",
+      issued: "",
+      completed: "Apr 20, 2025",
+      expires: "",
+      provider: "Zero To Mastery",
+      description:
+        "Techniques and frameworks for mastering topics faster with deliberate practice.",
+      image: "/assets/certs/ZTM%20%5BEfficient%20Learning%5D.png",
+    },
+    {
+      id: 3,
+      title: "AI Career Coach",
+      status: "Completed",
+      issued: "",
+      completed: "Apr 20, 2025",
+      expires: "",
+      provider: "",
+      description:
+        "Guidance on building an AI-focused career: positioning, portfolios, and growth roadmap.",
+      image: "/assets/certs/AI%20Career%20Coath.png",
+    },
+  ];
+  const [activeCert, setActiveCert] = useState<Certification | null>(null);
+
+  useEffect(() => {
+    if (!activeCert) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setActiveCert(null);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [activeCert]);
 
   // First add a state to track the rate limit info
   // const [rateLimitInfo, setRateLimitInfo] = useState<RateLimitInfo | null>(null);
@@ -120,16 +192,16 @@ export default function Firefox({
   const sampleRepos: GitHubRepo[] = [
     {
       id: 1,
-      name: "Awesome-Games-by-Sriram",
+      name: "awesome-projects",
       description:
-        "🚀 A collection of beginner to advanced Python games built by Sriram Bharath using Pygame and pure Python. Featuring classics like Snake, Pong, Flappy Bird and more!",
-      html_url: "https://github.com/SriramBharath-7/Awesome-Games-by-Sriram",
+        `🚀 A collection of beginner to advanced projects by ${DEFAULT_NAME}.`,
+      html_url: `https://github.com/${DEFAULT_GITHUB_USERNAME}/awesome-projects`,
       stargazers_count: 2,
-      language: "Python",
-      topics: ["games", "python", "pygame", "learning"],
+      language: "TypeScript",
+      topics: ["projects", "learning"],
       updated_at: "2024-01-15T12:30:45Z",
       owner: {
-        login: "SriramBharath-7",
+        login: DEFAULT_GITHUB_USERNAME,
         avatar_url: "https://avatars.githubusercontent.com/u/12345678",
       },
       fork: false,
@@ -139,14 +211,14 @@ export default function Firefox({
       id: 2,
       name: "100-days-of-code",
       description:
-        "My 100 Days of Code challenge to master Python.",
-      html_url: "https://github.com/SriramBharath-7/100-days-of-code",
+        "My 100 Days of Code challenge to master coding.",
+      html_url: `https://github.com/${DEFAULT_GITHUB_USERNAME}/100-days-of-code`,
       stargazers_count: 2,
       language: "Python",
       topics: ["python", "learning", "challenge", "coding"],
       updated_at: "2024-01-10T08:15:22Z",
       owner: {
-        login: "SriramBharath-7",
+        login: DEFAULT_GITHUB_USERNAME,
         avatar_url: "https://avatars.githubusercontent.com/u/12345678",
       },
       fork: false,
@@ -154,15 +226,15 @@ export default function Firefox({
     },
     {
       id: 3,
-      name: "python-scrolls",
-      description: "Python projects & cheat sheets for daily mastery",
-      html_url: "https://github.com/SriramBharath-7/python-scrolls",
+      name: "dev-notes",
+      description: "Notes and snippets for daily mastery",
+      html_url: `https://github.com/${DEFAULT_GITHUB_USERNAME}/dev-notes`,
       stargazers_count: 2,
-      language: "Python",
-      topics: ["python", "projects", "cheat-sheets", "learning"],
+      language: "Markdown",
+      topics: ["notes", "cheat-sheets", "learning"],
       updated_at: "2024-01-05T14:45:10Z",
       owner: {
-        login: "SriramBharath-7",
+        login: DEFAULT_GITHUB_USERNAME,
         avatar_url: "https://avatars.githubusercontent.com/u/12345678",
       },
       fork: false,
@@ -170,15 +242,15 @@ export default function Firefox({
     },
     {
       id: 4,
-      name: "sriram.io",
+      name: "portfolio",
       description: "Personal portfolio website",
-      html_url: "https://github.com/SriramBharath-7/sriram.io",
+      html_url: `https://github.com/${DEFAULT_GITHUB_USERNAME}/portfolio`,
       stargazers_count: 2,
       language: "HTML",
       topics: ["portfolio", "html", "personal"],
       updated_at: "2024-01-03T10:20:30Z",
       owner: {
-        login: "SriramBharath-7",
+        login: DEFAULT_GITHUB_USERNAME,
         avatar_url: "https://avatars.githubusercontent.com/u/12345678",
       },
       fork: false,
@@ -188,13 +260,13 @@ export default function Firefox({
       id: 5,
       name: "projects",
       description: "Various projects and experiments",
-      html_url: "https://github.com/SriramBharath-7/projects",
+      html_url: `https://github.com/${DEFAULT_GITHUB_USERNAME}/projects`,
       stargazers_count: 2,
       language: "Python",
       topics: ["projects", "python", "experiments"],
       updated_at: "2024-01-01T09:15:45Z",
       owner: {
-        login: "SriramBharath-7",
+        login: DEFAULT_GITHUB_USERNAME,
         avatar_url: "https://avatars.githubusercontent.com/u/12345678",
       },
       fork: false,
@@ -646,10 +718,36 @@ export default function Firefox({
 
   // Navigation functions
   const navigateTo = (url: string) => {
-    // If not different, don't add to history
-    if (url === currentUrl) return;
+    if (!url) return;
 
-    // Add the new URL to history and update current URL
+    // Handle special schemes and external sites
+    if (url.startsWith('mailto:')) {
+      if (typeof window !== 'undefined') {
+        window.location.href = url;
+      }
+      return;
+    }
+
+    if (url.startsWith('home://')) {
+      // Navigate to the internal start page
+    if (url === currentUrl) return;
+      setHistory((prev) => [...prev.slice(0, historyIndex + 1), url]);
+      setCurrentUrl(url);
+      setHistoryIndex((prev) => prev + 1);
+      return;
+    }
+
+    // For external HTTP(S) URLs that aren't GitHub, open a new tab
+    const isHttp = /^https?:\/\//i.test(url);
+    if (isHttp && !url.includes('github.com')) {
+      if (typeof window !== 'undefined') {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+      return;
+    }
+
+    // Internal navigation (e.g., GitHub view within the app)
+    if (url === currentUrl) return;
     setHistory((prev) => [...prev.slice(0, historyIndex + 1), url]);
     setCurrentUrl(url);
     setHistoryIndex((prev) => prev + 1);
@@ -975,7 +1073,9 @@ export default function Firefox({
               <div className="firefox-title flex-shrink-0 text-gray-200/90 text-sm">
                 {currentUrl.includes("github.com")
                   ? "GitHub Projects - Mozilla Firefox"
-                  : "Crypter Security - Mozilla Firefox"}
+                  : currentUrl.startsWith("home://certs")
+                  ? "Certifications - Mozilla Firefox"
+                  : `${DEFAULT_BRAND_NAME} - Mozilla Firefox`}
               </div>
               <div className="flex-1 flex justify-end items-center space-x-1.5">
                 <button
@@ -1110,7 +1210,7 @@ export default function Firefox({
                           </h1>
                           <p className="text-gray-400">
                             Repositories by{" "}
-                            <span className="text-purple-400 font-semibold">Sriram Bharath</span>
+                            <span className="text-purple-400 font-semibold">{DEFAULT_NAME}</span>
                           </p>
                         </div>
                       </div>
@@ -1340,145 +1440,133 @@ export default function Firefox({
                 </div>
               ) : (
                 <div className="default-page p-6">
-                  {/* Show Crypter Security heading only on homepage, not on tools page */}
-                  {!currentUrl.includes("/tools") && (
-                    <h1 className="text-2xl font-bold mb-6 text-purple-300 backdrop-blur-sm inline-block px-3 py-1 rounded" style={{ backgroundColor: 'rgba(126, 34, 206, 0.1)' }}>Crypter Security</h1>
-                  )}
-                  
-                  {/* Only show welcome text on homepage, not on tools page */}
-                  {!currentUrl.includes("/tools") && (
-                    <p className="mb-6 text-gray-200 max-w-3xl backdrop-blur-sm inline-block px-3 py-2 rounded-md" style={{ backgroundColor: 'rgba(30, 30, 30, 0.2)' }}>
-                      Welcome to Crypter Security - Elite cybersecurity services specializing in offensive security solutions and advanced threat mitigation strategies for organizations worldwide.
-                    </p>
-                  )}
-                  
-                  {currentUrl.includes("/tools") ? (
-                    // Tools page content
-                    <div className="tools-page">
-                      <h2 className="text-2xl font-bold text-purple-200 mb-4 sm:mb-6 border-b border-purple-500/20 pb-2">
-                        Security Tools
-                      </h2>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
-                        {/* Tool cards remain the same */}
+                  {currentUrl.startsWith('home://certs') ? (
+                    <div className="certs-page">
+                      <div className="bg-gray-800/60 backdrop-blur-md p-6 rounded-lg border border-blue-500/30 shadow-[0_0_25px_rgba(59,130,246,0.25)] mb-6">
+                        <div className="flex items-center gap-3">
+                          <span className="text-blue-400 text-xl">✅</span>
+                          <div>
+                            <h2 className="text-2xl font-bold text-blue-200">My Certificates</h2>
+                            <p className="text-blue-300/80">Professional certifications and achievements</p>
                       </div>
-                      
-                      {/* Tools Made By Me section */}
-                      <h3 className="text-xl font-bold text-purple-200 mt-8 sm:mt-10 mb-3 sm:mb-4 border-b border-purple-500/20 pb-2">
-                        Tools Made By Me
-                      </h3>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
-                        {/* Personal Tool 1 */}
-                        <div className="tool-card bg-gray-800/40 backdrop-blur-sm rounded-lg border border-purple-500/20 p-3 sm:p-4 hover:border-purple-500/40 transition-all hover:shadow-lg shadow-purple-500/10">
-                          <div className="flex items-center mb-2 sm:mb-3">
-                            <div className="tool-icon w-8 h-8 sm:w-10 sm:h-10 bg-indigo-700/30 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-300" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                            <h3 className="text-base sm:text-lg font-bold text-indigo-300">RAT-RATATOUILLE</h3>
-                          </div>
-                          <p className="text-gray-300 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-3 sm:line-clamp-2">
-                          A comprehensive client-server remote access tool with advanced monitoring and control capabilities.
-                          </p>
-                          <div className="flex justify-between items-center">
-                            <span className="px-2 py-0.5 bg-indigo-900/30 text-indigo-300 text-xs rounded-full">
-                              Open Source
-                            </span>
-                            <a href="https://github.com/CrypterENC/RAT-RATATOUILLE.git" target="_blank" rel="noopener noreferrer" className="text-xs bg-indigo-600/40 hover:bg-indigo-600/60 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-md transition-colors flex items-center">
-                              GitHub
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 sm:h-3 sm:w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
-                            </a>
                           </div>
                         </div>
                         
-                        {/* Personal Tool 2 */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {certifications.map((c) => (
+                          <div key={c.id} className="cert-card group perspective" onClick={() => setActiveCert(c)}>
+                            <div className="card-inner">
+                              <div className="card-face card-front">
+                                <div className="h-40 w-40 bg-gray-900/50 rounded-xl border border-blue-500/30 flex items-center justify-center shadow-[0_10px_30px_rgba(37,99,235,0.25)]">
+                                  <img src={c.image} alt={c.title} className="h-24 w-24 object-contain opacity-90" />
                       </div>
-                      
-                      {/* Additional information */}
-                      <div className="bg-gray-800/30 backdrop-blur-sm rounded-lg border border-purple-500/20 p-3 sm:p-4 mb-4 sm:mb-6">
-                        <h3 className="text-base sm:text-lg font-bold text-purple-300 mb-2">Custom Tool Development</h3>
-                        <p className="text-gray-300 text-xs sm:text-sm">
-                          Need a specialized security tool for your unique environment? Our team develops custom security solutions tailored to your specific requirements and threat model.
-                        </p>
-                        <button className="mt-2 sm:mt-3 text-xs sm:text-sm bg-purple-600/40 hover:bg-purple-600/60 text-white px-3 sm:px-4 py-1 sm:py-1.5 rounded-md transition-colors flex items-center w-max">
-                          Inquire About Custom Tools
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                          </svg>
-                        </button>
                       </div>
-                      
-                      {/* Disclaimer */}
-                      <div className="text-xs text-gray-400 p-2 sm:p-3 bg-gray-900/30 rounded-lg border border-gray-700/30">
-                        <p><strong>IMPORTANT:</strong> All tools are provided for legitimate security testing and educational purposes only. Use responsibly and only on systems you own or have explicit permission to test. Crypter Security is not responsible for misuse of these tools.</p>
+                              <div className="card-face card-back">
+                                <div className="bg-gradient-to-b from-blue-900/40 to-indigo-900/30 p-5 rounded-xl border border-blue-500/30 shadow-[0_10px_35px_rgba(37,99,235,0.35)] h-full">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h3 className="text-xl font-bold text-blue-200">{c.title}</h3>
+                                    <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">{c.status}</span>
                       </div>
+                                  <p className="text-blue-100/80 text-sm leading-relaxed max-h-28 overflow-y-auto pr-1 custom-scrollbar">{c.description}</p>
+                                  <div className="flex gap-3 mt-3 text-xs flex-wrap">
+                                    {c.issued && (
+                                      <span className="px-2 py-1 rounded-full bg-blue-900/40 text-blue-200 border border-blue-500/30">Issued: {c.issued}</span>
+                                    )}
+                                    {c.completed && (
+                                      <span className="px-2 py-1 rounded-full bg-indigo-900/40 text-indigo-200 border border-indigo-500/30">Completed: {c.completed}</span>
+                                    )}
+                                    {c.expires && (
+                                      <span className="px-2 py-1 rounded-full bg-blue-900/40 text-blue-200 border border-blue-500/30">Expires: {c.expires}</span>
+                                    )}
                     </div>
-                  ) : (
-                    // Default homepage content
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="card border border-purple-500/20 rounded-lg p-6 backdrop-blur-sm hover:bg-gray-800/40 transition-colors hover:shadow-lg hover:shadow-purple-500/10"
-                           style={{ backgroundColor: 'rgba(30, 30, 30, 0.2)' }}>
-                        <h2 className="text-xl font-bold text-purple-200 mb-3 border-b border-purple-500/20 pb-2">Professional Services</h2>
-                        <div className="space-y-3">
-                          <div className="service-item flex items-start">
-                            <span className="text-purple-400 mr-2">▹</span>
-                            <p className="text-gray-200">Advanced penetration testing with custom-tailored exploitation techniques</p>
                           </div>
-                          <div className="service-item flex items-start">
-                            <span className="text-purple-400 mr-2">▹</span>
-                            <p className="text-gray-200">Comprehensive vulnerability assessment with detailed remediation strategies</p>
                           </div>
-                          <div className="service-item flex items-start">
-                            <span className="text-purple-400 mr-2">▹</span>
-                            <p className="text-gray-200">Red team operations simulating real-world adversary tactics</p>
                           </div>
-                          <div className="service-item flex items-start">
-                            <span className="text-purple-400 mr-2">▹</span>
-                            <p className="text-gray-200">Security architecture consulting and implementation guidance</p>
                           </div>
+                        ))}
                         </div>
                       </div>
-
-                      <div className="card border border-purple-500/20 rounded-lg p-6 backdrop-blur-sm hover:bg-gray-800/40 transition-colors hover:shadow-lg hover:shadow-purple-500/10"
-                           style={{ backgroundColor: 'rgba(30, 30, 30, 0.2)' }}>
-                        <h2 className="text-xl font-bold text-purple-200 mb-3 border-b border-purple-500/20 pb-2">About Our Expertise</h2>
-                        <div className="space-y-3">
-                          <div className="expertise-item flex items-start">
-                            <span className="text-purple-400 mr-2">▹</span>
-                            <p className="text-gray-200">Led by veteran security researchers with 10+ years of industry experience</p>
+                  ) : (
+                  <>
+                  <div className="bg-gray-800/60 backdrop-blur-md p-6 rounded-lg border border-purple-500/30 shadow-lg mb-6">
+                    <h1 className="text-2xl font-bold text-white mb-2">Hi, I'm {DEFAULT_NAME} 👋</h1>
+                    <p className="text-gray-300">{DEFAULT_WELCOME_TEXT}</p>
                           </div>
-                          <div className="expertise-item flex items-start">
-                            <span className="text-purple-400 mr-2">▹</span>
-                            <p className="text-gray-200">Specialized in zero-day vulnerability discovery and exploit development</p>
+                  <div className="bg-gray-800/50 rounded-lg border border-purple-500/20 p-4 mb-6">
+                    <div className="text-sm text-gray-400 mb-2">Quick Search</div>
+                    <div className="flex gap-2">
+                      <input
+                        value={startSearch}
+                        onChange={(e) => setStartSearch(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const q = startSearch.trim();
+                            if (!q) return;
+                            const isUrl = /^(https?:\/\/|home:\/\/)/i.test(q) || /\.[a-z]{2,}$/i.test(q);
+                            const target = isUrl ? (q.startsWith('http') || q.startsWith('home://') ? q : `https://${q}`) : `https://duckduckgo.com/?q=${encodeURIComponent(q)}`;
+                            navigateTo(target);
+                          }
+                        }}
+                        placeholder="Type a URL or search the web and press Enter"
+                        className="flex-1 bg-gray-900/60 text-gray-200 px-3 py-2 rounded-md border border-gray-700/50 outline-none focus:border-purple-500/50"
+                      />
+                      <button
+                        onClick={() => {
+                          const q = startSearch.trim();
+                          if (!q) return;
+                          const isUrl = /^(https?:\/\/|home:\/\/)/i.test(q) || /\.[a-z]{2,}$/i.test(q);
+                          const target = isUrl ? (q.startsWith('http') || q.startsWith('home://') ? q : `https://${q}`) : `https://duckduckgo.com/?q=${encodeURIComponent(q)}`;
+                          navigateTo(target);
+                        }}
+                        className="px-4 py-2 bg-purple-600/60 hover:bg-purple-600/80 text-white rounded-md"
+                      >Go</button>
                           </div>
-                          <div className="expertise-item flex items-start">
-                            <span className="text-purple-400 mr-2">▹</span>
-                            <p className="text-gray-200">Published security research featured in major industry conferences</p>
                           </div>
-                          <div className="expertise-item flex items-start">
-                            <span className="text-purple-400 mr-2">▹</span>
-                            <p className="text-gray-200">Certified expertise: OSCP, CEH, CISSP, and custom-developed methodologies</p>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button onClick={() => { if (typeof window !== 'undefined') { window.open(`https://github.com/${username}`, '_blank', 'noopener,noreferrer'); } }} className="bg-gray-800/50 hover:bg-gray-800/70 border border-purple-500/20 rounded-lg p-4 text-left">
+                      <div className="text-purple-300 font-semibold mb-1">GitHub</div>
+                      <div className="text-gray-400 text-sm">{username}</div>
+                    </button>
+                    <button onClick={() => navigateTo(DEFAULT_LINKEDIN_URL)} className="bg-gray-800/50 hover:bg-gray-800/70 border border-purple-500/20 rounded-lg p-4 text-left">
+                      <div className="text-purple-300 font-semibold mb-1">LinkedIn</div>
+                      <div className="text-gray-400 text-sm">Profile</div>
+                    </button>
+                    <button onClick={() => navigateTo(`mailto:${DEFAULT_EMAIL}`)} className="bg-gray-800/50 hover:bg-gray-800/70 border border-purple-500/20 rounded-lg p-4 text-left">
+                      <div className="text-purple-300 font-semibold mb-1">Email</div>
+                      <div className="text-gray-400 text-sm">{DEFAULT_EMAIL}</div>
+                    </button>
+                    <button onClick={() => navigateTo(`https://github.com/${username}?tab=repositories`)} className="bg-gray-800/50 hover:bg-gray-800/70 border border-purple-500/20 rounded-lg p-4 text-left">
+                      <div className="text-purple-300 font-semibold mb-1">Repositories</div>
+                      <div className="text-gray-400 text-sm">View all projects</div>
+                        </button>
                           </div>
+                   </>
+                  )}
+                    </div>
+                  )}
                         </div>
                       </div>
                     </div>
                   )}
 
-                  <div className="mt-6 p-4 border border-purple-500/20 rounded-lg backdrop-blur-sm" style={{ backgroundColor: 'rgba(30, 30, 30, 0.2)' }}>
-                    <p className="text-center text-gray-300">
-                      Explore our <a href="https://crypter.security/services" className="text-purple-300 font-semibold hover:underline">services</a> or check out our <a href="https://crypter.security/tools" onClick={(e) => {
-                        e.preventDefault();
-                        navigateTo("https://crypter.security/tools");
-                      }} className="text-purple-300 font-semibold hover:underline">security tools</a> for professional-grade cybersecurity solutions
-                    </p>
+      {activeCert && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={() => setActiveCert(null)}>
+          <div className="absolute top-6 right-8 text-gray-300 hover:text-white cursor-pointer" onClick={() => setActiveCert(null)}>✕</div>
+          <div className="mx-4 max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="text-2xl font-bold text-blue-200 mb-3 flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.8)]"></span>
+              {activeCert.title}
                   </div>
+            <div className="bg-gray-900/80 border border-blue-500/30 rounded-lg shadow-[0_0_25px_rgba(59,130,246,0.35)] overflow-hidden">
+              <img src={activeCert.image} alt={activeCert.title} className="w-full h-auto object-contain" />
+            </div>
+            {(activeCert.provider || activeCert.issued) && (
+              <div className="text-blue-300/90 text-sm mt-3 text-center">
+                {activeCert.provider ? `${activeCert.provider}` : ''}
+                {activeCert.provider && activeCert.issued ? ' • ' : ''}
+                {activeCert.issued ? `${activeCert.issued}` : ''}
                 </div>
               )}
-            </div>
           </div>
         </div>
       )}
@@ -1524,6 +1612,23 @@ export default function Firefox({
 
       <style>
         {`
+        /* 3D flip card for certifications */
+        .perspective { perspective: 1200px; }
+        .card-inner {
+          position: relative;
+          width: 100%;
+          height: 220px;
+          transform-style: preserve-3d;
+          transition: transform 0.6s ease;
+        }
+        .cert-card:hover .card-inner { transform: rotateY(180deg); }
+        .card-face {
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          backface-visibility: hidden;
+          border-radius: 12px;
+        }
+        .card-back { transform: rotateY(180deg); }
         @keyframes loadingProgress {
           0% {
             width: 0%;

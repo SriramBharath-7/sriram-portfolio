@@ -95,7 +95,8 @@ function Terminal({ onClose, onOpenFirefox, initialPosition }) {
             "ls",
             "exit",
             "projects",
-            "toolspage"
+            "toolspage",
+            "certs"
         ],
         portfolio: [
             "about",
@@ -390,11 +391,29 @@ function Terminal({ onClose, onOpenFirefox, initialPosition }) {
                 }, 100); // Start after 100ms delay
                 return "Opening tools page in Firefox...";
             },
+            certs: ()=>{
+                setIsLoading(true);
+                console.log('Terminal: Executing certs command');
+                setTimeout(()=>{
+                    console.log('Terminal: Minimizing terminal...');
+                    handleMinimize();
+                    setTimeout(()=>{
+                        console.log('Terminal: Opening Firefox with showCerts=true');
+                        if (onOpenFirefox) {
+                            onOpenFirefox(false, false, true);
+                        } else {
+                            console.log('Terminal: onOpenFirefox callback is not defined!');
+                        }
+                        setIsLoading(false);
+                    }, 200);
+                }, 100);
+                return "Opening certifications in Firefox...";
+            },
             whoami: ()=>{
-                return `<div class="whoami-output">
-          <span class="user-info">User: <span class="user-value">Sriram Bharath</span></span>
-          <span class="user-info">Role: <span class="user-value">College Student CSE | 🛡️ Aspiring Ethical Hacker and Cybersecurity Expert</span></span>
-          <span class="user-info">Status: <span class="user-value">Active</span></span>
+                return `<div class="whoami-output whoami-grid">
+          <div class="whoami-row"><span class="whoami-label">User</span><span class="whoami-value">Sriram Bharath</span></div>
+          <div class="whoami-row"><span class="whoami-label">Role</span><span class="whoami-value">College Student (CSE) · 🛡️ Aspiring Ethical Hacker and Cybersecurity Expert</span></div>
+          <div class="whoami-row"><span class="whoami-label">Status</span><span class="whoami-value">Active</span></div>
         </div>`;
             },
             about: ()=>`🛡️ Aspiring Ethical Hacker and Cybersecurity Expert
@@ -496,29 +515,20 @@ Working on various cybersecurity projects including vulnerability assessment too
                 "contact",
                 "ctf"
             ].includes(command) && command in htmlFormatters) {
-                // First set loading state to true and add loading indicator to history
+                // Append a formatted block to history (no typing), so it doesn't interfere with the input
                 setIsLoading(true);
                 setSpecialCommand(command);
-                // Add a very minimal delay before starting the typing effect
+                setIsTyping(false);
                 setTimeout(()=>{
-                    // Start typing effect after loading
-                    typeText(response, ()=>{
-                        // After typing completes, replace with formatted HTML
-                        const formattedResponse = htmlFormatters[command](response);
-                        setHistory((prev)=>{
-                            const newHistory = [
-                                ...prev
-                            ];
-                            // Replace the last item (which is the plain text) with formatted HTML
-                            if (newHistory.length > 0) {
-                                newHistory[newHistory.length - 1] = formattedResponse;
-                            }
-                            return newHistory;
-                        });
-                        setSpecialCommand(null);
-                        setIsLoading(false); // Set loading state to false when done
-                    });
-                }, 150); // Extremely short delay
+                    const formattedResponse = htmlFormatters[command](response);
+                    setHistory((prev)=>[
+                            ...prev,
+                            formattedResponse
+                        ]);
+                    setSpecialCommand(null);
+                    setIsLoading(false);
+                    scrollToBottom();
+                }, 150);
                 return "";
             }
             return response;
@@ -950,133 +960,133 @@ Working on various cybersecurity projects including vulnerability assessment too
                     borderRadius: terminalState.isMaximized ? "0" : "8px"
                 },
                 onClick: handleTerminalClick,
-                className: "jsx-59f0862b68d3396a" + " " + "terminal-window fixed bg-black/60 backdrop-blur-lg text-slate-200 font-mono text-sm rounded-lg overflow-hidden border border-slate-600/30 shadow-xl z-40",
+                className: "jsx-6628482a65f2f51a" + " " + "terminal-window fixed bg-black/60 backdrop-blur-lg text-slate-200 font-mono text-sm rounded-lg overflow-hidden border border-slate-600/30 shadow-xl z-40",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         onMouseDown: handleMouseDown,
-                        className: "jsx-59f0862b68d3396a" + " " + "terminal-titlebar p-2 cursor-move bg-slate-900/85 backdrop-blur-sm border-b border-slate-700/40",
+                        className: "jsx-6628482a65f2f51a" + " " + "terminal-titlebar p-2 cursor-move bg-slate-900/85 backdrop-blur-sm border-b border-slate-700/40",
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "jsx-59f0862b68d3396a" + " " + "flex items-center w-full",
+                            className: "jsx-6628482a65f2f51a" + " " + "flex items-center w-full",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "jsx-59f0862b68d3396a" + " " + "flex-1"
+                                    className: "jsx-6628482a65f2f51a" + " " + "flex-1"
                                 }, void 0, false, {
                                     fileName: "[project]/components/Terminal.tsx",
-                                    lineNumber: 1149,
+                                    lineNumber: 1156,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "jsx-59f0862b68d3396a" + " " + "kali-title flex-shrink-0 text-gray-200/90 text-sm",
+                                    className: "jsx-6628482a65f2f51a" + " " + "kali-title flex-shrink-0 text-gray-200/90 text-sm",
                                     children: "kali@kali: ~"
                                 }, void 0, false, {
                                     fileName: "[project]/components/Terminal.tsx",
-                                    lineNumber: 1150,
+                                    lineNumber: 1157,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "jsx-59f0862b68d3396a" + " " + "flex-1 flex justify-end items-center space-x-1.5",
+                                    className: "jsx-6628482a65f2f51a" + " " + "flex-1 flex justify-end items-center space-x-1.5",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                             type: "button",
                                             onClick: handleMinimize,
                                             title: "Minimize",
-                                            className: "jsx-59f0862b68d3396a" + " " + "px-1.5 py-0.5 rounded hover:bg-slate-700/60 text-slate-200/80 hover:text-white transition-colors",
+                                            className: "jsx-6628482a65f2f51a" + " " + "px-1.5 py-0.5 rounded hover:bg-slate-700/60 text-slate-200/80 hover:text-white transition-colors",
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                                                 xmlns: "http://www.w3.org/2000/svg",
                                                 viewBox: "0 0 20 20",
                                                 fill: "currentColor",
-                                                className: "jsx-59f0862b68d3396a" + " " + "w-4 h-4",
+                                                className: "jsx-6628482a65f2f51a" + " " + "w-4 h-4",
                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                                                     d: "M4 10.5h12a.5.5 0 0 1 0 1H4a.5.5 0 0 1 0-1Z",
-                                                    className: "jsx-59f0862b68d3396a"
+                                                    className: "jsx-6628482a65f2f51a"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/Terminal.tsx",
-                                                    lineNumber: 1161,
+                                                    lineNumber: 1168,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Terminal.tsx",
-                                                lineNumber: 1160,
+                                                lineNumber: 1167,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/Terminal.tsx",
-                                            lineNumber: 1154,
+                                            lineNumber: 1161,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                             type: "button",
                                             onClick: handleMaximize,
                                             title: "Maximize",
-                                            className: "jsx-59f0862b68d3396a" + " " + "px-1.5 py-0.5 rounded hover:bg-slate-700/60 text-slate-200/80 hover:text-white transition-colors",
+                                            className: "jsx-6628482a65f2f51a" + " " + "px-1.5 py-0.5 rounded hover:bg-slate-700/60 text-slate-200/80 hover:text-white transition-colors",
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                                                 xmlns: "http://www.w3.org/2000/svg",
                                                 viewBox: "0 0 20 20",
                                                 fill: "currentColor",
-                                                className: "jsx-59f0862b68d3396a" + " " + "w-4 h-4",
+                                                className: "jsx-6628482a65f2f51a" + " " + "w-4 h-4",
                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                                                     d: "M6 5h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2v6h6V7H7Z",
-                                                    className: "jsx-59f0862b68d3396a"
+                                                    className: "jsx-6628482a65f2f51a"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/Terminal.tsx",
-                                                    lineNumber: 1171,
+                                                    lineNumber: 1178,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Terminal.tsx",
-                                                lineNumber: 1170,
+                                                lineNumber: 1177,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/Terminal.tsx",
-                                            lineNumber: 1164,
+                                            lineNumber: 1171,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                             type: "button",
                                             onClick: handleClose,
                                             title: "Close",
-                                            className: "jsx-59f0862b68d3396a" + " " + "px-1.5 py-0.5 rounded hover:bg-slate-700/60 text-slate-200/80 hover:text-white transition-colors",
+                                            className: "jsx-6628482a65f2f51a" + " " + "px-1.5 py-0.5 rounded hover:bg-slate-700/60 text-slate-200/80 hover:text-white transition-colors",
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                                                 xmlns: "http://www.w3.org/2000/svg",
                                                 viewBox: "0 0 20 20",
                                                 fill: "currentColor",
-                                                className: "jsx-59f0862b68d3396a" + " " + "w-4 h-4",
+                                                className: "jsx-6628482a65f2f51a" + " " + "w-4 h-4",
                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                                                     fillRule: "evenodd",
                                                     d: "M6.28 6.28a.75.75 0 0 1 1.06 0L10 8.94l2.66-2.66a.75.75 0 1 1 1.06 1.06L11.06 10l2.66 2.66a.75.75 0 1 1-1.06 1.06L10 11.06l-2.66 2.66a.75.75 0 1 1-1.06-1.06L8.94 10 6.28 7.34a.75.75 0 0 1 0-1.06Z",
                                                     clipRule: "evenodd",
-                                                    className: "jsx-59f0862b68d3396a"
+                                                    className: "jsx-6628482a65f2f51a"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/Terminal.tsx",
-                                                    lineNumber: 1181,
+                                                    lineNumber: 1188,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Terminal.tsx",
-                                                lineNumber: 1180,
+                                                lineNumber: 1187,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/Terminal.tsx",
-                                            lineNumber: 1174,
+                                            lineNumber: 1181,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/Terminal.tsx",
-                                    lineNumber: 1153,
+                                    lineNumber: 1160,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/Terminal.tsx",
-                            lineNumber: 1148,
+                            lineNumber: 1155,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/Terminal.tsx",
-                        lineNumber: 1144,
+                        lineNumber: 1151,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1092,172 +1102,172 @@ Working on various cybersecurity projects including vulnerability assessment too
                             filter: "none",
                             transition: "filter 0.2s ease-in-out"
                         },
-                        className: "jsx-59f0862b68d3396a" + " " + `terminal-output flex-1 p-4 ${needsScrolling ? "custom-scrollbar" : "no-scrollbar"} bg-gradient-to-b from-slate-950/70 to-slate-900/60`,
+                        className: "jsx-6628482a65f2f51a" + " " + `terminal-output flex-1 p-4 ${needsScrolling ? "custom-scrollbar" : "no-scrollbar"} bg-gradient-to-b from-slate-950/70 to-slate-900/60`,
                         children: [
                             history.map((line, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     dangerouslySetInnerHTML: {
                                         __html: line
                                     },
-                                    className: "jsx-59f0862b68d3396a" + " " + "mb-1 break-words whitespace-pre-wrap"
+                                    className: "jsx-6628482a65f2f51a" + " " + "mb-1 break-words whitespace-pre-wrap"
                                 }, i, false, {
                                     fileName: "[project]/components/Terminal.tsx",
-                                    lineNumber: 1209,
+                                    lineNumber: 1216,
                                     columnNumber: 15
                                 }, this)),
                             isTyping && !isLoading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "jsx-59f0862b68d3396a" + " " + "mb-1 break-words whitespace-pre-wrap",
+                                className: "jsx-6628482a65f2f51a" + " " + "mb-1 break-words whitespace-pre-wrap",
                                 children: [
                                     typingText,
                                     blinkCursor && !input && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "jsx-59f0862b68d3396a" + " " + "cursor",
+                                        className: "jsx-6628482a65f2f51a" + " " + "cursor",
                                         children: "_"
                                     }, void 0, false, {
                                         fileName: "[project]/components/Terminal.tsx",
-                                        lineNumber: 1220,
+                                        lineNumber: 1227,
                                         columnNumber: 43
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/Terminal.tsx",
-                                lineNumber: 1218,
+                                lineNumber: 1225,
                                 columnNumber: 15
                             }, this),
                             isLoading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "jsx-59f0862b68d3396a" + " " + "loading-container mb-3 mt-2",
+                                className: "jsx-6628482a65f2f51a" + " " + "loading-container mb-3 mt-2",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "jsx-59f0862b68d3396a" + " " + "terminal-loading",
+                                    className: "jsx-6628482a65f2f51a" + " " + "terminal-loading",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "jsx-59f0862b68d3396a" + " " + "loading-header flex items-center mb-1",
+                                            className: "jsx-6628482a65f2f51a" + " " + "loading-header flex items-center mb-1",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "jsx-59f0862b68d3396a" + " " + "loading-icon mr-2",
+                                                    className: "jsx-6628482a65f2f51a" + " " + "loading-icon mr-2",
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                                                         xmlns: "http://www.w3.org/2000/svg",
                                                         fill: "none",
                                                         viewBox: "0 0 24 24",
                                                         stroke: "currentColor",
-                                                        className: "jsx-59f0862b68d3396a" + " " + "h-4 w-4 text-blue-500 animate-spin",
+                                                        className: "jsx-6628482a65f2f51a" + " " + "h-4 w-4 text-blue-500 animate-spin",
                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                                                             strokeLinecap: "round",
                                                             strokeLinejoin: "round",
                                                             strokeWidth: 2,
                                                             d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
-                                                            className: "jsx-59f0862b68d3396a"
+                                                            className: "jsx-6628482a65f2f51a"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/Terminal.tsx",
-                                                            lineNumber: 1235,
+                                                            lineNumber: 1242,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/Terminal.tsx",
-                                                        lineNumber: 1228,
+                                                        lineNumber: 1235,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/Terminal.tsx",
-                                                    lineNumber: 1227,
+                                                    lineNumber: 1234,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "jsx-59f0862b68d3396a" + " " + "loading-text text-blue-400 font-mono text-sm",
+                                                    className: "jsx-6628482a65f2f51a" + " " + "loading-text text-blue-400 font-mono text-sm",
                                                     children: specialCommand ? `Loading ${specialCommand} data...` : "Processing..."
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/Terminal.tsx",
-                                                    lineNumber: 1243,
+                                                    lineNumber: 1250,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/Terminal.tsx",
-                                            lineNumber: 1226,
+                                            lineNumber: 1233,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "jsx-59f0862b68d3396a" + " " + "loading-progress-container h-1.5 w-full bg-gray-800 rounded-full overflow-hidden",
+                                            className: "jsx-6628482a65f2f51a" + " " + "loading-progress-container h-1.5 w-full bg-gray-800 rounded-full overflow-hidden",
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "jsx-59f0862b68d3396a" + " " + "loading-progress-bar h-full bg-gradient-to-r from-blue-500 to-cyan-400 animate-loading-progress"
+                                                className: "jsx-6628482a65f2f51a" + " " + "loading-progress-bar h-full bg-gradient-to-r from-blue-500 to-cyan-400 animate-loading-progress"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Terminal.tsx",
-                                                lineNumber: 1250,
+                                                lineNumber: 1257,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/Terminal.tsx",
-                                            lineNumber: 1249,
+                                            lineNumber: 1256,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "jsx-59f0862b68d3396a" + " " + "loading-details mt-1",
+                                            className: "jsx-6628482a65f2f51a" + " " + "loading-details mt-1",
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "jsx-59f0862b68d3396a" + " " + "text-xs text-gray-500 font-mono flex justify-between",
+                                                className: "jsx-6628482a65f2f51a" + " " + "text-xs text-gray-500 font-mono flex justify-between",
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "jsx-59f0862b68d3396a",
+                                                        className: "jsx-6628482a65f2f51a",
                                                         children: "Decrypting data"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/Terminal.tsx",
-                                                        lineNumber: 1254,
+                                                        lineNumber: 1261,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "jsx-59f0862b68d3396a" + " " + "text-blue-400 loading-percentage",
+                                                        className: "jsx-6628482a65f2f51a" + " " + "text-blue-400 loading-percentage",
                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                            className: "jsx-59f0862b68d3396a" + " " + "animate-pulse",
+                                                            className: "jsx-6628482a65f2f51a" + " " + "animate-pulse",
                                                             children: "..."
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/Terminal.tsx",
-                                                            lineNumber: 1256,
+                                                            lineNumber: 1263,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/Terminal.tsx",
-                                                        lineNumber: 1255,
+                                                        lineNumber: 1262,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/Terminal.tsx",
-                                                lineNumber: 1253,
+                                                lineNumber: 1260,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/Terminal.tsx",
-                                            lineNumber: 1252,
+                                            lineNumber: 1259,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/Terminal.tsx",
-                                    lineNumber: 1225,
+                                    lineNumber: 1232,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/Terminal.tsx",
-                                lineNumber: 1224,
+                                lineNumber: 1231,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
                                 onSubmit: handleSubmit,
-                                className: "jsx-59f0862b68d3396a" + " " + "mt-2",
+                                className: "jsx-6628482a65f2f51a" + " " + "mt-2",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "jsx-59f0862b68d3396a" + " " + "kali-prompt-top text-cyan-300 text-sm mb-1 select-none",
+                                        className: "jsx-6628482a65f2f51a" + " " + "kali-prompt-top text-cyan-300 text-sm mb-1 select-none",
                                         children: "┌──(kali㉿kali)-[~]"
                                     }, void 0, false, {
                                         fileName: "[project]/components/Terminal.tsx",
-                                        lineNumber: 1265,
+                                        lineNumber: 1272,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "jsx-59f0862b68d3396a" + " " + "flex items-center",
+                                        className: "jsx-6628482a65f2f51a" + " " + "flex items-center",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                className: "jsx-59f0862b68d3396a" + " " + "kali-arrow mr-3 text-cyan-300 text-base select-none",
+                                                className: "jsx-6628482a65f2f51a" + " " + "kali-arrow mr-3 text-cyan-300 text-base select-none",
                                                 children: "└─$"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Terminal.tsx",
-                                                lineNumber: 1267,
+                                                lineNumber: 1274,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1270,74 +1280,74 @@ Working on various cybersecurity projects including vulnerability assessment too
                                                 onBlur: handleBlur,
                                                 autoFocus: true,
                                                 placeholder: "Type a command...",
-                                                className: "jsx-59f0862b68d3396a" + " " + `flex-1 bg-transparent outline-none px-0 py-0 ${getCommandColor()} terminal-input`
+                                                className: "jsx-6628482a65f2f51a" + " " + `flex-1 bg-transparent outline-none px-0 py-0 ${getCommandColor()} terminal-input`
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Terminal.tsx",
-                                                lineNumber: 1268,
+                                                lineNumber: 1275,
                                                 columnNumber: 13
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/Terminal.tsx",
-                                        lineNumber: 1266,
+                                        lineNumber: 1273,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/Terminal.tsx",
-                                lineNumber: 1264,
+                                lineNumber: 1271,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/Terminal.tsx",
-                        lineNumber: 1187,
+                        lineNumber: 1194,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/Terminal.tsx",
-                lineNumber: 1123,
+                lineNumber: 1130,
                 columnNumber: 9
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "jsx-59f0862b68d3396a" + " " + "fixed bottom-4 right-4 z-50",
+                className: "jsx-6628482a65f2f51a" + " " + "fixed bottom-4 right-4 z-50",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                     onClick: ()=>setTerminalState((prev)=>({
                                 ...prev,
                                 isOpen: true
                             })),
                     title: "Open Terminal",
-                    className: "jsx-59f0862b68d3396a" + " " + "bg-blue-500 hover:bg-blue-600 text-black p-2 rounded-full shadow-lg",
+                    className: "jsx-6628482a65f2f51a" + " " + "bg-blue-500 hover:bg-blue-600 text-black p-2 rounded-full shadow-lg",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
                         fill: "none",
                         viewBox: "0 0 24 24",
                         stroke: "currentColor",
-                        className: "jsx-59f0862b68d3396a" + " " + "h-6 w-6",
+                        className: "jsx-6628482a65f2f51a" + " " + "h-6 w-6",
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                             strokeLinecap: "round",
                             strokeLinejoin: "round",
                             strokeWidth: 2,
                             d: "M5 12h14M12 5v14",
-                            className: "jsx-59f0862b68d3396a"
+                            className: "jsx-6628482a65f2f51a"
                         }, void 0, false, {
                             fileName: "[project]/components/Terminal.tsx",
-                            lineNumber: 1300,
+                            lineNumber: 1307,
                             columnNumber: 15
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/Terminal.tsx",
-                        lineNumber: 1293,
+                        lineNumber: 1300,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/Terminal.tsx",
-                    lineNumber: 1286,
+                    lineNumber: 1293,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/Terminal.tsx",
-                lineNumber: 1285,
+                lineNumber: 1292,
                 columnNumber: 9
             }, this),
             isMinimized && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1348,54 +1358,54 @@ Working on various cybersecurity projects including vulnerability assessment too
                     width: "80px",
                     transition: "left 0.2s ease, background-color 0.2s ease, border-color 0.2s ease"
                 },
-                className: "jsx-59f0862b68d3396a" + " " + "terminal-taskbar-indicator fixed top-0 z-[101] h-12 px-3 flex items-center justify-center cursor-pointer hover:bg-gray-700/50 transition-colors border-b-2 border-transparent hover:border-blue-500",
+                className: "jsx-6628482a65f2f51a" + " " + "terminal-taskbar-indicator fixed top-0 z-[101] h-12 px-3 flex items-center justify-center cursor-pointer hover:bg-gray-700/50 transition-colors border-b-2 border-transparent hover:border-blue-500",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "jsx-59f0862b68d3396a" + " " + "flex items-center space-x-1",
+                    className: "jsx-6628482a65f2f51a" + " " + "flex items-center space-x-1",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                             xmlns: "http://www.w3.org/2000/svg",
                             fill: "none",
                             viewBox: "0 0 24 24",
                             stroke: "currentColor",
-                            className: "jsx-59f0862b68d3396a" + " " + "h-4 w-4 text-blue-400",
+                            className: "jsx-6628482a65f2f51a" + " " + "h-4 w-4 text-blue-400",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                                 strokeLinecap: "round",
                                 strokeLinejoin: "round",
                                 strokeWidth: 2,
                                 d: "M8 9l3 3-3 3m5 0h3",
-                                className: "jsx-59f0862b68d3396a"
+                                className: "jsx-6628482a65f2f51a"
                             }, void 0, false, {
                                 fileName: "[project]/components/Terminal.tsx",
-                                lineNumber: 1332,
+                                lineNumber: 1339,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/Terminal.tsx",
-                            lineNumber: 1325,
+                            lineNumber: 1332,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                            className: "jsx-59f0862b68d3396a" + " " + "text-xs text-blue-400",
+                            className: "jsx-6628482a65f2f51a" + " " + "text-xs text-blue-400",
                             children: "Terminal"
                         }, void 0, false, {
                             fileName: "[project]/components/Terminal.tsx",
-                            lineNumber: 1339,
+                            lineNumber: 1346,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/Terminal.tsx",
-                    lineNumber: 1324,
+                    lineNumber: 1331,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/Terminal.tsx",
-                lineNumber: 1313,
+                lineNumber: 1320,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                id: "59f0862b68d3396a",
-                children: '@keyframes loadingProgress{0%{width:0%}20%{width:20%}40%{width:40%}60%{width:60%}80%{width:80%}95%{width:95%}to{width:98%}}.animate-loading-progress.jsx-59f0862b68d3396a{animation:.2s ease-in-out forwards loadingProgress}.loading-container.jsx-59f0862b68d3396a{background-color:#0006;border:1px solid #3b82f633;border-radius:6px;max-width:100%;margin:12px 0;padding:16px;box-shadow:0 0 10px #0032641a}.loading-percentage.jsx-59f0862b68d3396a:after{content:"";animation:.2s linear forwards percentageCount}@keyframes percentageCount{0%{content:"0%"}20%{content:"20%"}40%{content:"40%"}60%{content:"60%"}80%{content:"80%"}95%{content:"95%"}to{content:"98%"}}.prompt.terminal-glow.jsx-59f0862b68d3396a{background-color:#0006;border-left:2px solid #ffff9666;border-radius:4px;justify-content:center;align-items:center;min-width:20px;height:26px;padding:0 2px;font-weight:700;display:flex}@keyframes commandSuccess{0%{background-color:#00ff001a}50%{background-color:#0f03}to{background-color:#0000}}.command-success.jsx-59f0862b68d3396a{animation:1s ease-out commandSuccess}@keyframes commandError{0%{background-color:#ff00001a}50%{background-color:#f003}to{background-color:#0000}}.command-error.jsx-59f0862b68d3396a{animation:1s ease-out commandError}.terminal-window.jsx-59f0862b68d3396a{backdrop-filter:blur(10px);border-radius:10px;overflow:hidden;box-shadow:0 0 20px #0009,0 0 30px #00320033,inset 0 0 10px #0032001a}.error-message.jsx-59f0862b68d3396a{color:#ff6b6b;background-color:#ff00001a;border-radius:3px;padding:2px 4px;font-weight:500}.system-message.jsx-59f0862b68d3396a{color:#4ade80;background-color:#00ff000d;border-left:2px solid #4ade8080;border-radius:3px;padding:2px 4px;font-weight:500}.suggestion.jsx-59f0862b68d3396a{color:#60a5fa;background-color:#0064ff1a;border-radius:3px;padding:0 4px;font-family:monospace}.ls-output.jsx-59f0862b68d3396a{background-color:#0003;border-radius:4px;flex-wrap:wrap;gap:10px;margin:8px 0;padding:12px;display:flex}.directory-item.jsx-59f0862b68d3396a{color:#60a5fa;background-color:#0064ff1a;border-radius:3px;align-items:center;gap:6px;padding:4px 8px;display:flex}.file-item.jsx-59f0862b68d3396a{color:#e2e8f0;background-color:#ffffff1a;border-radius:3px;align-items:center;gap:6px;padding:4px 8px;display:flex}.help-title-text.jsx-59f0862b68d3396a{color:#10b981;text-shadow:0 0 5px #10b98180;font-weight:700}.help-section-text.jsx-59f0862b68d3396a{color:#60a5fa;text-shadow:0 0 5px #60a5fa80;font-weight:700}.cmd-name.jsx-59f0862b68d3396a{color:#f59e0b;text-shadow:0 0 3px #f59e0b80}.cmd-desc.jsx-59f0862b68d3396a{color:#e2e8f0}.help-container.jsx-59f0862b68d3396a{white-space:normal;background:#0f172a59;border:1px solid #64748b40;border-radius:8px;margin:8px 0 10px;padding:12px 14px;box-shadow:inset 0 0 20px #02061740}.help-title.jsx-59f0862b68d3396a{color:#93c5fd;letter-spacing:.02em;text-shadow:0 0 6px #3b82f659;white-space:nowrap;border-right:2px solid #93c5fd99;width:0;margin-bottom:8px;font-weight:700;animation:1.2s steps(18,end) .1s both typingTitle,1s step-end 3 blink;overflow:hidden}@keyframes typingTitle{to{width:210px}}@keyframes blink{50%{border-color:#0000}}.help-grid.jsx-59f0862b68d3396a{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 120px;display:grid}.help-row.jsx-59f0862b68d3396a{opacity:0;grid-template-columns:240px 16px 1fr;align-items:baseline;column-gap:24px;margin:0;padding:0;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;line-height:1.3;animation:.28s ease-out forwards helpFadeIn;display:grid;transform:translateY(6px)}.hc-cmd.jsx-59f0862b68d3396a{text-indent:8px;text-shadow:0 0 6px #67e8f940;font-weight:700;color:#67e8f9!important}.hc-sep.jsx-59f0862b68d3396a{color:#64748b;text-align:center}.hc-desc.jsx-59f0862b68d3396a{color:#c7d2fe;justify-self:start;font-weight:600}@media (width>=920px){.help-grid.jsx-59f0862b68d3396a{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 80px}}@media (width>=1280px){.help-grid.jsx-59f0862b68d3396a{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 96px}}@keyframes helpFadeIn{to{opacity:1;transform:translateY(0)}}.custom-scrollbar.jsx-59f0862b68d3396a::-webkit-scrollbar{width:10px}.custom-scrollbar.jsx-59f0862b68d3396a::-webkit-scrollbar-track{background:#0003;border-radius:4px;margin:4px 0}.custom-scrollbar.jsx-59f0862b68d3396a::-webkit-scrollbar-thumb{background:#3b82f68c;border-radius:4px}.custom-scrollbar.jsx-59f0862b68d3396a.jsx-59f0862b68d3396a::-webkit-scrollbar-thumb:hover{background:#3b82f6cc}.no-scrollbar.jsx-59f0862b68d3396a::-webkit-scrollbar{display:none}.no-scrollbar.jsx-59f0862b68d3396a{-ms-overflow-style:none;scrollbar-width:none}.terminal-output.jsx-59f0862b68d3396a{scroll-behavior:auto;line-height:1.6}.fixed-width-pre.jsx-59f0862b68d3396a{white-space:pre;width:max-content;min-width:100%;max-width:100%;margin:0;padding:0;font-family:monospace;overflow-x:auto}.no-blink-scrollbar.jsx-59f0862b68d3396a::-webkit-scrollbar-thumb{background:#3b82f699!important;transition:none!important}.no-blink-scrollbar.jsx-59f0862b68d3396a::-webkit-scrollbar-track{background:#0f172a59!important;transition:none!important}.terminal-output.jsx-59f0862b68d3396a{scroll-behavior:auto;overflow-y:scroll}.sticky-input.jsx-59f0862b68d3396a{z-index:10;background-color:#000c;margin-top:auto;padding:8px 0;position:sticky;bottom:0}.terminal-window.jsx-59f0862b68d3396a{flex-direction:column;display:flex}.terminal-output.jsx-59f0862b68d3396a{flex:1;overflow-y:auto}@keyframes cursorBlink{0%,to{opacity:1}50%{opacity:0}}.cursor.jsx-59f0862b68d3396a{vertical-align:middle;background-color:#22d3ee;width:8px;height:16px;margin-left:2px;animation:1s infinite cursorBlink;display:inline-block}.user-command.jsx-59f0862b68d3396a{font-weight:700}.blue-400.jsx-59f0862b68d3396a{color:#60a5fa}.purple-400.jsx-59f0862b68d3396a{color:#a78bfa}.red-400.jsx-59f0862b68d3396a{color:#f87171}.green-300.jsx-59f0862b68d3396a{color:#86efac}.whoami-output.jsx-59f0862b68d3396a{background-color:#0000004d;border-left:3px solid #10b981;border-radius:0 4px 4px 0;margin:8px 0;padding:12px 16px}.user-info.jsx-59f0862b68d3396a{margin-bottom:4px;font-size:.95em;display:block}.user-value.jsx-59f0862b68d3396a{color:#60a5fa;font-weight:500}.crypter-banner.jsx-59f0862b68d3396a{color:#10b981;text-shadow:0 0 5px #10b98180;margin:8px 0;font-family:monospace;display:inline-block;position:relative}.crypter-banner.jsx-59f0862b68d3396a:before{content:attr(data-text);text-shadow:2px 0 #f0f;color:#10b981;clip-path:inset(0);opacity:.5;background:0 0;animation:2s linear infinite alternate-reverse noise-anim;position:absolute;top:0;left:-2px;overflow:hidden}.crypter-banner.jsx-59f0862b68d3396a:after{content:attr(data-text);text-shadow:-2px 0 #0ff;color:#10b981;clip-path:inset(0);opacity:.5;background:0 0;animation:1s linear infinite alternate-reverse noise-anim;position:absolute;top:0;left:2px;overflow:hidden}@keyframes noise-anim{0%{clip-path:inset(40% 0 61%)}20%{clip-path:inset(92% 0 1%)}40%{clip-path:inset(43% 0 1%)}60%{clip-path:inset(25% 0 58%)}80%{clip-path:inset(54% 0 7%)}to{clip-path:inset(58% 0 43%)}}.about-section.jsx-59f0862b68d3396a,.services-section.jsx-59f0862b68d3396a,.pentest-section.jsx-59f0862b68d3396a,.ctf-section.jsx-59f0862b68d3396a,.contact-section.jsx-59f0862b68d3396a{background-color:#0000004d;border:1px solid #4ade8033;border-radius:6px;margin:12px 0;padding:16px}.section-title.jsx-59f0862b68d3396a{color:#10b981;border-bottom:1px solid #4ade8033;margin-bottom:12px;padding-bottom:10px;font-size:1.1em;font-weight:700}.section-content.jsx-59f0862b68d3396a{white-space:pre-line;color:#e2e8f0;line-height:1.5}.tools-section.jsx-59f0862b68d3396a{border-left:3px solid #ff5722}.skills-section.jsx-59f0862b68d3396a{border-left:3px solid #3498db}.studies-section.jsx-59f0862b68d3396a{border-left:3px solid #9b59b6}.blog-section.jsx-59f0862b68d3396a{border-left:3px solid #2ecc71}.welcome-message.jsx-59f0862b68d3396a{color:khaki;background-color:#0000004d;border-left:3px solid khaki;border-radius:4px;margin:10px 0;padding:12px 16px;display:block}.command-hint.jsx-59f0862b68d3396a{color:#10b981;background-color:#0000004d;border-radius:3px;padding:2px 6px;font-weight:700}.directory-item.jsx-59f0862b68d3396a:before{content:"📁";font-size:.9em}.file-item.jsx-59f0862b68d3396a:before{content:"📄";font-size:.9em}.terminal-glow.jsx-59f0862b68d3396a{text-shadow:0 0 5px #ecfc02b3,0 0 10px #ecfc0280}.command-line.jsx-59f0862b68d3396a{flex-direction:column;align-items:flex-start;gap:2px;margin:6px 0;padding-left:0;display:flex}.command-line{flex-direction:column;align-items:flex-start;gap:2px;margin:6px 0;display:flex}.prompt-wrapper.jsx-59f0862b68d3396a{text-align:center;min-width:30px;margin-right:10px;display:inline-block}.command-line.jsx-59f0862b68d3396a .user-command.jsx-59f0862b68d3396a{padding-left:4px;font-weight:700}.command-line.jsx-59f0862b68d3396a .prompt.jsx-59f0862b68d3396a{color:khaki;font-weight:700}@keyframes borderPulse{0%{border-color:#4ade804d;box-shadow:0 0 5px #4ade8033,inset 0 0 3px #4ade801a}50%{border-color:#4ade80cc;box-shadow:0 0 10px #4ade8080,inset 0 0 8px #4ade8033}to{border-color:#4ade804d;box-shadow:0 0 5px #4ade8033,inset 0 0 3px #4ade801a}}@keyframes gradientBorder{0%{border-image-source:linear-gradient(45deg,#7c3aedb3,#8b5cf61a,#5b21b6b3)}25%{border-image-source:linear-gradient(90deg,#5b21b6b3,#7c3aedb3,#8b5cf61a)}50%{border-image-source:linear-gradient(135deg,#8b5cf61a,#5b21b6b3,#7c3aedb3)}75%{border-image-source:linear-gradient(#7c3aedb3,#8b5cf61a,#5b21b6b3)}to{border-image-source:linear-gradient(225deg,#5b21b6b3,#7c3aedb3,#8b5cf61a)}}.animated-border.jsx-59f0862b68d3396a{border-style:solid;border-width:1px;border-image-source:linear-gradient(45deg,#47556999,#33415533,#1e293b99);border-image-slice:1;border-radius:9999px;padding:8px 16px;transition:all .3s;animation:3s linear infinite gradientBorder,2s ease-in-out infinite borderPulse}.animated-border.jsx-59f0862b68d3396a:focus{box-shadow:none;background-color:#0000;border-width:1px}.kali-prompt-top.jsx-59f0862b68d3396a{color:#22d3ee;text-shadow:0 0 4px #22d3ee59}.kali-prompt-top{color:#22d3ee}.kali-arrow.jsx-59f0862b68d3396a{color:#67e8f9;text-shadow:0 0 4px #67e8f94d}.kali-arrow{color:#67e8f9}.kali-prompt-block.jsx-59f0862b68d3396a{margin:6px 0 2px}.kali-top.jsx-59f0862b68d3396a{color:#22d3ee;font-weight:600}.kali-bottom.jsx-59f0862b68d3396a,.kali-bottom{align-items:center;display:flex}.user-command{font-weight:700}.kali-menubar.jsx-59f0862b68d3396a .kali-menu-item.jsx-59f0862b68d3396a{border-radius:4px;padding:2px 6px;transition:background-color .15s,color .15s}.kali-menubar.jsx-59f0862b68d3396a .kali-menu-item.jsx-59f0862b68d3396a:hover{color:#e0f2fe;background-color:#1e3a8a80}.kali-title.jsx-59f0862b68d3396a{text-shadow:0 0 3px #e2e8f059}@keyframes subtleFloat{0%{transform:translateY(0)}50%{transform:translateY(-2px)}to{transform:translateY(0)}}.prompt.terminal-glow.jsx-59f0862b68d3396a{animation:4s ease-in-out infinite subtleFloat,2s infinite alternate glowPulse}@keyframes glowPulse{0%{text-shadow:0 0 5px #ecfc0280,0 0 8px #ecfc024d}to{text-shadow:0 0 8px #ecfc02cc,0 0 12px #ecfc0280}}.enhanced-about.jsx-59f0862b68d3396a{background:linear-gradient(#0006,#0000004d);border-style:solid;border-width:1px;border-image:linear-gradient(90deg,#3498db,#2ecc71,#9b59b6,#ff5722) 1;box-shadow:0 0 15px #10b9814d}.about-section-title.jsx-59f0862b68d3396a{color:#10b981;text-underline-offset:5px;margin-top:15px;margin-bottom:5px;font-size:1.1em;font-weight:700;text-decoration:underline #10b98180;display:block}.lang-python.jsx-59f0862b68d3396a{color:#3572a5;font-weight:700}.lang-c.jsx-59f0862b68d3396a{color:#f34b7d;font-weight:700}.lang-bash.jsx-59f0862b68d3396a{color:#89e051;font-weight:700}.lang-ps.jsx-59f0862b68d3396a{color:#012456;font-weight:700}.lang-go.jsx-59f0862b68d3396a{color:#00add8;font-weight:700}.lang-rust.jsx-59f0862b68d3396a{color:#dea584;font-weight:700}.skill-highlight.jsx-59f0862b68d3396a{color:#60a5fa;background-color:#0003;border-radius:3px;padding:1px 5px;font-weight:700}.service-category.jsx-59f0862b68d3396a{color:#ff9800;text-underline-offset:4px;margin-top:15px;margin-bottom:8px;font-size:1.05em;font-weight:700;text-decoration:underline #ff980080;display:block}.service-name.jsx-59f0862b68d3396a{color:khaki;background-color:#00000040;border-radius:3px;padding:1px 5px;font-weight:700}.services-section.jsx-59f0862b68d3396a{background:linear-gradient(#0006,#0000004d);border-style:solid;border-width:1px;border-image:linear-gradient(90deg,#ff5722,#ffeb3b,#ff9800) 1;position:relative;overflow:hidden;box-shadow:0 0 15px #ff572233}.services-section.jsx-59f0862b68d3396a:before{content:"";pointer-events:none;z-index:0;background:radial-gradient(circle at 10% 20%,#ff57220d 0%,#0000 50%),radial-gradient(circle at 90% 80%,#ff980012 0%,#0000 40%),radial-gradient(circle,#ffeb3b08 0%,#0000 70%);position:absolute;inset:0}.services-section.jsx-59f0862b68d3396a .section-title.jsx-59f0862b68d3396a,.services-section.jsx-59f0862b68d3396a .section-content.jsx-59f0862b68d3396a{z-index:1;position:relative}.services-section.jsx-59f0862b68d3396a:after{content:"";opacity:.5;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'4\' height=\'4\'%3E%3Cpath d=\'M1 3h1v1H1V3zm2-2h1v1H3V1z\' fill=\'rgba(255,255,255,0.025)\'/%3E%3C/svg%3E");position:absolute;inset:0}.cert-status.jsx-59f0862b68d3396a{border-radius:4px;margin-left:8px;padding:2px 6px;font-size:.9em;font-weight:700;display:inline-block}.cert-status.completed.jsx-59f0862b68d3396a{color:#10b981;background-color:#10b98133;border:1px solid #10b9814d}.cert-status.planned.jsx-59f0862b68d3396a{color:#f59e0b;background-color:#f59e0b33;border:1px solid #f59e0b4d}'
+                id: "6628482a65f2f51a",
+                children: '@keyframes loadingProgress{0%{width:0%}20%{width:20%}40%{width:40%}60%{width:60%}80%{width:80%}95%{width:95%}to{width:98%}}.animate-loading-progress.jsx-6628482a65f2f51a{animation:.2s ease-in-out forwards loadingProgress}.loading-container.jsx-6628482a65f2f51a{background-color:#0006;border:1px solid #3b82f633;border-radius:6px;max-width:100%;margin:12px 0;padding:16px;box-shadow:0 0 10px #0032641a}.loading-percentage.jsx-6628482a65f2f51a:after{content:"";animation:.2s linear forwards percentageCount}@keyframes percentageCount{0%{content:"0%"}20%{content:"20%"}40%{content:"40%"}60%{content:"60%"}80%{content:"80%"}95%{content:"95%"}to{content:"98%"}}.prompt.terminal-glow.jsx-6628482a65f2f51a{background-color:#0006;border-left:2px solid #ffff9666;border-radius:4px;justify-content:center;align-items:center;min-width:20px;height:26px;padding:0 2px;font-weight:700;display:flex}@keyframes commandSuccess{0%{background-color:#00ff001a}50%{background-color:#0f03}to{background-color:#0000}}.command-success.jsx-6628482a65f2f51a{animation:1s ease-out commandSuccess}@keyframes commandError{0%{background-color:#ff00001a}50%{background-color:#f003}to{background-color:#0000}}.command-error.jsx-6628482a65f2f51a{animation:1s ease-out commandError}.terminal-window.jsx-6628482a65f2f51a{backdrop-filter:blur(10px);border-radius:10px;overflow:hidden;box-shadow:0 0 20px #0009,0 0 30px #00320033,inset 0 0 10px #0032001a}.error-message.jsx-6628482a65f2f51a{color:#ff6b6b;background-color:#ff00001a;border-radius:3px;padding:2px 4px;font-weight:500}.system-message.jsx-6628482a65f2f51a{color:#4ade80;background-color:#00ff000d;border-left:2px solid #4ade8080;border-radius:3px;padding:2px 4px;font-weight:500}.suggestion.jsx-6628482a65f2f51a{color:#60a5fa;background-color:#0064ff1a;border-radius:3px;padding:0 4px;font-family:monospace}.ls-output.jsx-6628482a65f2f51a{background-color:#0003;border-radius:4px;flex-wrap:wrap;gap:10px;margin:8px 0;padding:12px;display:flex}.directory-item.jsx-6628482a65f2f51a{color:#60a5fa;background-color:#0064ff1a;border-radius:3px;align-items:center;gap:6px;padding:4px 8px;display:flex}.file-item.jsx-6628482a65f2f51a{color:#e2e8f0;background-color:#ffffff1a;border-radius:3px;align-items:center;gap:6px;padding:4px 8px;display:flex}.help-title-text.jsx-6628482a65f2f51a{color:#10b981;text-shadow:0 0 5px #10b98180;font-weight:700}.help-section-text.jsx-6628482a65f2f51a{color:#60a5fa;text-shadow:0 0 5px #60a5fa80;font-weight:700}.cmd-name.jsx-6628482a65f2f51a{color:#f59e0b;text-shadow:0 0 3px #f59e0b80}.cmd-desc.jsx-6628482a65f2f51a{color:#e2e8f0}.help-container.jsx-6628482a65f2f51a{white-space:normal;background:#0f172a59;border:1px solid #64748b40;border-radius:8px;margin:8px 0 10px;padding:12px 14px;box-shadow:inset 0 0 20px #02061740}.help-title.jsx-6628482a65f2f51a{color:#93c5fd;letter-spacing:.02em;text-shadow:0 0 6px #3b82f659;white-space:nowrap;border-right:2px solid #93c5fd99;width:0;margin-bottom:8px;font-weight:700;animation:1.2s steps(18,end) .1s both typingTitle,1s step-end 3 blink;overflow:hidden}@keyframes typingTitle{to{width:210px}}@keyframes blink{50%{border-color:#0000}}.help-grid.jsx-6628482a65f2f51a{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 120px;display:grid}.help-row.jsx-6628482a65f2f51a{opacity:0;grid-template-columns:240px 16px 1fr;align-items:baseline;column-gap:24px;margin:0;padding:0;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;line-height:1.3;animation:.28s ease-out forwards helpFadeIn;display:grid;transform:translateY(6px)}.hc-cmd.jsx-6628482a65f2f51a{text-indent:8px;text-shadow:0 0 6px #67e8f940;font-weight:700;color:#67e8f9!important}.hc-sep.jsx-6628482a65f2f51a{color:#64748b;text-align:center}.hc-desc.jsx-6628482a65f2f51a{color:#c7d2fe;justify-self:start;font-weight:600}@media (width>=920px){.help-grid.jsx-6628482a65f2f51a{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 80px}}@media (width>=1280px){.help-grid.jsx-6628482a65f2f51a{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 96px}}@keyframes helpFadeIn{to{opacity:1;transform:translateY(0)}}.custom-scrollbar.jsx-6628482a65f2f51a::-webkit-scrollbar{width:10px}.custom-scrollbar.jsx-6628482a65f2f51a::-webkit-scrollbar-track{background:#0003;border-radius:4px;margin:4px 0}.custom-scrollbar.jsx-6628482a65f2f51a::-webkit-scrollbar-thumb{background:#3b82f68c;border-radius:4px}.custom-scrollbar.jsx-6628482a65f2f51a.jsx-6628482a65f2f51a::-webkit-scrollbar-thumb:hover{background:#3b82f6cc}.no-scrollbar.jsx-6628482a65f2f51a::-webkit-scrollbar{display:none}.no-scrollbar.jsx-6628482a65f2f51a{-ms-overflow-style:none;scrollbar-width:none}.terminal-output.jsx-6628482a65f2f51a{scroll-behavior:auto;line-height:1.6}.fixed-width-pre.jsx-6628482a65f2f51a{white-space:pre;width:max-content;min-width:100%;max-width:100%;margin:0;padding:0;font-family:monospace;overflow-x:auto}.no-blink-scrollbar.jsx-6628482a65f2f51a::-webkit-scrollbar-thumb{background:#3b82f699!important;transition:none!important}.no-blink-scrollbar.jsx-6628482a65f2f51a::-webkit-scrollbar-track{background:#0f172a59!important;transition:none!important}.terminal-output.jsx-6628482a65f2f51a{scroll-behavior:auto;overflow-y:scroll}.sticky-input.jsx-6628482a65f2f51a{z-index:10;background-color:#000c;margin-top:auto;padding:8px 0;position:sticky;bottom:0}.terminal-window.jsx-6628482a65f2f51a{flex-direction:column;display:flex}.terminal-output.jsx-6628482a65f2f51a{flex:1;overflow-y:auto}@keyframes cursorBlink{0%,to{opacity:1}50%{opacity:0}}.cursor.jsx-6628482a65f2f51a{vertical-align:middle;background-color:#22d3ee;width:8px;height:16px;margin-left:2px;animation:1s infinite cursorBlink;display:inline-block}.user-command.jsx-6628482a65f2f51a{font-weight:700}.blue-400.jsx-6628482a65f2f51a{color:#60a5fa}.purple-400.jsx-6628482a65f2f51a{color:#a78bfa}.red-400.jsx-6628482a65f2f51a{color:#f87171}.green-300.jsx-6628482a65f2f51a{color:#86efac}.whoami-output{background-color:#0000004d;border-left:3px solid #10b981;border-radius:0 4px 4px 0;margin:8px 0;padding:12px 16px}.whoami-grid{gap:8px;display:grid}.whoami-row{grid-template-columns:110px 1fr;align-items:baseline;display:grid}.whoami-label{color:#94a3b8;font-weight:600}.whoami-label:after{content:":";color:#64748b;margin:0 8px}.whoami-value{color:#60a5fa;font-weight:500}.user-info.jsx-6628482a65f2f51a{margin-bottom:4px;font-size:.95em;display:block}.user-value.jsx-6628482a65f2f51a{color:#60a5fa;font-weight:500}.crypter-banner.jsx-6628482a65f2f51a{color:#10b981;text-shadow:0 0 5px #10b98180;margin:8px 0;font-family:monospace;display:inline-block;position:relative}.crypter-banner.jsx-6628482a65f2f51a:before{content:attr(data-text);text-shadow:2px 0 #f0f;color:#10b981;clip-path:inset(0);opacity:.5;background:0 0;animation:2s linear infinite alternate-reverse noise-anim;position:absolute;top:0;left:-2px;overflow:hidden}.crypter-banner.jsx-6628482a65f2f51a:after{content:attr(data-text);text-shadow:-2px 0 #0ff;color:#10b981;clip-path:inset(0);opacity:.5;background:0 0;animation:1s linear infinite alternate-reverse noise-anim;position:absolute;top:0;left:2px;overflow:hidden}@keyframes noise-anim{0%{clip-path:inset(40% 0 61%)}20%{clip-path:inset(92% 0 1%)}40%{clip-path:inset(43% 0 1%)}60%{clip-path:inset(25% 0 58%)}80%{clip-path:inset(54% 0 7%)}to{clip-path:inset(58% 0 43%)}}.about-section.jsx-6628482a65f2f51a,.services-section.jsx-6628482a65f2f51a,.pentest-section.jsx-6628482a65f2f51a,.ctf-section.jsx-6628482a65f2f51a,.contact-section.jsx-6628482a65f2f51a{background-color:#0000004d;border:1px solid #4ade8033;border-radius:6px;margin:12px 0;padding:16px}.section-title.jsx-6628482a65f2f51a{color:#10b981;border-bottom:1px solid #4ade8033;margin-bottom:12px;padding-bottom:10px;font-size:1.1em;font-weight:700}.section-content.jsx-6628482a65f2f51a{white-space:pre-line;color:#e2e8f0;line-height:1.5}.tools-section.jsx-6628482a65f2f51a{border-left:3px solid #ff5722}.skills-section.jsx-6628482a65f2f51a{border-left:3px solid #3498db}.studies-section.jsx-6628482a65f2f51a{border-left:3px solid #9b59b6}.blog-section.jsx-6628482a65f2f51a{border-left:3px solid #2ecc71}.welcome-message.jsx-6628482a65f2f51a{color:khaki;background-color:#0000004d;border-left:3px solid khaki;border-radius:4px;margin:10px 0;padding:12px 16px;display:block}.command-hint.jsx-6628482a65f2f51a{color:#10b981;background-color:#0000004d;border-radius:3px;padding:2px 6px;font-weight:700}.directory-item.jsx-6628482a65f2f51a:before{content:"📁";font-size:.9em}.file-item.jsx-6628482a65f2f51a:before{content:"📄";font-size:.9em}.terminal-glow.jsx-6628482a65f2f51a{text-shadow:0 0 5px #ecfc02b3,0 0 10px #ecfc0280}.command-line.jsx-6628482a65f2f51a{flex-direction:column;align-items:flex-start;gap:2px;margin:6px 0;padding-left:0;display:flex}.command-line{flex-direction:column;align-items:flex-start;gap:2px;margin:6px 0;display:flex}.prompt-wrapper.jsx-6628482a65f2f51a{text-align:center;min-width:30px;margin-right:10px;display:inline-block}.command-line.jsx-6628482a65f2f51a .user-command.jsx-6628482a65f2f51a{padding-left:4px;font-weight:700}.command-line.jsx-6628482a65f2f51a .prompt.jsx-6628482a65f2f51a{color:khaki;font-weight:700}@keyframes borderPulse{0%{border-color:#4ade804d;box-shadow:0 0 5px #4ade8033,inset 0 0 3px #4ade801a}50%{border-color:#4ade80cc;box-shadow:0 0 10px #4ade8080,inset 0 0 8px #4ade8033}to{border-color:#4ade804d;box-shadow:0 0 5px #4ade8033,inset 0 0 3px #4ade801a}}@keyframes gradientBorder{0%{border-image-source:linear-gradient(45deg,#7c3aedb3,#8b5cf61a,#5b21b6b3)}25%{border-image-source:linear-gradient(90deg,#5b21b6b3,#7c3aedb3,#8b5cf61a)}50%{border-image-source:linear-gradient(135deg,#8b5cf61a,#5b21b6b3,#7c3aedb3)}75%{border-image-source:linear-gradient(#7c3aedb3,#8b5cf61a,#5b21b6b3)}to{border-image-source:linear-gradient(225deg,#5b21b6b3,#7c3aedb3,#8b5cf61a)}}.animated-border.jsx-6628482a65f2f51a{border-style:solid;border-width:1px;border-image-source:linear-gradient(45deg,#47556999,#33415533,#1e293b99);border-image-slice:1;border-radius:9999px;padding:8px 16px;transition:all .3s;animation:3s linear infinite gradientBorder,2s ease-in-out infinite borderPulse}.animated-border.jsx-6628482a65f2f51a:focus{box-shadow:none;background-color:#0000;border-width:1px}.kali-prompt-top.jsx-6628482a65f2f51a{color:#22d3ee;text-shadow:0 0 4px #22d3ee59}.kali-prompt-top{color:#22d3ee}.kali-arrow.jsx-6628482a65f2f51a{color:#67e8f9;text-shadow:0 0 4px #67e8f94d}.kali-arrow{color:#67e8f9}.kali-prompt-block.jsx-6628482a65f2f51a{margin:6px 0 2px}.kali-top.jsx-6628482a65f2f51a{color:#22d3ee;font-weight:600}.kali-bottom.jsx-6628482a65f2f51a,.kali-bottom{align-items:center;display:flex}.user-command{font-weight:700}.kali-menubar.jsx-6628482a65f2f51a .kali-menu-item.jsx-6628482a65f2f51a{border-radius:4px;padding:2px 6px;transition:background-color .15s,color .15s}.kali-menubar.jsx-6628482a65f2f51a .kali-menu-item.jsx-6628482a65f2f51a:hover{color:#e0f2fe;background-color:#1e3a8a80}.kali-title.jsx-6628482a65f2f51a{text-shadow:0 0 3px #e2e8f059}@keyframes subtleFloat{0%{transform:translateY(0)}50%{transform:translateY(-2px)}to{transform:translateY(0)}}.prompt.terminal-glow.jsx-6628482a65f2f51a{animation:4s ease-in-out infinite subtleFloat,2s infinite alternate glowPulse}@keyframes glowPulse{0%{text-shadow:0 0 5px #ecfc0280,0 0 8px #ecfc024d}to{text-shadow:0 0 8px #ecfc02cc,0 0 12px #ecfc0280}}.enhanced-about.jsx-6628482a65f2f51a{background:linear-gradient(#0006,#0000004d);border-style:solid;border-width:1px;border-image:linear-gradient(90deg,#3498db,#2ecc71,#9b59b6,#ff5722) 1;box-shadow:0 0 15px #10b9814d}.about-section-title.jsx-6628482a65f2f51a{color:#10b981;text-underline-offset:5px;margin-top:15px;margin-bottom:5px;font-size:1.1em;font-weight:700;text-decoration:underline #10b98180;display:block}.lang-python.jsx-6628482a65f2f51a{color:#3572a5;font-weight:700}.lang-c.jsx-6628482a65f2f51a{color:#f34b7d;font-weight:700}.lang-bash.jsx-6628482a65f2f51a{color:#89e051;font-weight:700}.lang-ps.jsx-6628482a65f2f51a{color:#012456;font-weight:700}.lang-go.jsx-6628482a65f2f51a{color:#00add8;font-weight:700}.lang-rust.jsx-6628482a65f2f51a{color:#dea584;font-weight:700}.skill-highlight.jsx-6628482a65f2f51a{color:#60a5fa;background-color:#0003;border-radius:3px;padding:1px 5px;font-weight:700}.service-category.jsx-6628482a65f2f51a{color:#ff9800;text-underline-offset:4px;margin-top:15px;margin-bottom:8px;font-size:1.05em;font-weight:700;text-decoration:underline #ff980080;display:block}.service-name.jsx-6628482a65f2f51a{color:khaki;background-color:#00000040;border-radius:3px;padding:1px 5px;font-weight:700}.services-section.jsx-6628482a65f2f51a{background:linear-gradient(#0006,#0000004d);border-style:solid;border-width:1px;border-image:linear-gradient(90deg,#ff5722,#ffeb3b,#ff9800) 1;position:relative;overflow:hidden;box-shadow:0 0 15px #ff572233}.services-section.jsx-6628482a65f2f51a:before{content:"";pointer-events:none;z-index:0;background:radial-gradient(circle at 10% 20%,#ff57220d 0%,#0000 50%),radial-gradient(circle at 90% 80%,#ff980012 0%,#0000 40%),radial-gradient(circle,#ffeb3b08 0%,#0000 70%);position:absolute;inset:0}.services-section.jsx-6628482a65f2f51a .section-title.jsx-6628482a65f2f51a,.services-section.jsx-6628482a65f2f51a .section-content.jsx-6628482a65f2f51a{z-index:1;position:relative}.services-section.jsx-6628482a65f2f51a:after{content:"";opacity:.5;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'4\' height=\'4\'%3E%3Cpath d=\'M1 3h1v1H1V3zm2-2h1v1H3V1z\' fill=\'rgba(255,255,255,0.025)\'/%3E%3C/svg%3E");position:absolute;inset:0}.cert-status.jsx-6628482a65f2f51a{border-radius:4px;margin-left:8px;padding:2px 6px;font-size:.9em;font-weight:700;display:inline-block}.cert-status.completed.jsx-6628482a65f2f51a{color:#10b981;background-color:#10b98133;border:1px solid #10b9814d}.cert-status.planned.jsx-6628482a65f2f51a{color:#f59e0b;background-color:#f59e0b33;border:1px solid #f59e0b4d}'
             }, void 0, false, void 0, this)
         ]
     }, void 0, true);
@@ -1435,6 +1445,10 @@ const handleHelpCommand = (args)=>{
         {
             cmd: 'projects',
             desc: 'View GitHub projects in Firefox'
+        },
+        {
+            cmd: 'certs',
+            desc: 'View certifications'
         },
         {
             cmd: 'ctf',
@@ -1972,7 +1986,7 @@ function ArchLinuxOS({ onOpenTerminal }) {
                     setShowFirefox(false);
                     setShowFirefoxProjects(false);
                 },
-                initialUrl: "https://crypter.security",
+                initialUrl: `home://start`,
                 showProjects: showFirefoxProjects,
                 showTools: false,
                 initialPosition: initialWindowPosition
@@ -2323,7 +2337,7 @@ function ArchLinuxOS({ onOpenTerminal }) {
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "fixed bottom-4 right-4 z-50 group",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                    href: "https://github.com/SriramBharath-7/OS_PORTFOLIO.git",
+                    href: "https://github.com/SriramBharath-7/sriram-portfolio",
                     target: "_blank",
                     rel: "noopener noreferrer",
                     className: "flex items-center gap-2 bg-gradient-to-r from-gray-900/90 to-gray-800/90 hover:from-gray-800/90 hover:to-gray-700/90 text-white px-4 py-2 rounded-lg border border-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 group-hover:border-blue-500/50",
@@ -2428,6 +2442,30 @@ function ArchLinuxOS({ onOpenTerminal }) {
     }, this);
 }
 }}),
+"[project]/constants/profile.ts [app-ssr] (ecmascript)": ((__turbopack_context__) => {
+"use strict";
+
+var { g: global, __dirname } = __turbopack_context__;
+{
+// Centralized personal profile defaults for the portfolio
+// Update these values with your information to personalize the app.
+__turbopack_context__.s({
+    "DEFAULT_BRAND_NAME": (()=>DEFAULT_BRAND_NAME),
+    "DEFAULT_EMAIL": (()=>DEFAULT_EMAIL),
+    "DEFAULT_GITHUB_USERNAME": (()=>DEFAULT_GITHUB_USERNAME),
+    "DEFAULT_LINKEDIN_URL": (()=>DEFAULT_LINKEDIN_URL),
+    "DEFAULT_NAME": (()=>DEFAULT_NAME),
+    "DEFAULT_WEBSITE_URL": (()=>DEFAULT_WEBSITE_URL),
+    "DEFAULT_WELCOME_TEXT": (()=>DEFAULT_WELCOME_TEXT)
+});
+const DEFAULT_NAME = "Sriram Bharath";
+const DEFAULT_GITHUB_USERNAME = "SriramBharath-7";
+const DEFAULT_LINKEDIN_URL = "https://linkedin.com/in/sriram-bharath-852335306/";
+const DEFAULT_EMAIL = "srirambharath7@gmail.com";
+const DEFAULT_BRAND_NAME = DEFAULT_NAME;
+const DEFAULT_WEBSITE_URL = "";
+const DEFAULT_WELCOME_TEXT = "🛡️ Aspiring Ethical Hacker and Cybersecurity Expert focused on defending the digital world";
+}}),
 "[project]/components/Firefox.tsx [app-ssr] (ecmascript)": ((__turbopack_context__) => {
 "use strict";
 
@@ -2439,7 +2477,9 @@ __turbopack_context__.s({
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/gsap/index.js [app-ssr] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/constants/profile.ts [app-ssr] (ecmascript)");
 "use client";
+;
 ;
 ;
 ;
@@ -2476,18 +2516,18 @@ const formatDate = (dateString)=>{
         day: 'numeric'
     });
 };
-function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", showProjects = false, showTools = false, githubUsername = "SriramBharath-7", initialPosition = {
+function Firefox({ onClose, initialUrl = `home://start`, showProjects = false, showTools = false, githubUsername = __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"], initialPosition = {
     x: 0,
     y: 0
 } }) {
-    const [currentUrl, setCurrentUrl] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(showProjects ? `https://github.com/${githubUsername}` : showTools ? "https://github.com/SriramBharath-7" : initialUrl);
+    const [currentUrl, setCurrentUrl] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(showProjects ? `https://github.com/${githubUsername}` : showTools ? `https://github.com/${__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"]}` : initialUrl);
     const [history, setHistory] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([
-        showProjects ? `https://github.com/${githubUsername}` : showTools ? "https://github.com/SriramBharath-7" : initialUrl
+        showProjects ? `https://github.com/${githubUsername}` : showTools ? `https://github.com/${__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"]}` : initialUrl
     ]);
     const [historyIndex, setHistoryIndex] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(0);
     const [bookmarks, setBookmarks] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([
-        "https://github.com/SriramBharath-7",
-        "https://linkedin.com/in/sriram-bharath-852335306/"
+        `https://github.com/${__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"]}`,
+        __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_LINKEDIN_URL"]
     ]);
     const [isMinimized, setIsMinimized] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [position, setPosition] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(initialPosition);
@@ -2499,26 +2539,72 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
     const [reposPerPage, setReposPerPage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(8); // Default to 8 repos per page for larger screens
     const username = githubUsername; // Use the provided GitHub username
     const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [startSearch, setStartSearch] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
+    // Sample certifications to display on the start/certs page
+    const certifications = [
+        {
+            id: 1,
+            title: "How to use AI effectively",
+            status: "Completed",
+            issued: "",
+            completed: "Apr 22, 2025",
+            expires: "",
+            provider: "",
+            description: "Fundamentals of leveraging AI tools efficiently for learning and productivity.",
+            image: "/assets/certs/How%20to%20use%20Ai.jpg"
+        },
+        {
+            id: 2,
+            title: "ZTM – Efficient Learning",
+            status: "Completed",
+            issued: "",
+            completed: "Apr 20, 2025",
+            expires: "",
+            provider: "Zero To Mastery",
+            description: "Techniques and frameworks for mastering topics faster with deliberate practice.",
+            image: "/assets/certs/ZTM%20%5BEfficient%20Learning%5D.png"
+        },
+        {
+            id: 3,
+            title: "AI Career Coach",
+            status: "Completed",
+            issued: "",
+            completed: "Apr 20, 2025",
+            expires: "",
+            provider: "",
+            description: "Guidance on building an AI-focused career: positioning, portfolios, and growth roadmap.",
+            image: "/assets/certs/AI%20Career%20Coath.png"
+        }
+    ];
+    const [activeCert, setActiveCert] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        if (!activeCert) return;
+        const onKey = (e)=>{
+            if (e.key === 'Escape') setActiveCert(null);
+        };
+        document.addEventListener('keydown', onKey);
+        return ()=>document.removeEventListener('keydown', onKey);
+    }, [
+        activeCert
+    ]);
     // First add a state to track the rate limit info
     // const [rateLimitInfo, setRateLimitInfo] = useState<RateLimitInfo | null>(null);
     // Sample repositories to use as fallback when API fails
     const sampleRepos = [
         {
             id: 1,
-            name: "Awesome-Games-by-Sriram",
-            description: "🚀 A collection of beginner to advanced Python games built by Sriram Bharath using Pygame and pure Python. Featuring classics like Snake, Pong, Flappy Bird and more!",
-            html_url: "https://github.com/SriramBharath-7/Awesome-Games-by-Sriram",
+            name: "awesome-projects",
+            description: `🚀 A collection of beginner to advanced projects by ${__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_NAME"]}.`,
+            html_url: `https://github.com/${__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"]}/awesome-projects`,
             stargazers_count: 2,
-            language: "Python",
+            language: "TypeScript",
             topics: [
-                "games",
-                "python",
-                "pygame",
+                "projects",
                 "learning"
             ],
             updated_at: "2024-01-15T12:30:45Z",
             owner: {
-                login: "SriramBharath-7",
+                login: __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"],
                 avatar_url: "https://avatars.githubusercontent.com/u/12345678"
             },
             fork: false,
@@ -2527,8 +2613,8 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
         {
             id: 2,
             name: "100-days-of-code",
-            description: "My 100 Days of Code challenge to master Python.",
-            html_url: "https://github.com/SriramBharath-7/100-days-of-code",
+            description: "My 100 Days of Code challenge to master coding.",
+            html_url: `https://github.com/${__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"]}/100-days-of-code`,
             stargazers_count: 2,
             language: "Python",
             topics: [
@@ -2539,7 +2625,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
             ],
             updated_at: "2024-01-10T08:15:22Z",
             owner: {
-                login: "SriramBharath-7",
+                login: __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"],
                 avatar_url: "https://avatars.githubusercontent.com/u/12345678"
             },
             fork: false,
@@ -2547,20 +2633,19 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
         },
         {
             id: 3,
-            name: "python-scrolls",
-            description: "Python projects & cheat sheets for daily mastery",
-            html_url: "https://github.com/SriramBharath-7/python-scrolls",
+            name: "dev-notes",
+            description: "Notes and snippets for daily mastery",
+            html_url: `https://github.com/${__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"]}/dev-notes`,
             stargazers_count: 2,
-            language: "Python",
+            language: "Markdown",
             topics: [
-                "python",
-                "projects",
+                "notes",
                 "cheat-sheets",
                 "learning"
             ],
             updated_at: "2024-01-05T14:45:10Z",
             owner: {
-                login: "SriramBharath-7",
+                login: __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"],
                 avatar_url: "https://avatars.githubusercontent.com/u/12345678"
             },
             fork: false,
@@ -2568,9 +2653,9 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
         },
         {
             id: 4,
-            name: "sriram.io",
+            name: "portfolio",
             description: "Personal portfolio website",
-            html_url: "https://github.com/SriramBharath-7/sriram.io",
+            html_url: `https://github.com/${__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"]}/portfolio`,
             stargazers_count: 2,
             language: "HTML",
             topics: [
@@ -2580,7 +2665,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
             ],
             updated_at: "2024-01-03T10:20:30Z",
             owner: {
-                login: "SriramBharath-7",
+                login: __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"],
                 avatar_url: "https://avatars.githubusercontent.com/u/12345678"
             },
             fork: false,
@@ -2590,7 +2675,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
             id: 5,
             name: "projects",
             description: "Various projects and experiments",
-            html_url: "https://github.com/SriramBharath-7/projects",
+            html_url: `https://github.com/${__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"]}/projects`,
             stargazers_count: 2,
             language: "Python",
             topics: [
@@ -2600,7 +2685,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
             ],
             updated_at: "2024-01-01T09:15:45Z",
             owner: {
-                login: "SriramBharath-7",
+                login: __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"],
                 avatar_url: "https://avatars.githubusercontent.com/u/12345678"
             },
             fork: false,
@@ -2949,9 +3034,35 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
     };
     // Navigation functions
     const navigateTo = (url)=>{
-        // If not different, don't add to history
+        if (!url) return;
+        // Handle special schemes and external sites
+        if (url.startsWith('mailto:')) {
+            if ("TURBOPACK compile-time falsy", 0) {
+                "TURBOPACK unreachable";
+            }
+            return;
+        }
+        if (url.startsWith('home://')) {
+            // Navigate to the internal start page
+            if (url === currentUrl) return;
+            setHistory((prev)=>[
+                    ...prev.slice(0, historyIndex + 1),
+                    url
+                ]);
+            setCurrentUrl(url);
+            setHistoryIndex((prev)=>prev + 1);
+            return;
+        }
+        // For external HTTP(S) URLs that aren't GitHub, open a new tab
+        const isHttp = /^https?:\/\//i.test(url);
+        if (isHttp && !url.includes('github.com')) {
+            if ("TURBOPACK compile-time falsy", 0) {
+                "TURBOPACK unreachable";
+            }
+            return;
+        }
+        // Internal navigation (e.g., GitHub view within the app)
         if (url === currentUrl) return;
-        // Add the new URL to history and update current URL
         setHistory((prev)=>[
                 ...prev.slice(0, historyIndex + 1),
                 url
@@ -3215,15 +3326,15 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                     className: "flex-1"
                                 }, void 0, false, {
                                     fileName: "[project]/components/Firefox.tsx",
-                                    lineNumber: 982,
+                                    lineNumber: 1072,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "firefox-title flex-shrink-0 text-gray-200/90 text-sm",
-                                    children: currentUrl.includes("github.com") ? "GitHub Projects - Mozilla Firefox" : "Crypter Security - Mozilla Firefox"
+                                    children: currentUrl.includes("github.com") ? "GitHub Projects - Mozilla Firefox" : currentUrl.startsWith("home://certs") ? "Certifications - Mozilla Firefox" : `${__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_BRAND_NAME"]} - Mozilla Firefox`
                                 }, void 0, false, {
                                     fileName: "[project]/components/Firefox.tsx",
-                                    lineNumber: 983,
+                                    lineNumber: 1073,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3243,17 +3354,17 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                     d: "M4 10.5h12a.5.5 0 0 1 0 1H4a.5.5 0 0 1 0-1Z"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 996,
+                                                    lineNumber: 1088,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Firefox.tsx",
-                                                lineNumber: 995,
+                                                lineNumber: 1087,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 989,
+                                            lineNumber: 1081,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3270,17 +3381,17 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                     d: "M6 5h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2v6h6V7H7Z"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1006,
+                                                    lineNumber: 1098,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Firefox.tsx",
-                                                lineNumber: 1005,
+                                                lineNumber: 1097,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 999,
+                                            lineNumber: 1091,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3299,34 +3410,34 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                     clipRule: "evenodd"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1016,
+                                                    lineNumber: 1108,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Firefox.tsx",
-                                                lineNumber: 1015,
+                                                lineNumber: 1107,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 1009,
+                                            lineNumber: 1101,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/Firefox.tsx",
-                                    lineNumber: 988,
+                                    lineNumber: 1080,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/Firefox.tsx",
-                            lineNumber: 981,
+                            lineNumber: 1071,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/Firefox.tsx",
-                        lineNumber: 977,
+                        lineNumber: 1067,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3339,12 +3450,12 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                     className: "scroll-progress-bar"
                                 }, void 0, false, {
                                     fileName: "[project]/components/Firefox.tsx",
-                                    lineNumber: 1030,
+                                    lineNumber: 1122,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/Firefox.tsx",
-                                lineNumber: 1029,
+                                lineNumber: 1121,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3357,7 +3468,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                         children: "←"
                                     }, void 0, false, {
                                         fileName: "[project]/components/Firefox.tsx",
-                                        lineNumber: 1035,
+                                        lineNumber: 1127,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3367,7 +3478,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                         children: "→"
                                     }, void 0, false, {
                                         fileName: "[project]/components/Firefox.tsx",
-                                        lineNumber: 1046,
+                                        lineNumber: 1138,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3376,7 +3487,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                         children: "↻"
                                     }, void 0, false, {
                                         fileName: "[project]/components/Firefox.tsx",
-                                        lineNumber: 1057,
+                                        lineNumber: 1149,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3387,7 +3498,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                 children: "🔒"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Firefox.tsx",
-                                                lineNumber: 1064,
+                                                lineNumber: 1156,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3402,13 +3513,13 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                 className: "flex-1 bg-transparent text-gray-200 outline-none text-sm"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Firefox.tsx",
-                                                lineNumber: 1065,
+                                                lineNumber: 1157,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/Firefox.tsx",
-                                        lineNumber: 1063,
+                                        lineNumber: 1155,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3417,13 +3528,13 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                         children: "★"
                                     }, void 0, false, {
                                         fileName: "[project]/components/Firefox.tsx",
-                                        lineNumber: 1077,
+                                        lineNumber: 1169,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/Firefox.tsx",
-                                lineNumber: 1034,
+                                lineNumber: 1126,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3438,12 +3549,12 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                 className: "scroll-progress-bar"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Firefox.tsx",
-                                                lineNumber: 1098,
+                                                lineNumber: 1190,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 1097,
+                                            lineNumber: 1189,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3467,17 +3578,17 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                         d: "M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1112,
+                                                                        lineNumber: 1204,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1104,
+                                                                    lineNumber: 1196,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                lineNumber: 1103,
+                                                                lineNumber: 1195,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3487,7 +3598,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                         children: "GitHub Projects"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1116,
+                                                                        lineNumber: 1208,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3497,28 +3608,28 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                             " ",
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                 className: "text-purple-400 font-semibold",
-                                                                                children: "Sriram Bharath"
+                                                                                children: __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_NAME"]
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                                lineNumber: 1121,
+                                                                                lineNumber: 1213,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1119,
+                                                                        lineNumber: 1211,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                lineNumber: 1115,
+                                                                lineNumber: 1207,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/Firefox.tsx",
-                                                        lineNumber: 1102,
+                                                        lineNumber: 1194,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3532,7 +3643,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                         children: repos.length
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1127,
+                                                                        lineNumber: 1219,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     " ",
@@ -3541,13 +3652,13 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                         children: "repositories"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1128,
+                                                                        lineNumber: 1220,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                lineNumber: 1126,
+                                                                lineNumber: 1218,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3576,47 +3687,47 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                                 d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                                lineNumber: 1149,
+                                                                                lineNumber: 1241,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1143,
+                                                                            lineNumber: 1235,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1131,
+                                                                        lineNumber: 1223,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     isLoading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                         className: "loading-indicator w-5 h-5 border-t-2 border-r-2 border-purple-500 rounded-full animate-spin"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1158,
+                                                                        lineNumber: 1250,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                lineNumber: 1130,
+                                                                lineNumber: 1222,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/Firefox.tsx",
-                                                        lineNumber: 1125,
+                                                        lineNumber: 1217,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/Firefox.tsx",
-                                                lineNumber: 1101,
+                                                lineNumber: 1193,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 1100,
+                                            lineNumber: 1192,
                                             columnNumber: 19
                                         }, this),
                                         repoError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3624,7 +3735,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                             children: repoError
                                         }, void 0, false, {
                                             fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 1166,
+                                            lineNumber: 1258,
                                             columnNumber: 21
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3645,12 +3756,12 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                         children: repo.name
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1180,
+                                                                        lineNumber: 1272,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1179,
+                                                                    lineNumber: 1271,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3665,12 +3776,12 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                                 d: "M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                                lineNumber: 1196,
+                                                                                lineNumber: 1288,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1190,
+                                                                            lineNumber: 1282,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3678,19 +3789,19 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                             children: repo.stargazers_count
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1198,
+                                                                            lineNumber: 1290,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1189,
+                                                                    lineNumber: 1281,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1178,
+                                                            lineNumber: 1270,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3698,7 +3809,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                             children: repo.description || "No description available"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1202,
+                                                            lineNumber: 1294,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3717,7 +3828,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                                     }
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/components/Firefox.tsx",
-                                                                                    lineNumber: 1210,
+                                                                                    lineNumber: 1302,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3725,13 +3836,13 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                                     children: repo.language
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/components/Firefox.tsx",
-                                                                                    lineNumber: 1227,
+                                                                                    lineNumber: 1319,
                                                                                     columnNumber: 33
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1209,
+                                                                            lineNumber: 1301,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3742,13 +3853,13 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1232,
+                                                                            lineNumber: 1324,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1207,
+                                                                    lineNumber: 1299,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3762,7 +3873,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                                         children: topic
                                                                                     }, topic, false, {
                                                                                         fileName: "[project]/components/Firefox.tsx",
-                                                                                        lineNumber: 1241,
+                                                                                        lineNumber: 1333,
                                                                                         columnNumber: 35
                                                                                     }, this)),
                                                                                 repo.topics.length > 2 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3773,13 +3884,13 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/components/Firefox.tsx",
-                                                                                    lineNumber: 1249,
+                                                                                    lineNumber: 1341,
                                                                                     columnNumber: 35
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1239,
+                                                                            lineNumber: 1331,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -3792,7 +3903,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                                     children: "View"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/components/Firefox.tsx",
-                                                                                    lineNumber: 1260,
+                                                                                    lineNumber: 1352,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
@@ -3808,41 +3919,41 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                                         d: "M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/components/Firefox.tsx",
-                                                                                        lineNumber: 1262,
+                                                                                        lineNumber: 1354,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/components/Firefox.tsx",
-                                                                                    lineNumber: 1261,
+                                                                                    lineNumber: 1353,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1254,
+                                                                            lineNumber: 1346,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1237,
+                                                                    lineNumber: 1329,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1206,
+                                                            lineNumber: 1298,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, repo.id, true, {
                                                     fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1174,
+                                                    lineNumber: 1266,
                                                     columnNumber: 23
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 1172,
+                                            lineNumber: 1264,
                                             columnNumber: 19
                                         }, this),
                                         repos.length > reposPerPage && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3871,19 +3982,19 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                 d: "M15 19l-7-7 7-7"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                lineNumber: 1289,
+                                                                lineNumber: 1381,
                                                                 columnNumber: 27
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1288,
+                                                            lineNumber: 1380,
                                                             columnNumber: 25
                                                         }, this),
                                                         "Prev"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1274,
+                                                    lineNumber: 1366,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3894,7 +4005,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                             children: currentPage
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1295,
+                                                            lineNumber: 1387,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3902,20 +4013,20 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                             children: "/"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1296,
+                                                            lineNumber: 1388,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                             children: Math.ceil(repos.length / reposPerPage)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1297,
+                                                            lineNumber: 1389,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1294,
+                                                    lineNumber: 1386,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3942,24 +4053,24 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                 d: "M9 5l7 7-7 7"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                lineNumber: 1316,
+                                                                lineNumber: 1408,
                                                                 columnNumber: 27
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1315,
+                                                            lineNumber: 1407,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1300,
+                                                    lineNumber: 1392,
                                                     columnNumber: 23
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 1273,
+                                            lineNumber: 1365,
                                             columnNumber: 21
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3974,7 +4085,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                             children: paginatedRepos.length
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1325,
+                                                            lineNumber: 1417,
                                                             columnNumber: 31
                                                         }, this),
                                                         " of ",
@@ -3983,14 +4094,14 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                             children: repos.length
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1325,
+                                                            lineNumber: 1417,
                                                             columnNumber: 111
                                                         }, this),
                                                         " repos"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1324,
+                                                    lineNumber: 1416,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4003,7 +4114,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                 className: "animate-spin h-3 w-3 sm:h-4 sm:w-4 border-2 border-purple-300 border-t-transparent rounded-full mr-1 sm:mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                lineNumber: 1335,
+                                                                lineNumber: 1427,
                                                                 columnNumber: 27
                                                             }, this),
                                                             "Refreshing..."
@@ -4023,12 +4134,12 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                                     d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1341,
+                                                                    lineNumber: 1433,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                lineNumber: 1340,
+                                                                lineNumber: 1432,
                                                                 columnNumber: 27
                                                             }, this),
                                                             "Refresh"
@@ -4036,607 +4147,520 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                                     }, void 0, true)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1328,
+                                                    lineNumber: 1420,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 1323,
+                                            lineNumber: 1415,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/Firefox.tsx",
-                                    lineNumber: 1093,
+                                    lineNumber: 1185,
                                     columnNumber: 17
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "default-page p-6",
-                                    children: [
-                                        !currentUrl.includes("/tools") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                                            className: "text-2xl font-bold mb-6 text-purple-300 backdrop-blur-sm inline-block px-3 py-1 rounded",
-                                            style: {
-                                                backgroundColor: 'rgba(126, 34, 206, 0.1)'
-                                            },
-                                            children: "Crypter Security"
-                                        }, void 0, false, {
-                                            fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 1353,
-                                            columnNumber: 21
-                                        }, this),
-                                        !currentUrl.includes("/tools") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                            className: "mb-6 text-gray-200 max-w-3xl backdrop-blur-sm inline-block px-3 py-2 rounded-md",
-                                            style: {
-                                                backgroundColor: 'rgba(30, 30, 30, 0.2)'
-                                            },
-                                            children: "Welcome to Crypter Security - Elite cybersecurity services specializing in offensive security solutions and advanced threat mitigation strategies for organizations worldwide."
-                                        }, void 0, false, {
-                                            fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 1358,
-                                            columnNumber: 21
-                                        }, this),
-                                        currentUrl.includes("/tools") ? // Tools page content
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "tools-page",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                                    className: "text-2xl font-bold text-purple-200 mb-4 sm:mb-6 border-b border-purple-500/20 pb-2",
-                                                    children: "Security Tools"
-                                                }, void 0, false, {
+                                    children: currentUrl.startsWith('home://certs') ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "certs-page",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "bg-gray-800/60 backdrop-blur-md p-6 rounded-lg border border-blue-500/30 shadow-[0_0_25px_rgba(59,130,246,0.25)] mb-6",
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "flex items-center gap-3",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "text-blue-400 text-xl",
+                                                            children: "✅"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/Firefox.tsx",
+                                                            lineNumber: 1447,
+                                                            columnNumber: 27
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                                                    className: "text-2xl font-bold text-blue-200",
+                                                                    children: "My Certificates"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/components/Firefox.tsx",
+                                                                    lineNumber: 1449,
+                                                                    columnNumber: 29
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                    className: "text-blue-300/80",
+                                                                    children: "Professional certifications and achievements"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/components/Firefox.tsx",
+                                                                    lineNumber: 1450,
+                                                                    columnNumber: 29
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/components/Firefox.tsx",
+                                                            lineNumber: 1448,
+                                                            columnNumber: 27
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
                                                     fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1366,
-                                                    columnNumber: 23
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1370,
-                                                    columnNumber: 23
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                    className: "text-xl font-bold text-purple-200 mt-8 sm:mt-10 mb-3 sm:mb-4 border-b border-purple-500/20 pb-2",
-                                                    children: "Tools Made By Me"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1375,
-                                                    columnNumber: 23
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6",
-                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "tool-card bg-gray-800/40 backdrop-blur-sm rounded-lg border border-purple-500/20 p-3 sm:p-4 hover:border-purple-500/40 transition-all hover:shadow-lg shadow-purple-500/10",
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                className: "flex items-center mb-2 sm:mb-3",
-                                                                children: [
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                        className: "tool-icon w-8 h-8 sm:w-10 sm:h-10 bg-indigo-700/30 rounded-lg flex items-center justify-center mr-2 sm:mr-3",
-                                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
-                                                                            xmlns: "http://www.w3.org/2000/svg",
-                                                                            className: "h-5 w-5 sm:h-6 sm:w-6 text-indigo-300",
-                                                                            viewBox: "0 0 20 20",
-                                                                            fill: "currentColor",
-                                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                                                                fillRule: "evenodd",
-                                                                                d: "M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z",
-                                                                                clipRule: "evenodd"
-                                                                            }, void 0, false, {
-                                                                                fileName: "[project]/components/Firefox.tsx",
-                                                                                lineNumber: 1385,
-                                                                                columnNumber: 33
-                                                                            }, this)
+                                                    lineNumber: 1446,
+                                                    columnNumber: 25
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/Firefox.tsx",
+                                                lineNumber: 1445,
+                                                columnNumber: 23
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "grid grid-cols-1 md:grid-cols-2 gap-6",
+                                                children: certifications.map((c)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "cert-card group perspective",
+                                                        onClick: ()=>setActiveCert(c),
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "card-inner",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "card-face card-front",
+                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        className: "h-40 w-40 bg-gray-900/50 rounded-xl border border-blue-500/30 flex items-center justify-center shadow-[0_10px_30px_rgba(37,99,235,0.25)]",
+                                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                                                            src: c.image,
+                                                                            alt: c.title,
+                                                                            className: "h-24 w-24 object-contain opacity-90"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1384,
-                                                                            columnNumber: 31
+                                                                            lineNumber: 1461,
+                                                                            columnNumber: 35
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1383,
-                                                                        columnNumber: 29
-                                                                    }, this),
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                                        className: "text-base sm:text-lg font-bold text-indigo-300",
-                                                                        children: "RAT-RATATOUILLE"
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1388,
-                                                                        columnNumber: 29
+                                                                        lineNumber: 1460,
+                                                                        columnNumber: 33
                                                                     }, this)
-                                                                ]
-                                                            }, void 0, true, {
-                                                                fileName: "[project]/components/Firefox.tsx",
-                                                                lineNumber: 1382,
-                                                                columnNumber: 27
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                className: "text-gray-300 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-3 sm:line-clamp-2",
-                                                                children: "A comprehensive client-server remote access tool with advanced monitoring and control capabilities."
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/components/Firefox.tsx",
-                                                                lineNumber: 1390,
-                                                                columnNumber: 27
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                className: "flex justify-between items-center",
-                                                                children: [
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                        className: "px-2 py-0.5 bg-indigo-900/30 text-indigo-300 text-xs rounded-full",
-                                                                        children: "Open Source"
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1394,
-                                                                        columnNumber: 29
-                                                                    }, this),
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                                                        href: "https://github.com/CrypterENC/RAT-RATATOUILLE.git",
-                                                                        target: "_blank",
-                                                                        rel: "noopener noreferrer",
-                                                                        className: "text-xs bg-indigo-600/40 hover:bg-indigo-600/60 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-md transition-colors flex items-center",
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/components/Firefox.tsx",
+                                                                    lineNumber: 1459,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "card-face card-back",
+                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        className: "bg-gradient-to-b from-blue-900/40 to-indigo-900/30 p-5 rounded-xl border border-blue-500/30 shadow-[0_10px_35px_rgba(37,99,235,0.35)] h-full",
                                                                         children: [
-                                                                            "GitHub",
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
-                                                                                xmlns: "http://www.w3.org/2000/svg",
-                                                                                className: "h-2.5 w-2.5 sm:h-3 sm:w-3 ml-1",
-                                                                                fill: "none",
-                                                                                viewBox: "0 0 24 24",
-                                                                                stroke: "currentColor",
-                                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                                                                    strokeLinecap: "round",
-                                                                                    strokeLinejoin: "round",
-                                                                                    strokeWidth: 2,
-                                                                                    d: "M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                                                                                }, void 0, false, {
-                                                                                    fileName: "[project]/components/Firefox.tsx",
-                                                                                    lineNumber: 1400,
-                                                                                    columnNumber: 33
-                                                                                }, this)
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                className: "flex items-center justify-between mb-2",
+                                                                                children: [
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                                                                        className: "text-xl font-bold text-blue-200",
+                                                                                        children: c.title
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/components/Firefox.tsx",
+                                                                                        lineNumber: 1467,
+                                                                                        columnNumber: 37
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                        className: "px-2 py-0.5 text-xs rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30",
+                                                                                        children: c.status
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/components/Firefox.tsx",
+                                                                                        lineNumber: 1468,
+                                                                                        columnNumber: 37
+                                                                                    }, this)
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "[project]/components/Firefox.tsx",
+                                                                                lineNumber: 1466,
+                                                                                columnNumber: 35
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                                className: "text-blue-100/80 text-sm leading-relaxed max-h-28 overflow-y-auto pr-1 custom-scrollbar",
+                                                                                children: c.description
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                                lineNumber: 1399,
-                                                                                columnNumber: 31
+                                                                                lineNumber: 1470,
+                                                                                columnNumber: 35
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                className: "flex gap-3 mt-3 text-xs flex-wrap",
+                                                                                children: [
+                                                                                    c.issued && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                        className: "px-2 py-1 rounded-full bg-blue-900/40 text-blue-200 border border-blue-500/30",
+                                                                                        children: [
+                                                                                            "Issued: ",
+                                                                                            c.issued
+                                                                                        ]
+                                                                                    }, void 0, true, {
+                                                                                        fileName: "[project]/components/Firefox.tsx",
+                                                                                        lineNumber: 1473,
+                                                                                        columnNumber: 39
+                                                                                    }, this),
+                                                                                    c.completed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                        className: "px-2 py-1 rounded-full bg-indigo-900/40 text-indigo-200 border border-indigo-500/30",
+                                                                                        children: [
+                                                                                            "Completed: ",
+                                                                                            c.completed
+                                                                                        ]
+                                                                                    }, void 0, true, {
+                                                                                        fileName: "[project]/components/Firefox.tsx",
+                                                                                        lineNumber: 1476,
+                                                                                        columnNumber: 39
+                                                                                    }, this),
+                                                                                    c.expires && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                        className: "px-2 py-1 rounded-full bg-blue-900/40 text-blue-200 border border-blue-500/30",
+                                                                                        children: [
+                                                                                            "Expires: ",
+                                                                                            c.expires
+                                                                                        ]
+                                                                                    }, void 0, true, {
+                                                                                        fileName: "[project]/components/Firefox.tsx",
+                                                                                        lineNumber: 1479,
+                                                                                        columnNumber: 39
+                                                                                    }, this)
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "[project]/components/Firefox.tsx",
+                                                                                lineNumber: 1471,
+                                                                                columnNumber: 35
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1397,
-                                                                        columnNumber: 29
+                                                                        lineNumber: 1465,
+                                                                        columnNumber: 33
                                                                     }, this)
-                                                                ]
-                                                            }, void 0, true, {
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/components/Firefox.tsx",
+                                                                    lineNumber: 1464,
+                                                                    columnNumber: 31
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/components/Firefox.tsx",
+                                                            lineNumber: 1458,
+                                                            columnNumber: 29
+                                                        }, this)
+                                                    }, c.id, false, {
+                                                        fileName: "[project]/components/Firefox.tsx",
+                                                        lineNumber: 1457,
+                                                        columnNumber: 27
+                                                    }, this))
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/Firefox.tsx",
+                                                lineNumber: 1455,
+                                                columnNumber: 23
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/components/Firefox.tsx",
+                                        lineNumber: 1444,
+                                        columnNumber: 21
+                                    }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "bg-gray-800/60 backdrop-blur-md p-6 rounded-lg border border-purple-500/30 shadow-lg mb-6",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                                                        className: "text-2xl font-bold text-white mb-2",
+                                                        children: [
+                                                            "Hi, I'm ",
+                                                            __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_NAME"],
+                                                            " 👋"
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/components/Firefox.tsx",
+                                                        lineNumber: 1492,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-gray-300",
+                                                        children: __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_WELCOME_TEXT"]
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/components/Firefox.tsx",
+                                                        lineNumber: 1493,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/components/Firefox.tsx",
+                                                lineNumber: 1491,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "bg-gray-800/50 rounded-lg border border-purple-500/20 p-4 mb-6",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "text-sm text-gray-400 mb-2",
+                                                        children: "Quick Search"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/components/Firefox.tsx",
+                                                        lineNumber: 1496,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "flex gap-2",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                value: startSearch,
+                                                                onChange: (e)=>setStartSearch(e.target.value),
+                                                                onKeyDown: (e)=>{
+                                                                    if (e.key === 'Enter') {
+                                                                        const q = startSearch.trim();
+                                                                        if (!q) return;
+                                                                        const isUrl = /^(https?:\/\/|home:\/\/)/i.test(q) || /\.[a-z]{2,}$/i.test(q);
+                                                                        const target = isUrl ? q.startsWith('http') || q.startsWith('home://') ? q : `https://${q}` : `https://duckduckgo.com/?q=${encodeURIComponent(q)}`;
+                                                                        navigateTo(target);
+                                                                    }
+                                                                },
+                                                                placeholder: "Type a URL or search the web and press Enter",
+                                                                className: "flex-1 bg-gray-900/60 text-gray-200 px-3 py-2 rounded-md border border-gray-700/50 outline-none focus:border-purple-500/50"
+                                                            }, void 0, false, {
                                                                 fileName: "[project]/components/Firefox.tsx",
-                                                                lineNumber: 1393,
-                                                                columnNumber: 27
+                                                                lineNumber: 1498,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                onClick: ()=>{
+                                                                    const q = startSearch.trim();
+                                                                    if (!q) return;
+                                                                    const isUrl = /^(https?:\/\/|home:\/\/)/i.test(q) || /\.[a-z]{2,}$/i.test(q);
+                                                                    const target = isUrl ? q.startsWith('http') || q.startsWith('home://') ? q : `https://${q}` : `https://duckduckgo.com/?q=${encodeURIComponent(q)}`;
+                                                                    navigateTo(target);
+                                                                },
+                                                                className: "px-4 py-2 bg-purple-600/60 hover:bg-purple-600/80 text-white rounded-md",
+                                                                children: "Go"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/Firefox.tsx",
+                                                                lineNumber: 1513,
+                                                                columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/Firefox.tsx",
-                                                        lineNumber: 1381,
-                                                        columnNumber: 25
+                                                        lineNumber: 1497,
+                                                        columnNumber: 21
                                                     }, this)
-                                                }, void 0, false, {
-                                                    fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1379,
-                                                    columnNumber: 23
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "bg-gray-800/30 backdrop-blur-sm rounded-lg border border-purple-500/20 p-3 sm:p-4 mb-4 sm:mb-6",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                            className: "text-base sm:text-lg font-bold text-purple-300 mb-2",
-                                                            children: "Custom Tool Development"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1411,
-                                                            columnNumber: 25
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                            className: "text-gray-300 text-xs sm:text-sm",
-                                                            children: "Need a specialized security tool for your unique environment? Our team develops custom security solutions tailored to your specific requirements and threat model."
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1412,
-                                                            columnNumber: 25
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                                            className: "mt-2 sm:mt-3 text-xs sm:text-sm bg-purple-600/40 hover:bg-purple-600/60 text-white px-3 sm:px-4 py-1 sm:py-1.5 rounded-md transition-colors flex items-center w-max",
-                                                            children: [
-                                                                "Inquire About Custom Tools",
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
-                                                                    xmlns: "http://www.w3.org/2000/svg",
-                                                                    className: "h-3 w-3 sm:h-4 sm:w-4 ml-1",
-                                                                    fill: "none",
-                                                                    viewBox: "0 0 24 24",
-                                                                    stroke: "currentColor",
-                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                                                        strokeLinecap: "round",
-                                                                        strokeLinejoin: "round",
-                                                                        strokeWidth: 2,
-                                                                        d: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/components/Firefox.tsx",
-                                                                        lineNumber: 1418,
-                                                                        columnNumber: 29
-                                                                    }, this)
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1417,
-                                                                    columnNumber: 27
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1415,
-                                                            columnNumber: 25
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1410,
-                                                    columnNumber: 23
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "text-xs text-gray-400 p-2 sm:p-3 bg-gray-900/30 rounded-lg border border-gray-700/30",
-                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                                                children: "IMPORTANT:"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/components/Firefox.tsx",
-                                                                lineNumber: 1425,
-                                                                columnNumber: 28
-                                                            }, this),
-                                                            " All tools are provided for legitimate security testing and educational purposes only. Use responsibly and only on systems you own or have explicit permission to test. Crypter Security is not responsible for misuse of these tools."
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/components/Firefox.tsx",
-                                                        lineNumber: 1425,
-                                                        columnNumber: 25
-                                                    }, this)
-                                                }, void 0, false, {
-                                                    fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1424,
-                                                    columnNumber: 23
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 1365,
-                                            columnNumber: 21
-                                        }, this) : // Default homepage content
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "grid grid-cols-1 md:grid-cols-2 gap-6",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "card border border-purple-500/20 rounded-lg p-6 backdrop-blur-sm hover:bg-gray-800/40 transition-colors hover:shadow-lg hover:shadow-purple-500/10",
-                                                    style: {
-                                                        backgroundColor: 'rgba(30, 30, 30, 0.2)'
-                                                    },
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                                            className: "text-xl font-bold text-purple-200 mb-3 border-b border-purple-500/20 pb-2",
-                                                            children: "Professional Services"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1433,
-                                                            columnNumber: 25
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "space-y-3",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "service-item flex items-start",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-purple-400 mr-2",
-                                                                            children: "▹"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1436,
-                                                                            columnNumber: 29
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-gray-200",
-                                                                            children: "Advanced penetration testing with custom-tailored exploitation techniques"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1437,
-                                                                            columnNumber: 29
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1435,
-                                                                    columnNumber: 27
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "service-item flex items-start",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-purple-400 mr-2",
-                                                                            children: "▹"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1440,
-                                                                            columnNumber: 29
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-gray-200",
-                                                                            children: "Comprehensive vulnerability assessment with detailed remediation strategies"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1441,
-                                                                            columnNumber: 29
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1439,
-                                                                    columnNumber: 27
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "service-item flex items-start",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-purple-400 mr-2",
-                                                                            children: "▹"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1444,
-                                                                            columnNumber: 29
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-gray-200",
-                                                                            children: "Red team operations simulating real-world adversary tactics"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1445,
-                                                                            columnNumber: 29
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1443,
-                                                                    columnNumber: 27
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "service-item flex items-start",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-purple-400 mr-2",
-                                                                            children: "▹"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1448,
-                                                                            columnNumber: 29
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-gray-200",
-                                                                            children: "Security architecture consulting and implementation guidance"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1449,
-                                                                            columnNumber: 29
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1447,
-                                                                    columnNumber: 27
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1434,
-                                                            columnNumber: 25
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1431,
-                                                    columnNumber: 23
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "card border border-purple-500/20 rounded-lg p-6 backdrop-blur-sm hover:bg-gray-800/40 transition-colors hover:shadow-lg hover:shadow-purple-500/10",
-                                                    style: {
-                                                        backgroundColor: 'rgba(30, 30, 30, 0.2)'
-                                                    },
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                                            className: "text-xl font-bold text-purple-200 mb-3 border-b border-purple-500/20 pb-2",
-                                                            children: "About Our Expertise"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1456,
-                                                            columnNumber: 25
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "space-y-3",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "expertise-item flex items-start",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-purple-400 mr-2",
-                                                                            children: "▹"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1459,
-                                                                            columnNumber: 29
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-gray-200",
-                                                                            children: "Led by veteran security researchers with 10+ years of industry experience"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1460,
-                                                                            columnNumber: 29
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1458,
-                                                                    columnNumber: 27
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "expertise-item flex items-start",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-purple-400 mr-2",
-                                                                            children: "▹"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1463,
-                                                                            columnNumber: 29
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-gray-200",
-                                                                            children: "Specialized in zero-day vulnerability discovery and exploit development"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1464,
-                                                                            columnNumber: 29
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1462,
-                                                                    columnNumber: 27
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "expertise-item flex items-start",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-purple-400 mr-2",
-                                                                            children: "▹"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1467,
-                                                                            columnNumber: 29
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-gray-200",
-                                                                            children: "Published security research featured in major industry conferences"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1468,
-                                                                            columnNumber: 29
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1466,
-                                                                    columnNumber: 27
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "expertise-item flex items-start",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-purple-400 mr-2",
-                                                                            children: "▹"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1471,
-                                                                            columnNumber: 29
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-gray-200",
-                                                                            children: "Certified expertise: OSCP, CEH, CISSP, and custom-developed methodologies"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/Firefox.tsx",
-                                                                            lineNumber: 1472,
-                                                                            columnNumber: 29
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/components/Firefox.tsx",
-                                                                    lineNumber: 1470,
-                                                                    columnNumber: 27
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/components/Firefox.tsx",
-                                                            lineNumber: 1457,
-                                                            columnNumber: 25
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/components/Firefox.tsx",
-                                                    lineNumber: 1454,
-                                                    columnNumber: 23
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 1430,
-                                            columnNumber: 21
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "mt-6 p-4 border border-purple-500/20 rounded-lg backdrop-blur-sm",
-                                            style: {
-                                                backgroundColor: 'rgba(30, 30, 30, 0.2)'
-                                            },
-                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "text-center text-gray-300",
-                                                children: [
-                                                    "Explore our ",
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                                        href: "https://crypter.security/services",
-                                                        className: "text-purple-300 font-semibold hover:underline",
-                                                        children: "services"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/components/Firefox.tsx",
-                                                        lineNumber: 1481,
-                                                        columnNumber: 35
-                                                    }, this),
-                                                    " or check out our ",
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                                        href: "https://crypter.security/tools",
-                                                        onClick: (e)=>{
-                                                            e.preventDefault();
-                                                            navigateTo("https://crypter.security/tools");
-                                                        },
-                                                        className: "text-purple-300 font-semibold hover:underline",
-                                                        children: "security tools"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/components/Firefox.tsx",
-                                                        lineNumber: 1481,
-                                                        columnNumber: 167
-                                                    }, this),
-                                                    " for professional-grade cybersecurity solutions"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/Firefox.tsx",
-                                                lineNumber: 1480,
-                                                columnNumber: 21
+                                                lineNumber: 1495,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                        onClick: ()=>{
+                                                            if ("TURBOPACK compile-time falsy", 0) {
+                                                                "TURBOPACK unreachable";
+                                                            }
+                                                        },
+                                                        className: "bg-gray-800/50 hover:bg-gray-800/70 border border-purple-500/20 rounded-lg p-4 text-left",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "text-purple-300 font-semibold mb-1",
+                                                                children: "GitHub"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/Firefox.tsx",
+                                                                lineNumber: 1527,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "text-gray-400 text-sm",
+                                                                children: username
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/Firefox.tsx",
+                                                                lineNumber: 1528,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/components/Firefox.tsx",
+                                                        lineNumber: 1526,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                        onClick: ()=>navigateTo(__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_LINKEDIN_URL"]),
+                                                        className: "bg-gray-800/50 hover:bg-gray-800/70 border border-purple-500/20 rounded-lg p-4 text-left",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "text-purple-300 font-semibold mb-1",
+                                                                children: "LinkedIn"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/Firefox.tsx",
+                                                                lineNumber: 1531,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "text-gray-400 text-sm",
+                                                                children: "Profile"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/Firefox.tsx",
+                                                                lineNumber: 1532,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/components/Firefox.tsx",
+                                                        lineNumber: 1530,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                        onClick: ()=>navigateTo(`mailto:${__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_EMAIL"]}`),
+                                                        className: "bg-gray-800/50 hover:bg-gray-800/70 border border-purple-500/20 rounded-lg p-4 text-left",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "text-purple-300 font-semibold mb-1",
+                                                                children: "Email"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/Firefox.tsx",
+                                                                lineNumber: 1535,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "text-gray-400 text-sm",
+                                                                children: __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_EMAIL"]
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/Firefox.tsx",
+                                                                lineNumber: 1536,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/components/Firefox.tsx",
+                                                        lineNumber: 1534,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                        onClick: ()=>navigateTo(`https://github.com/${username}?tab=repositories`),
+                                                        className: "bg-gray-800/50 hover:bg-gray-800/70 border border-purple-500/20 rounded-lg p-4 text-left",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "text-purple-300 font-semibold mb-1",
+                                                                children: "Repositories"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/Firefox.tsx",
+                                                                lineNumber: 1539,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "text-gray-400 text-sm",
+                                                                children: "View all projects"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/Firefox.tsx",
+                                                                lineNumber: 1540,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/components/Firefox.tsx",
+                                                        lineNumber: 1538,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/components/Firefox.tsx",
+                                                lineNumber: 1525,
+                                                columnNumber: 20
                                             }, this)
-                                        }, void 0, false, {
-                                            fileName: "[project]/components/Firefox.tsx",
-                                            lineNumber: 1479,
-                                            columnNumber: 19
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
+                                        ]
+                                    }, void 0, true)
+                                }, void 0, false, {
                                     fileName: "[project]/components/Firefox.tsx",
-                                    lineNumber: 1350,
+                                    lineNumber: 1442,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/Firefox.tsx",
-                                lineNumber: 1090,
+                                lineNumber: 1182,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/Firefox.tsx",
-                        lineNumber: 1024,
+                        lineNumber: 1116,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/Firefox.tsx",
-                lineNumber: 953,
+                lineNumber: 1043,
+                columnNumber: 9
+            }, this),
+            activeCert && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-sm",
+                onClick: ()=>setActiveCert(null),
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "absolute top-6 right-8 text-gray-300 hover:text-white cursor-pointer",
+                        onClick: ()=>setActiveCert(null),
+                        children: "✕"
+                    }, void 0, false, {
+                        fileName: "[project]/components/Firefox.tsx",
+                        lineNumber: 1554,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "mx-4 max-w-5xl w-full",
+                        onClick: (e)=>e.stopPropagation(),
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "text-2xl font-bold text-blue-200 mb-3 flex items-center gap-3",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.8)]"
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/Firefox.tsx",
+                                        lineNumber: 1557,
+                                        columnNumber: 15
+                                    }, this),
+                                    activeCert.title
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/components/Firefox.tsx",
+                                lineNumber: 1556,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "bg-gray-900/80 border border-blue-500/30 rounded-lg shadow-[0_0_25px_rgba(59,130,246,0.35)] overflow-hidden",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                    src: activeCert.image,
+                                    alt: activeCert.title,
+                                    className: "w-full h-auto object-contain"
+                                }, void 0, false, {
+                                    fileName: "[project]/components/Firefox.tsx",
+                                    lineNumber: 1561,
+                                    columnNumber: 15
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/components/Firefox.tsx",
+                                lineNumber: 1560,
+                                columnNumber: 13
+                            }, this),
+                            (activeCert.provider || activeCert.issued) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "text-blue-300/90 text-sm mt-3 text-center",
+                                children: [
+                                    activeCert.provider ? `${activeCert.provider}` : '',
+                                    activeCert.provider && activeCert.issued ? ' • ' : '',
+                                    activeCert.issued ? `${activeCert.issued}` : ''
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/components/Firefox.tsx",
+                                lineNumber: 1564,
+                                columnNumber: 15
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/components/Firefox.tsx",
+                        lineNumber: 1555,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/components/Firefox.tsx",
+                lineNumber: 1553,
                 columnNumber: 9
             }, this),
             isMinimized && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4665,7 +4689,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                     d: "M12 21a9 9 0 100-18 9 9 0 000 18z"
                                 }, void 0, false, {
                                     fileName: "[project]/components/Firefox.tsx",
-                                    lineNumber: 1514,
+                                    lineNumber: 1594,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
@@ -4676,13 +4700,13 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                                     fill: "purple"
                                 }, void 0, false, {
                                     fileName: "[project]/components/Firefox.tsx",
-                                    lineNumber: 1520,
+                                    lineNumber: 1600,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/Firefox.tsx",
-                            lineNumber: 1507,
+                            lineNumber: 1587,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4690,22 +4714,39 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
                             children: "Firefox"
                         }, void 0, false, {
                             fileName: "[project]/components/Firefox.tsx",
-                            lineNumber: 1528,
+                            lineNumber: 1608,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/Firefox.tsx",
-                    lineNumber: 1506,
+                    lineNumber: 1586,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/Firefox.tsx",
-                lineNumber: 1496,
+                lineNumber: 1576,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("style", {
                 children: `
+        /* 3D flip card for certifications */
+        .perspective { perspective: 1200px; }
+        .card-inner {
+          position: relative;
+          width: 100%;
+          height: 220px;
+          transform-style: preserve-3d;
+          transition: transform 0.6s ease;
+        }
+        .cert-card:hover .card-inner { transform: rotateY(180deg); }
+        .card-face {
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          backface-visibility: hidden;
+          border-radius: 12px;
+        }
+        .card-back { transform: rotateY(180deg); }
         @keyframes loadingProgress {
           0% {
             width: 0%;
@@ -4910,7 +4951,7 @@ function Firefox({ onClose, initialUrl = "https://github.com/SriramBharath-7", s
         `
             }, void 0, false, {
                 fileName: "[project]/components/Firefox.tsx",
-                lineNumber: 1533,
+                lineNumber: 1613,
                 columnNumber: 7
             }, this)
         ]
@@ -4930,7 +4971,9 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Terminal$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/Terminal.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ArchLinuxOS$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ArchLinuxOS.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Firefox$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/Firefox.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/constants/profile.ts [app-ssr] (ecmascript)");
 "use client";
+;
 ;
 ;
 ;
@@ -4941,19 +4984,20 @@ function Home() {
     const [showFirefox, setShowFirefox] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [showGitHubProjects, setShowGitHubProjects] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [showTools, setShowTools] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [githubUsername, setGithubUsername] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("SriramBharath-7"); // Default username
+    const [showCerts, setShowCerts] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [githubUsername, setGithubUsername] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"]); // Default username
     const [firefoxPosition, setFirefoxPosition] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])({
         x: 0,
         y: 50
     });
-    // Function to handle opening Firefox from Terminal with the projects command
-    const handleOpenFirefox = (showProjects = false, showTools = false)=>{
+    // Function to handle opening Firefox from Terminal
+    const handleOpenFirefox = (showProjects = false, showTools = false, showCertsParam = false)=>{
         console.log('Opening Firefox with params:', {
             showProjects,
             showTools
         });
-        // Hardcode the username instead of prompting
-        setGithubUsername("SriramBharath-7");
+        // Set from centralized defaults
+        setGithubUsername(__TURBOPACK__imported__module__$5b$project$5d2f$constants$2f$profile$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_GITHUB_USERNAME"]);
         // Calculate center position for Firefox
         if ("TURBOPACK compile-time falsy", 0) {
             "TURBOPACK unreachable";
@@ -4962,6 +5006,7 @@ function Home() {
             setShowFirefox(true);
             setShowGitHubProjects(showProjects);
             setShowTools(showTools);
+            setShowCerts(showCertsParam);
         }
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -4971,7 +5016,7 @@ function Home() {
                 onOpenTerminal: ()=>setShowTerminal(true)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 111,
+                lineNumber: 115,
                 columnNumber: 7
             }, this),
             showTerminal && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Terminal$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -4979,7 +5024,7 @@ function Home() {
                 onOpenFirefox: handleOpenFirefox
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 115,
+                lineNumber: 119,
                 columnNumber: 9
             }, this),
             showFirefox && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Firefox$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -4988,21 +5033,22 @@ function Home() {
                     setShowFirefox(false);
                     setShowGitHubProjects(false);
                     setShowTools(false);
+                    setShowCerts(false);
                 },
-                initialUrl: "https://github.com/SriramBharath-7",
+                initialUrl: showCerts ? 'home://certs' : 'home://start',
                 showProjects: showGitHubProjects,
                 showTools: showTools,
                 githubUsername: githubUsername,
                 initialPosition: firefoxPosition
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 123,
+                lineNumber: 127,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/page.tsx",
-        lineNumber: 109,
+        lineNumber: 113,
         columnNumber: 5
     }, this);
 }
@@ -5010,4 +5056,4 @@ function Home() {
 
 };
 
-//# sourceMappingURL=_206c9bf3._.js.map
+//# sourceMappingURL=_7d063ea5._.js.map

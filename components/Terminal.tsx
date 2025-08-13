@@ -11,7 +11,7 @@ if (typeof window !== "undefined") {
 
 interface TerminalProps {
   onClose?: () => void;
-  onOpenFirefox?: (showProjects?: boolean, showTools?: boolean) => void; // Update to accept both parameters
+  onOpenFirefox?: (showProjects?: boolean, showTools?: boolean, showCerts?: boolean) => void; // Update to accept all parameters
   initialPosition?: { x: number; y: number }; // Add initial position prop
 }
 
@@ -110,6 +110,7 @@ export default function Terminal({
       "exit",
       "projects",
       "toolspage",
+      "certs",
     ],
     portfolio: [
       "about",
@@ -431,11 +432,29 @@ export default function Terminal({
 
         return "Opening tools page in Firefox...";
       },
+      certs: () => {
+        setIsLoading(true);
+        console.log('Terminal: Executing certs command');
+        setTimeout(() => {
+          console.log('Terminal: Minimizing terminal...');
+          handleMinimize();
+          setTimeout(() => {
+            console.log('Terminal: Opening Firefox with showCerts=true');
+            if (onOpenFirefox) {
+              onOpenFirefox(false, false, true);
+            } else {
+              console.log('Terminal: onOpenFirefox callback is not defined!');
+            }
+            setIsLoading(false);
+          }, 200);
+        }, 100);
+        return "Opening certifications in Firefox...";
+      },
       whoami: () => {
-        return `<div class="whoami-output">
-          <span class="user-info">User: <span class="user-value">Sriram Bharath</span></span>
-          <span class="user-info">Role: <span class="user-value">College Student CSE | 🛡️ Aspiring Ethical Hacker and Cybersecurity Expert</span></span>
-          <span class="user-info">Status: <span class="user-value">Active</span></span>
+        return `<div class="whoami-output whoami-grid">
+          <div class="whoami-row"><span class="whoami-label">User</span><span class="whoami-value">Sriram Bharath</span></div>
+          <div class="whoami-row"><span class="whoami-label">Role</span><span class="whoami-value">College Student (CSE) · 🛡️ Aspiring Ethical Hacker and Cybersecurity Expert</span></div>
+          <div class="whoami-row"><span class="whoami-label">Status</span><span class="whoami-value">Active</span></div>
         </div>`;
       },
       about: () =>
@@ -545,29 +564,17 @@ Working on various cybersecurity projects including vulnerability assessment too
       const response = commands[command](args);
 
       if (["about", "contact", "ctf"].includes(command) && command in htmlFormatters) {
-        // First set loading state to true and add loading indicator to history
+        // Append a formatted block to history (no typing), so it doesn't interfere with the input
         setIsLoading(true);
         setSpecialCommand(command);
-
-        // Add a very minimal delay before starting the typing effect
+        setIsTyping(false);
         setTimeout(() => {
-          // Start typing effect after loading
-          typeText(response, () => {
-            // After typing completes, replace with formatted HTML
-            const formattedResponse = htmlFormatters[command](response);
-            setHistory((prev) => {
-              const newHistory = [...prev];
-              // Replace the last item (which is the plain text) with formatted HTML
-              if (newHistory.length > 0) {
-                newHistory[newHistory.length - 1] = formattedResponse;
-              }
-              return newHistory;
-            });
-            setSpecialCommand(null);
-            setIsLoading(false); // Set loading state to false when done
-          });
-        }, 150); // Extremely short delay
-
+          const formattedResponse = htmlFormatters[command](response);
+          setHistory((prev) => [...prev, formattedResponse]);
+          setSpecialCommand(null);
+          setIsLoading(false);
+          scrollToBottom();
+        }, 150);
         return "";
       }
 
@@ -1733,13 +1740,18 @@ Working on various cybersecurity projects including vulnerability assessment too
           color: #86efac;
         }
 
-        .whoami-output {
+        :global(.whoami-output) {
           background-color: rgba(0, 0, 0, 0.3);
           border-left: 3px solid #10b981;
           padding: 12px 16px;
           margin: 8px 0;
           border-radius: 0 4px 4px 0;
         }
+        :global(.whoami-grid) { display: grid; gap: 8px; }
+        :global(.whoami-row) { display: grid; grid-template-columns: 110px 1fr; align-items: baseline; }
+        :global(.whoami-label) { color: #94a3b8; font-weight: 600; }
+        :global(.whoami-label)::after { content: ":"; margin: 0 8px; color: #64748b; }
+        :global(.whoami-value) { color: #60a5fa; font-weight: 500; }
 
         .user-info {
           display: block;
@@ -2268,6 +2280,7 @@ const handleHelpCommand = (args: string[]) => {
     { cmd: 'education', desc: 'My Education' },
     { cmd: 'skills', desc: 'My Tech Skills' },
     { cmd: 'projects', desc: 'View GitHub projects in Firefox' },
+    { cmd: 'certs', desc: 'View certifications' },
     { cmd: 'ctf', desc: 'View CTF achievements and writeups' },
     { cmd: 'contact', desc: 'Display contact information' },
     { cmd: 'blog', desc: 'Visit my blog' },

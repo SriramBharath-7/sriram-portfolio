@@ -4,24 +4,26 @@ import { useState } from "react";
 import Terminal from "../components/Terminal";
 import ArchLinuxOS from "../components/ArchLinuxOS";
 import Firefox from "../components/Firefox";
+import { DEFAULT_GITHUB_USERNAME } from "../constants/profile";
 
 export default function Home() {
   const [showTerminal, setShowTerminal] = useState(false);
   const [showFirefox, setShowFirefox] = useState(false);
   const [showGitHubProjects, setShowGitHubProjects] = useState(false);
   const [showTools, setShowTools] = useState(false);
-  const [githubUsername, setGithubUsername] = useState("SriramBharath-7"); // Default username
+  const [showCerts, setShowCerts] = useState(false);
+  const [githubUsername, setGithubUsername] = useState(DEFAULT_GITHUB_USERNAME); // Default username
   const [firefoxPosition, setFirefoxPosition] = useState<{
     x: number;
     y: number;
   }>({ x: 0, y: 50 });
 
-  // Function to handle opening Firefox from Terminal with the projects command
-  const handleOpenFirefox = (showProjects = false, showTools = false) => {
+  // Function to handle opening Firefox from Terminal
+  const handleOpenFirefox = (showProjects = false, showTools = false, showCertsParam = false) => {
     console.log('Opening Firefox with params:', { showProjects, showTools });
     
-    // Hardcode the username instead of prompting
-    setGithubUsername("SriramBharath-7");
+    // Set from centralized defaults
+    setGithubUsername(DEFAULT_GITHUB_USERNAME);
 
     // Calculate center position for Firefox
     if (typeof window !== "undefined") {
@@ -90,6 +92,7 @@ export default function Home() {
         setShowFirefox(true);
         setShowGitHubProjects(showProjects);
         setShowTools(showTools);
+        setShowCerts(showCertsParam);
         
         console.log('Firefox states set:', { 
           showFirefox: true, 
@@ -102,6 +105,7 @@ export default function Home() {
       setShowFirefox(true);
       setShowGitHubProjects(showProjects);
       setShowTools(showTools);
+      setShowCerts(showCertsParam);
     }
   };
 
@@ -126,8 +130,9 @@ export default function Home() {
             setShowFirefox(false);
             setShowGitHubProjects(false);
             setShowTools(false);
+            setShowCerts(false);
           }}
-          initialUrl="https://github.com/SriramBharath-7"
+          initialUrl={showCerts ? 'home://certs' : 'home://start'}
           showProjects={showGitHubProjects}
           showTools={showTools}
           githubUsername={githubUsername}
