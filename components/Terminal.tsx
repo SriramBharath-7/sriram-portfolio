@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import gsap from "gsap";
-import { ScrollToPlugin } from "gsap/all";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
 // Register ScrollToPlugin for smooth scrolling
 if (typeof window !== "undefined") {

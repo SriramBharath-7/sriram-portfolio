@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import Image from "next/image";
 import gsap from "gsap";
-import { ScrollToPlugin } from "gsap/all";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import {
   DEFAULT_GITHUB_USERNAME,
   DEFAULT_LINKEDIN_URL,
