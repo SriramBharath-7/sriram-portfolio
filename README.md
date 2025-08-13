@@ -105,7 +105,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Original creator: [CrypterENC](https://github.com/CrypterENC/OS_PORTFOLIO)
+- Original creator: [CrypterENC](https://github.com/CrypterENC/OS_PORTFOLIO) [WebSite](https://crypter-xi.vercel.app/)
 - Inspired by Arch Linux and Hyprland
 - Terminal design influenced by modern CLI tools
 - Icons and assets from various open-source projects
