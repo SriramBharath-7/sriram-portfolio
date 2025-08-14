@@ -1204,13 +1204,7 @@ export default function Firefox({
             <div className="browser-page p-6 text-gray-200 bg-slate-900/30 min-h-[500px] custom-scrollbar">
               {/* Content varies based on URL */}
                 {currentUrl.includes("github.com") ? (
-                <div
-                  className="github-projects-page custom-scrollbar overflow-y-auto relative"
-                  ref={projectsContainerRef}
-                >
-                  <div className="scroll-progress-container">
-                    <div className="scroll-progress-bar"></div>
-                  </div>
+                <div className="github-projects-page relative">
                   <div className="github-header bg-gray-800/60 backdrop-blur-md p-6 rounded-lg border border-purple-500/30 shadow-lg mb-6">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                       <div className="flex items-center">
