@@ -537,6 +537,25 @@ export default function Firefox({
     }
   }, [currentPage, currentUrl]);
 
+  // Define updateScrollProgress at the component level
+  const updateScrollProgress = useCallback((container: HTMLElement, progressBar: HTMLElement) => {
+    if (!container || !progressBar) return;
+    
+    const scrollTop = container.scrollTop;
+    const scrollHeight = container.scrollHeight;
+    const clientHeight = container.clientHeight;
+    
+    // Calculate scroll percentage
+    const scrollPercentage = (scrollTop / (scrollHeight - clientHeight)) * 100;
+    
+    // Update progress bar width with smooth animation
+    gsap.to(progressBar, {
+      width: `${Math.min(scrollPercentage, 100)}%`,
+      duration: 0.3,
+      ease: "power2.out",
+    });
+  }, []);
+
   // Update the scroll progress indicator useEffect to use the correct container
   useEffect(() => {
     // Only run if we're on the GitHub projects page and the ref is available
@@ -551,38 +570,21 @@ export default function Firefox({
       // Set initial width
       gsap.set(progressBar, { width: "0%" });
 
-      // Function to update scroll progress
-      const updateScrollProgress = useCallback(() => {
-        if (!container) return;
-
-        const scrollTop = container.scrollTop;
-        const scrollHeight = container.scrollHeight;
-        const clientHeight = container.clientHeight;
-
-        // Calculate scroll percentage
-        const scrollPercentage =
-          (scrollTop / (scrollHeight - clientHeight)) * 100;
-
-        // Update progress bar width with smooth animation
-        gsap.to(progressBar, {
-          width: `${Math.min(scrollPercentage, 100)}%`,
-          duration: 0.3,
-          ease: "power2.out",
-        });
-      }, [container, progressBar]);
-
+      // Create a scroll handler that uses the top-level updateScrollProgress function
+      const scrollHandler = () => updateScrollProgress(container, progressBar);
+      
       // Add scroll event listener
-      container.addEventListener("scroll", updateScrollProgress);
+      container.addEventListener("scroll", scrollHandler);
 
       // Initial update
-      updateScrollProgress();
+      scrollHandler();
 
       // Clean up event listener on unmount
       return () => {
-        container.removeEventListener("scroll", updateScrollProgress);
+        container.removeEventListener("scroll", scrollHandler);
       };
     }
-  }, [currentUrl, projectsContainerRef]);
+  }, [currentUrl, projectsContainerRef, updateScrollProgress]);
 
   // Add an effect to animate the repo cards with GSAP
   useEffect(() => {
