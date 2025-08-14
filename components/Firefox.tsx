@@ -555,49 +555,9 @@ export default function Firefox({
     }
   }, [currentPage, currentUrl]);
 
-  // Define updateScrollProgress at the component level (RAF + direct style for smoothness)
-  const scrollRafRef = useRef<number | null>(null);
-  const updateScrollProgress = useCallback((container: HTMLElement, progressBar: HTMLElement) => {
-    if (!container || !progressBar) return;
-    if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
-    scrollRafRef.current = requestAnimationFrame(() => {
-      const scrollTop = container.scrollTop;
-      const scrollHeight = container.scrollHeight;
-      const clientHeight = container.clientHeight;
-      const scrollPercentage = (scrollTop / (scrollHeight - clientHeight)) * 100;
-      progressBar.style.width = `${Math.min(scrollPercentage, 100)}%`;
-    });
-  }, []);
+  // Remove scroll-progress logic completely
 
-  // Update the scroll progress indicator useEffect to use the correct container
-  useEffect(() => {
-    // Only run if we're on the GitHub projects page and the ref is available
-    if (currentUrl.includes("github.com") && projectsContainerRef.current) {
-      const container = projectsContainerRef.current;
-      const progressBar = container.querySelector(
-        ".scroll-progress-bar"
-      ) as HTMLElement;
-
-      if (!progressBar) return;
-
-      // Set initial width
-      gsap.set(progressBar, { width: "0%" });
-
-      // Create a scroll handler that uses the top-level updateScrollProgress function
-      const scrollHandler = () => updateScrollProgress(container, progressBar);
-      
-      // Add scroll event listener (passive for smooth scrolling)
-      container.addEventListener("scroll", scrollHandler, { passive: true });
-
-      // Initial update
-      scrollHandler();
-
-      // Clean up event listener on unmount
-      return () => {
-        container.removeEventListener("scroll", scrollHandler);
-      };
-    }
-  }, [currentUrl, projectsContainerRef, updateScrollProgress]);
+  // No scroll-progress effect
 
   // Remove continuous card animations to prevent scroll jank
 
@@ -1139,10 +1099,7 @@ export default function Firefox({
               overscrollBehavior: 'contain'
             }}
           >
-            {/* Adding global scroll progress indicator */}
-            <div className="scroll-progress-container">
-              <div className="scroll-progress-bar"></div>
-            </div>
+            {/* Removed progress bar to avoid scroll interference */}
 
             {/* URL bar */}
             <div className="url-bar flex items-center p-2 bg-gray-800/70 backdrop-blur-sm">
