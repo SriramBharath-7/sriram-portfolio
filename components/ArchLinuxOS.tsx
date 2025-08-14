@@ -421,8 +421,8 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
         </div>
       </div>
 
-      {/* GitHub Star Button */}
-      <div className="fixed bottom-4 right-4 z-50 group">
+      {/* GitHub Star Button - keep behind app windows */}
+      <div className="fixed bottom-4 right-4 z-20 group">
         <a
           href="https://github.com/SriramBharath-7/sriram-portfolio"
           target="_blank"
