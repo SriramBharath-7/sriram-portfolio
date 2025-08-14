@@ -5,11 +5,12 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 // Import Firefox dynamically to fix the rendering issue
 const Firefox = dynamic(() => import('./Firefox'), { ssr: false });
-import firefoxLogo from "../public/assets/svg/firefox.svg";
-import terminallogo from "../public/assets/svg/terminal.svg";
+// Import the PNG logo and wallpaper with Next.js Image
 import archLinuxLogo from "../public/assets/svg/kali-logo.png";
-// Import the wallpaper
 import wallpaper from "../public/assets/wallpaper/kali-ferrofluid.jpg";
+// Define paths for SVG files
+const firefoxLogoPath = "/assets/svg/firefox.svg";
+const terminalLogoPath = "/assets/svg/terminal.svg";
 
 interface ArchLinuxOSProps {
   onOpenTerminal: (initialPosition?: { x: number; y: number }) => void;
@@ -270,14 +271,13 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
           onClick={() => initialWindowPosition && onOpenTerminal(initialWindowPosition)}
         >
           <div className="icon-bg p-3 mb-2">
-            <Image
-              src={terminallogo}
+            <img
+              src={terminalLogoPath}
               alt="Terminal Logo"
               width={56}
               height={56}
               className="transition-all duration-300"
               style={{ width: '56px', height: '56px', maxWidth: '100%', objectFit: 'contain' }}
-              priority
             />
           </div>
           <span className="text-xs text-white font-medium px-2 py-1 rounded">
@@ -290,8 +290,8 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
           onClick={() => handleOpenFirefox(false, false)}
         >
           <div className="icon-bg p-3 mb-2">
-            <Image
-              src={firefoxLogo}
+            <img
+              src={firefoxLogoPath}
               alt="Firefox Logo"
               width={56}
               height={56}
