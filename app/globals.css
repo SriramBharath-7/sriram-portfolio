@@ -263,21 +263,69 @@
   color: rgba(96, 165, 250, 0.9);
 }
 
-/* Desktop icon glow */
+/* Desktop icon hover effects */
+.desktop-icon {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+  position: relative;
+}
+
 .desktop-icon:hover {
-  filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.6));
+  transform: scale(1.1);
+}
+
+.desktop-icon .icon-bg {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  position: relative;
 }
 
 .desktop-icon:hover .icon-bg {
-  box-shadow: 0 0 15px rgba(96, 165, 250, 0.4);
+  background: rgba(96, 165, 250, 0.15);
+  box-shadow: 
+    0 4px 12px rgba(96, 165, 250, 0.2),
+    0 0 20px rgba(96, 165, 250, 0.3),
+    0 0 30px rgba(96, 165, 250, 0.2),
+    0 0 40px rgba(96, 165, 250, 0.1);
+}
+
+.desktop-icon span {
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .desktop-icon:hover span {
   color: rgba(96, 165, 250, 1);
+  text-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
+}
+
+.desktop-icon img {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 0 0 transparent);
 }
 
 .desktop-icon:hover img {
-  filter: drop-shadow(0 0 5px rgba(96, 165, 250, 0.6));
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.6));
+}
+
+/* Add a subtle glow effect around the entire icon container */
+.desktop-icon::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.desktop-icon:hover::before {
+  opacity: 1;
 }
 
 /* Taskbar border */

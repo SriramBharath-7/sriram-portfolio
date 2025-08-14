@@ -267,10 +267,10 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
       {/* Desktop icons with larger size */}
       <div className="desktop-icons absolute top-16 left-4 grid gap-6 z-30">
         <div
-          className="desktop-icon flex flex-col items-center cursor-pointer"
+          className="desktop-icon flex flex-col items-center cursor-pointer group"
           onClick={() => initialWindowPosition && onOpenTerminal(initialWindowPosition)}
         >
-          <div className="icon-bg p-3 mb-2">
+          <div className="icon-bg p-3 mb-2 rounded-lg transition-all duration-300">
             <img
               src={terminalLogoPath}
               alt="Terminal Logo"
@@ -280,16 +280,16 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
               style={{ width: '56px', height: '56px', maxWidth: '100%', objectFit: 'contain' }}
             />
           </div>
-          <span className="text-xs text-white font-medium px-2 py-1 rounded">
+          <span className="text-xs text-white font-medium px-2 py-1 rounded transition-colors duration-300">
             Terminal
           </span>
         </div>
 
         <div
-          className="desktop-icon flex flex-col items-center cursor-pointer"
+          className="desktop-icon flex flex-col items-center cursor-pointer group"
           onClick={() => handleOpenFirefox(false, false)}
         >
-          <div className="icon-bg p-3 mb-2">
+          <div className="icon-bg p-3 mb-2 rounded-lg transition-all duration-300">
             <img
               src={firefoxLogoPath}
               alt="Firefox Logo"
@@ -299,7 +299,7 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
               style={{ width: '56px', height: '56px', maxWidth: '100%', objectFit: 'contain' }}
             />
           </div>
-          <span className="text-xs text-white font-medium px-2 py-1 rounded">
+          <span className="text-xs text-white font-medium px-2 py-1 rounded transition-colors duration-300">
             Firefox
           </span>
         </div>
