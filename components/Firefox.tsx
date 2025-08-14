@@ -542,18 +542,17 @@ export default function Firefox({
     }
   }, []);
 
-  // Update pagination to use smooth scrolling
+  // Update pagination to use smooth scrolling (only when page number changes)
   useEffect(() => {
-    // Smooth scroll to top when page changes
-    if (currentUrl.includes("github.com") && projectsContainerRef.current) {
+    if (projectsContainerRef.current) {
       gsap.to(projectsContainerRef.current, {
         scrollTo: { y: 0, autoKill: true },
-        duration: 0.4,
+        duration: 0.3,
         ease: "power3.out",
         overwrite: true,
       });
     }
-  }, [currentPage, currentUrl]);
+  }, [currentPage]);
 
   // Remove scroll-progress logic completely
 
@@ -806,7 +805,6 @@ export default function Firefox({
           setRepos(cachedData);
           setRepoError(null);
           setIsLoading(false);
-          scrollToProjectsTop();
 
           // Update cache in background
           updateCacheInBackground(username, cacheKey);
@@ -877,12 +875,10 @@ export default function Firefox({
 
         setRepos(originalRepos);
         setRepoError(null);
-        scrollToProjectsTop();
       } else {
         // No repos found, use sample data
         setRepos(sampleRepos);
         setRepoError("No repositories found. Using sample data instead.");
-        scrollToProjectsTop();
       }
     } catch (error) {
       console.error("Error fetching GitHub repos:", error);
@@ -1015,7 +1011,7 @@ export default function Firefox({
     <>
       {!isMinimized && (
         <div
-          className={`firefox-window bg-gray-900/40 backdrop-blur-sm border border-purple-500/30 shadow-lg overflow-hidden flex flex-col z-40 absolute ${
+           className={`firefox-window bg-gray-900/40 backdrop-blur-sm border border-purple-500/30 shadow-lg overflow-hidden flex flex-col z-40 fixed ${
             firefoxState.isMaximized ? "firefox-maximized" : "rounded-md"
           }`}
           style={{

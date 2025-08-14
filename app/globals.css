@@ -180,6 +180,18 @@
   cursor: none !important;
 }
 
+/* Force-hide OS cursor globally to avoid showing over native scrollbars */
+html, body {
+  cursor: none !important;
+}
+
+/* Explicitly hide cursor over WebKit scrollbar pseudos */
+.custom-scrollbar::-webkit-scrollbar,
+.custom-scrollbar::-webkit-scrollbar-thumb,
+.custom-scrollbar::-webkit-scrollbar-track {
+  cursor: none !important;
+}
+
 /* Boot sequence animation */
 .terminal-boot {
   animation: terminal-boot 0.8s ease-in-out;
