@@ -128,6 +128,9 @@ export default function Firefox({
   const username = githubUsername; // Use the provided GitHub username
   const [isLoading, setIsLoading] = useState(false);
   const [startSearch, setStartSearch] = useState("");
+  const [visitsCount, setVisitsCount] = useState<number | null>(null);
+  const [visitsLoading, setVisitsLoading] = useState(false);
+  const [visitsError, setVisitsError] = useState<string | null>(null);
   const [blogPosts, setBlogPosts] = useState<Array<{
     id: string;
     title: string;
@@ -1006,6 +1009,37 @@ export default function Firefox({
       .finally(() => setBlogsLoading(false));
   }, [currentUrl]);
 
+  // Simple site visits analytics using countapi.xyz when on the start/home view
+  useEffect(() => {
+    const onHomeStart =
+      currentUrl.startsWith('home://start') ||
+      (!currentUrl.includes('github.com') &&
+        !currentUrl.startsWith('home://blogs') &&
+        !currentUrl.startsWith('home://certs'));
+
+    if (!onHomeStart) return;
+    setVisitsLoading(true);
+    setVisitsError(null);
+    try {
+      const hostKey = typeof window !== 'undefined' ? window.location.host.replace(/[:.]/g, '-') : 'local';
+      const ns = 'sriram-portfolio-analytics';
+      fetch(`https://api.countapi.xyz/hit/${ns}/${hostKey}`)
+        .then(async (r) => (r.ok ? r.json() : { value: null }))
+        .then((data) => {
+          if (typeof data?.value === 'number') {
+            setVisitsCount(data.value);
+          } else {
+            setVisitsError('Unavailable');
+          }
+        })
+        .catch(() => setVisitsError('Unavailable'))
+        .finally(() => setVisitsLoading(false));
+    } catch {
+      setVisitsLoading(false);
+      setVisitsError('Unavailable');
+    }
+  }, [currentUrl]);
+
   // Return the Firefox browser component JSX
   return (
     <>
@@ -1525,7 +1559,7 @@ export default function Firefox({
                     <h1 className="text-2xl font-bold text-white mb-2">Hi, I&apos;m {DEFAULT_NAME} 👋</h1>
                     <p className="text-gray-300">{DEFAULT_WELCOME_TEXT}</p>
                           </div>
-                  <div className="bg-gray-800/50 rounded-lg border border-purple-500/20 p-4 mb-6">
+                   <div className="bg-gray-800/50 rounded-lg border border-purple-500/20 p-4 mb-6">
                     <div className="text-sm text-gray-400 mb-2">Quick Search</div>
                     <div className="flex gap-2">
                       <input
@@ -1556,23 +1590,60 @@ export default function Firefox({
                           </div>
                           </div>
                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <button onClick={() => { if (typeof window !== 'undefined') { window.open(`https://github.com/${username}`, '_blank', 'noopener,noreferrer'); } }} className="bg-gray-800/50 hover:bg-gray-800/70 border border-purple-500/20 rounded-lg p-4 text-left">
-                      <div className="text-purple-300 font-semibold mb-1">GitHub</div>
-                      <div className="text-gray-400 text-sm">{username}</div>
+                    <button
+                      onClick={() => { if (typeof window !== 'undefined') { window.open(`https://github.com/${username}`, '_blank', 'noopener,noreferrer'); } }}
+                      className="group relative overflow-hidden rounded-lg p-4 text-left bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-purple-500/20 hover:border-purple-500/40 transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(124,58,237,0.25)]"
+                    >
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.25),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.2),transparent_40%)]" />
+                      <div className="relative">
+                        <div className="text-purple-300 font-semibold mb-1">GitHub</div>
+                        <div className="text-gray-400 text-sm">{username}</div>
+                      </div>
                     </button>
-                    <button onClick={() => navigateTo(DEFAULT_LINKEDIN_URL)} className="bg-gray-800/50 hover:bg-gray-800/70 border border-purple-500/20 rounded-lg p-4 text-left">
-                      <div className="text-purple-300 font-semibold mb-1">LinkedIn</div>
-                      <div className="text-gray-400 text-sm">Profile</div>
+                    <button
+                      onClick={() => navigateTo(DEFAULT_LINKEDIN_URL)}
+                      className="group relative overflow-hidden rounded-lg p-4 text-left bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-purple-500/20 hover:border-purple-500/40 transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(59,130,246,0.25)]"
+                    >
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.25),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(139,92,246,0.2),transparent_40%)]" />
+                      <div className="relative">
+                        <div className="text-purple-300 font-semibold mb-1">LinkedIn</div>
+                        <div className="text-gray-400 text-sm">Profile</div>
+                      </div>
                     </button>
-                    <button onClick={() => navigateTo(`mailto:${DEFAULT_EMAIL}`)} className="bg-gray-800/50 hover:bg-gray-800/70 border border-purple-500/20 rounded-lg p-4 text-left">
-                      <div className="text-purple-300 font-semibold mb-1">Email</div>
-                      <div className="text-gray-400 text-sm">{DEFAULT_EMAIL}</div>
+                    <button
+                      onClick={() => navigateTo(`mailto:${DEFAULT_EMAIL}`)}
+                      className="group relative overflow-hidden rounded-lg p-4 text-left bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-purple-500/20 hover:border-purple-500/40 transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(16,185,129,0.25)]"
+                    >
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_20%_20%,rgba(16,185,129,0.25),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(34,197,94,0.2),transparent_40%)]" />
+                      <div className="relative">
+                        <div className="text-purple-300 font-semibold mb-1">Email</div>
+                        <div className="text-gray-400 text-sm">{DEFAULT_EMAIL}</div>
+                      </div>
                     </button>
-                    <button onClick={() => navigateTo(`https://github.com/${username}?tab=repositories`)} className="bg-gray-800/50 hover:bg-gray-800/70 border border-purple-500/20 rounded-lg p-4 text-left">
-                      <div className="text-purple-300 font-semibold mb-1">Repositories</div>
-                      <div className="text-gray-400 text-sm">View all projects</div>
-                        </button>
-                          </div>
+                    <button
+                      onClick={() => navigateTo(`https://github.com/${username}?tab=repositories`)}
+                      className="group relative overflow-hidden rounded-lg p-4 text-left bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-purple-500/20 hover:border-purple-500/40 transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(234,179,8,0.2)]"
+                    >
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_20%_20%,rgba(234,179,8,0.25),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(139,92,246,0.2),transparent_40%)]" />
+                      <div className="relative">
+                        <div className="text-purple-300 font-semibold mb-1">Repositories</div>
+                        <div className="text-gray-400 text-sm">View all projects</div>
+                      </div>
+                    </button>
+                   </div>
+
+                   {/* Simple analytics card */}
+                   <div className="mt-6 bg-gray-800/50 rounded-lg border border-purple-500/20 p-4">
+                     <div className="flex items-center justify-between">
+                       <div>
+                         <div className="text-sm text-gray-400">Total Visits</div>
+                         <div className="text-2xl font-bold text-purple-300">
+                           {visitsLoading ? '…' : visitsError ? '—' : visitsCount ?? '—'}
+                         </div>
+                       </div>
+                       <div className="text-xs text-gray-500">live via countapi.xyz</div>
+                     </div>
+                   </div>
                    </>
                   )}
                     </div>
