@@ -1,5 +1,6 @@
 # Sriram Portfolio (Next.js + React + Tailwind)
 
+ 
 A modern, interactive portfolio that simulates an Kali Linux desktop with a terminal and an in-window Firefox-like browser. It includes a command-driven terminal, draggable/min/max windows, a projects view that pulls GitHub repositories, a custom start page with quick actions, and a certifications gallery with flip cards and modal preview.
 
 ## 🌟 Features
