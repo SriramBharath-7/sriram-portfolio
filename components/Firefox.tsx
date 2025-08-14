@@ -1021,9 +1021,8 @@ export default function Firefox({
     setVisitsLoading(true);
     setVisitsError(null);
     try {
-      const hostKey = typeof window !== 'undefined' ? window.location.host.replace(/[:.]/g, '-') : 'local';
-      const ns = 'sriram-portfolio-analytics';
-      fetch(`https://api.countapi.xyz/hit/${ns}/${hostKey}`)
+      const host = typeof window !== 'undefined' ? window.location.host : 'local';
+      fetch(`/api/visits?host=${encodeURIComponent(host)}`, { cache: 'no-store' })
         .then(async (r) => (r.ok ? r.json() : { value: null }))
         .then((data) => {
           if (typeof data?.value === 'number') {
