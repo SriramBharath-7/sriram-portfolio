@@ -48,30 +48,36 @@ export async function GET() {
         .then((xml) => parseMediumRss(xml)),
     ]);
 
-    // Deduplicate by normalized title or URL
-    const map = new Map<string, BlogPost>();
+    // Deduplicate primarily by normalized title (cross-platform)
+    const mapByTitle = new Map<string, BlogPost>();
     const normalizeTitle = (t?: string) =>
       (t || "")
         .toLowerCase()
+        .replace(/\bcdata\b/g, " ")
         .replace(/[^a-z0-9]+/g, " ")
         .trim();
-    const normalizeUrl = (u?: string) => (u || "").replace(/\?.*$/, "").replace(/\/#.*$/, "");
 
     [...devto, ...medium].forEach((post) => {
-      const key = normalizeUrl(post.url) || normalizeTitle(post.title);
       const titleKey = normalizeTitle(post.title);
-      const existing = map.get(key) || map.get(titleKey);
+      const existing = mapByTitle.get(titleKey);
       if (!existing) {
-        map.set(key, post);
-      } else {
-        // Prefer DEV.to if duplicate titles exist (often canonical to Medium)
-        if (existing.source === "medium" && post.source === "devto") {
-          map.set(key, post);
-        }
+        mapByTitle.set(titleKey, post);
+        return;
+      }
+      // Resolve duplicates: prefer DEV.to; otherwise prefer newest publishedAt
+      const preferNew = (a?: string | null, b?: string | null) =>
+        (b ? Date.parse(b) : 0) - (a ? Date.parse(a) : 0) > 0;
+      if (existing.source === "medium" && post.source === "devto") {
+        mapByTitle.set(titleKey, post);
+      } else if (
+        existing.source === post.source &&
+        preferNew(existing.publishedAt, post.publishedAt)
+      ) {
+        mapByTitle.set(titleKey, post);
       }
     });
 
-    const posts = Array.from(map.values()).sort((a, b) => {
+    const posts = Array.from(mapByTitle.values()).sort((a, b) => {
       const da = a.publishedAt ? Date.parse(a.publishedAt) : 0;
       const db = b.publishedAt ? Date.parse(b.publishedAt) : 0;
       return db - da;
@@ -88,7 +94,7 @@ function parseMediumRss(xml: string): BlogPost[] {
   const items = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
   const posts: BlogPost[] = [];
   for (const item of items) {
-    const title = textBetween(item, "<title>", "</title>");
+    const title = cdataBetween(item, "<title>", "</title>") || textBetween(item, "<title>", "</title>");
     const url = textBetween(item, "<link>", "</link>");
     const pubDate = textBetween(item, "<pubDate>", "</pubDate>");
     const content =
