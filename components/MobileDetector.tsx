@@ -184,7 +184,7 @@ function MobileWarning({ deviceInfo }: { deviceInfo: DeviceInfo }) {
               ${hovered ? 'scale-125 opacity-75' : 'scale-100 opacity-50'}
             `}></div>
             <Image
-              src="/favicon.ico"
+              src="/assets/ico/hacker.ico"
               alt="Logo"
               width={64}
               height={64}
