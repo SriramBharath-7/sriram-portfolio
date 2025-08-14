@@ -11,7 +11,12 @@ if (typeof window !== "undefined") {
 
 interface TerminalProps {
   onClose?: () => void;
-  onOpenFirefox?: (showProjects?: boolean, showTools?: boolean, showCerts?: boolean) => void; // Update to accept all parameters
+  onOpenFirefox?: (
+    showProjects?: boolean,
+    showTools?: boolean,
+    showCerts?: boolean,
+    showBlogs?: boolean
+  ) => void; // Update to accept all parameters
   initialPosition?: { x: number; y: number }; // Add initial position prop
 }
 
@@ -493,7 +498,19 @@ Working on various cybersecurity projects including vulnerability assessment too
       studies: () =>
         "Academic Background & Learning Goals\n\nEducation:\n• Bachelor of Engineering in Computer Science (Currently pursuing)\n• Focus on cybersecurity and information security concepts\n\nLearning Goals:\n• CEH (Certified Ethical Hacker) - Planning to pursue\n• CompTIA Security+ - Foundation certification goal\n• OSCP (Offensive Security Certified Professional) - Long-term goal\n• Active participation in CTF challenges and security communities",
       blog: () =>
-        "Learning Journey & Security Interests\n\nCurrently learning and exploring:\n• Cybersecurity fundamentals and concepts\n• Ethical hacking methodologies\n• Web security and OWASP Top 10\n• Network security and protocols\n• Security tools and frameworks\n\nFuture goals include contributing to security research and writing technical articles.",
+        (() => {
+          setIsLoading(true);
+          setTimeout(() => {
+            handleMinimize();
+            setTimeout(() => {
+              if (onOpenFirefox) {
+                onOpenFirefox(false, false, false, true);
+              }
+              setIsLoading(false);
+            }, 200);
+          }, 100);
+          return "Opening blog gallery in Firefox...";
+        })(),
       tools: () =>
         "Security Tools & Learning Projects\n\nLearning and experimenting with:\n• Security assessment tools and frameworks\n• Network analysis and monitoring tools\n• Web vulnerability scanners\n• Security automation scripts\n• Educational security projects\n\nFocusing on understanding how security tools work and developing basic security applications.",
       education: () =>

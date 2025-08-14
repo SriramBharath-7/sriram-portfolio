@@ -12,6 +12,7 @@ export default function Home() {
   const [showGitHubProjects, setShowGitHubProjects] = useState(false);
   const [showTools, setShowTools] = useState(false);
   const [showCerts, setShowCerts] = useState(false);
+  const [showBlogs, setShowBlogs] = useState(false);
   const [githubUsername, setGithubUsername] = useState(DEFAULT_GITHUB_USERNAME); // Default username
   const [firefoxPosition, setFirefoxPosition] = useState<{
     x: number;
@@ -19,8 +20,8 @@ export default function Home() {
   }>({ x: 0, y: 50 });
 
   // Function to handle opening Firefox from Terminal
-  const handleOpenFirefox = (showProjects = false, showTools = false, showCertsParam = false) => {
-    console.log('Opening Firefox with params:', { showProjects, showTools });
+  const handleOpenFirefox = (showProjects = false, showTools = false, showCertsParam = false, showBlogsParam = false) => {
+        console.log('Opening Firefox with params:', { showProjects, showTools, showBlogsParam });
     
     // Set from centralized defaults
     setGithubUsername(DEFAULT_GITHUB_USERNAME);
@@ -93,6 +94,7 @@ export default function Home() {
         setShowGitHubProjects(showProjects);
         setShowTools(showTools);
         setShowCerts(showCertsParam);
+        setShowBlogs(showBlogsParam);
         
         console.log('Firefox states set:', { 
           showFirefox: true, 
@@ -135,6 +137,7 @@ export default function Home() {
           initialUrl={showCerts ? 'home://certs' : 'home://start'}
           showProjects={showGitHubProjects}
           showTools={showTools}
+          showBlogs={showBlogs}
           githubUsername={githubUsername}
           initialPosition={firefoxPosition}
         />

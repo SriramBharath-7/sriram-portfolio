@@ -23,6 +23,7 @@ interface FirefoxProps {
   initialUrl?: string;
   showProjects?: boolean; // Add flag for projects mode
   showTools?: boolean; // Add flag for tools mode
+  showBlogs?: boolean; // Add flag for blogs mode
   githubUsername?: string; // Add prop for custom GitHub username
   initialPosition?: { x: number; y: number }; // Add initial position prop
 }
@@ -88,6 +89,7 @@ export default function Firefox({
   initialUrl = `home://start`,
   showProjects = false, // Default to false
   showTools = false, // Default to false
+  showBlogs = false, // Default to false
   githubUsername = DEFAULT_GITHUB_USERNAME, // User's actual GitHub username
   initialPosition = { x: 0, y: 0 }, // Default initial position
 }: FirefoxProps) {
@@ -96,6 +98,8 @@ export default function Firefox({
       ? `https://github.com/${githubUsername}`
       : showTools
       ? `https://github.com/${DEFAULT_GITHUB_USERNAME}`
+      : showBlogs
+      ? `home://blogs`
       : initialUrl
   );
   const [history, setHistory] = useState<string[]>([
@@ -103,6 +107,8 @@ export default function Firefox({
       ? `https://github.com/${githubUsername}`
       : showTools
       ? `https://github.com/${DEFAULT_GITHUB_USERNAME}`
+      : showBlogs
+      ? `home://blogs`
       : initialUrl,
   ]);
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -122,6 +128,18 @@ export default function Firefox({
   const username = githubUsername; // Use the provided GitHub username
   const [isLoading, setIsLoading] = useState(false);
   const [startSearch, setStartSearch] = useState("");
+  const [blogPosts, setBlogPosts] = useState<Array<{
+    id: string;
+    title: string;
+    url: string;
+    coverImage?: string | null;
+    publishedAt?: string | null;
+    tags?: string[];
+    excerpt?: string | null;
+    source: "devto" | "medium";
+  }>>([]);
+  const [blogsLoading, setBlogsLoading] = useState(false);
+  const [blogsError, setBlogsError] = useState<string | null>(null);
   
   interface Certification {
     id: number;
@@ -1035,6 +1053,37 @@ export default function Firefox({
     }
   }, [currentUrl, username]);
 
+  // Load blogs when entering blogs page
+  useEffect(() => {
+    const isBlogs = currentUrl.startsWith('home://blogs');
+    if (!isBlogs) return;
+    const cacheKey = 'blogs-cache';
+    const cacheTsKey = 'blogs-cache-ts';
+    const expiry = 10 * 60 * 1000; // 10 minutes
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      const ts = localStorage.getItem(cacheTsKey);
+      if (cached && ts && Date.now() - parseInt(ts, 10) < expiry) {
+        const parsed = JSON.parse(cached);
+        setBlogPosts(parsed);
+      }
+    } catch {}
+    setBlogsLoading(true);
+    setBlogsError(null);
+    fetch('/api/blogs', { cache: 'no-store' })
+      .then(async (r) => (r.ok ? r.json() : { posts: [] }))
+      .then((data) => {
+        const posts = Array.isArray(data.posts) ? data.posts : [];
+        setBlogPosts(posts);
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify(posts));
+          localStorage.setItem(cacheTsKey, Date.now().toString());
+        } catch {}
+      })
+      .catch(() => setBlogsError('Failed to load blogs'))
+      .finally(() => setBlogsLoading(false));
+  }, [currentUrl]);
+
   // Return the Firefox browser component JSX
   return (
     <>
@@ -1074,6 +1123,8 @@ export default function Firefox({
                   ? "GitHub Projects - Mozilla Firefox"
                   : currentUrl.startsWith("home://certs")
                   ? "Certifications - Mozilla Firefox"
+                  : currentUrl.startsWith("home://blogs")
+                  ? "Blogs - Mozilla Firefox"
                   : `${DEFAULT_BRAND_NAME} - Mozilla Firefox`}
               </div>
               <div className="flex-1 flex justify-end items-center space-x-1.5">
@@ -1180,7 +1231,7 @@ export default function Firefox({
             {/* Browser page content */}
             <div className="browser-page p-6 text-gray-200 bg-slate-900/30 min-h-[500px] custom-scrollbar">
               {/* Content varies based on URL */}
-              {currentUrl.includes("github.com") ? (
+                {currentUrl.includes("github.com") ? (
                 <div
                   className="github-projects-page custom-scrollbar overflow-y-auto relative"
                   ref={projectsContainerRef}
@@ -1264,7 +1315,7 @@ export default function Firefox({
                     {paginatedRepos.map((repo) => (
                       <div
                         key={repo.id}
-                        className="repo-card floating-card bg-gray-800/50 backdrop-blur-sm rounded-lg border border-purple-500/20 p-5 p-3 sm:p-4 lg:p-5 transition-all hover:border-purple-500/50 hover:shadow-lg overflow-hidden h-auto"
+                        className="repo-card floating-card bg-gray-800/50 backdrop-blur-sm rounded-lg border border-purple-500/20 p-3 sm:p-4 lg:p-5 transition-all hover:border-purple-500/50 hover:shadow-lg overflow-hidden h-auto"
                       >
                         <div className="flex justify-between items-start mb-2 sm:mb-3">
                           <h3 className="text-lg sm:text-xl font-bold text-purple-300 hover:text-purple-400 transition-colors truncate max-w-[70%]">
@@ -1485,6 +1536,70 @@ export default function Firefox({
                         ))}
                         </div>
                       </div>
+                  ) : currentUrl.startsWith('home://blogs') ? (
+                    <div className="blogs-page">
+                      <div className="bg-gray-800/60 backdrop-blur-md p-6 rounded-lg border border-pink-500/30 shadow-[0_0_25px_rgba(236,72,153,0.25)] mb-6">
+                        <div className="flex items-center gap-3">
+                          <span className="text-pink-400 text-xl">📝</span>
+                          <div>
+                            <h2 className="text-2xl font-bold text-pink-200">Latest Blogs</h2>
+                            <p className="text-pink-300/80">From DEV.to and Medium</p>
+                          </div>
+                        </div>
+                      </div>
+                      {blogsError && (
+                        <div className="bg-red-900/30 text-red-300 p-3 rounded border border-red-500/30 mb-4">{blogsError}</div>
+                      )}
+                      {blogsLoading ? (
+                        <div className="flex items-center justify-center h-40">
+                          <div className="loading-circle-container">
+                            <div className="loading-circle"></div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {blogPosts.map((post) => (
+                            <a
+                              key={post.id}
+                              href={post.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="group relative rounded-xl overflow-hidden border border-pink-500/20 hover:border-pink-500/50 bg-gray-900/40 shadow-lg transition-all hover:-translate-y-1"
+                            >
+                              <div className="h-40 bg-gradient-to-br from-gray-800/60 to-gray-900/60 relative overflow-hidden">
+                                {post.coverImage ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img src={post.coverImage} alt={post.title} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                ) : (
+                                  <div className="absolute inset-0 flex items-center justify-center text-pink-300/60 text-4xl">✍️</div>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                <div className="absolute top-2 left-2 text-xs px-2 py-0.5 rounded-full bg-pink-600/30 text-pink-200 border border-pink-500/30">
+                                  {post.source === 'devto' ? 'DEV.to' : 'Medium'}
+                                </div>
+                              </div>
+                              <div className="p-4">
+                                <h3 className="text-lg font-semibold text-white line-clamp-2 group-hover:text-pink-300 transition-colors">{post.title}</h3>
+                                {post.publishedAt && (
+                                  <div className="mt-2 text-xs text-gray-400">{new Date(post.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                                )}
+                                {post.tags && post.tags.length > 0 && (
+                                  <div className="mt-3 flex flex-wrap gap-1">
+                                    {post.tags.slice(0, 3).map((t) => (
+                                      <span key={t} className="text-[10px] px-2 py-0.5 rounded-full bg-pink-900/30 text-pink-200 border border-pink-500/20">{t}</span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-purple-500/10" />
+                                <div className="absolute bottom-3 right-3 text-pink-300 text-sm flex items-center">Read <span className="ml-1">→</span></div>
+                              </div>
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ) : (
                   <>
                   <div className="bg-gray-800/60 backdrop-blur-md p-6 rounded-lg border border-purple-500/30 shadow-lg mb-6">
