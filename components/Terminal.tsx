@@ -645,6 +645,11 @@ Working on various cybersecurity projects including vulnerability assessment too
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Guard: prevent Backspace from escaping the input when it's empty
+    if (e.key === "Backspace" && input.length === 0) {
+      e.preventDefault();
+      return;
+    }
     // Add CTRL+C handler
     if (e.ctrlKey && e.key === "c") {
       e.preventDefault();
@@ -697,7 +702,8 @@ Working on various cybersecurity projects including vulnerability assessment too
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInput(value);
-    setIsTyping(true);
+    // Ensure automated typing effect doesn't interfere with manual input
+    setIsTyping(false);
 
     // Extract the first word (command) from the input
     const command = value.trim().split(" ")[0].toLowerCase();
