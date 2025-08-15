@@ -8,6 +8,7 @@ const InspectionPrevention = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState<'right-click' | 'dev-tools' | 'inspect'>('inspect');
   const [attemptCount, setAttemptCount] = useState(0);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Function to show custom alert with rate limiting
   const showCustomAlert = useCallback((message: string, type: 'right-click' | 'dev-tools' | 'inspect') => {
@@ -19,14 +20,21 @@ const InspectionPrevention = () => {
 
   useEffect(() => {
     let devToolsOpen = false;
+    let initialCheckTimeout: NodeJS.Timeout;
 
-    // Function to detect dev tools
+    // Function to detect dev tools with improved logic
     const detectDevTools = () => {
+      // Don't run detection until component is fully initialized
+      if (!isInitialized) return;
+
       const threshold = 160;
       const widthThreshold = window.outerWidth - window.innerWidth > threshold;
       const heightThreshold = window.outerHeight - window.innerHeight > threshold;
       
-      if (widthThreshold || heightThreshold) {
+      // Additional check for more reliable detection
+      const isDevToolsOpen = widthThreshold || heightThreshold;
+      
+      if (isDevToolsOpen) {
         if (!devToolsOpen) {
           devToolsOpen = true;
           showCustomAlert(
@@ -80,14 +88,24 @@ const InspectionPrevention = () => {
     // Add console warning
     console.warn('Inspection is disabled on this website. Please respect our terms of use.');
 
+    // Initialize with a delay to prevent false positives
+    const initializeDetection = () => {
+      // Wait for the page to fully load and stabilize
+      initialCheckTimeout = setTimeout(() => {
+        setIsInitialized(true);
+        // Initial check after initialization
+        detectDevTools();
+      }, 1000); // 1 second delay to ensure page is stable
+    };
+
     // Add event listeners
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('mouseover', handleMouseOver);
     window.addEventListener('resize', detectDevTools);
 
-    // Initial check
-    detectDevTools();
+    // Initialize detection
+    initializeDetection();
 
     // Cleanup function
     return () => {
@@ -95,8 +113,11 @@ const InspectionPrevention = () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('mouseover', handleMouseOver);
       window.removeEventListener('resize', detectDevTools);
+      if (initialCheckTimeout) {
+        clearTimeout(initialCheckTimeout);
+      }
     };
-  }, [showCustomAlert]);
+  }, [showCustomAlert, isInitialized]);
 
   // Handle multiple attempts
   useEffect(() => {
