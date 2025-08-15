@@ -4,6 +4,8 @@ import Script from 'next/script';
 import MobileDetector from "@/components/MobileDetector";
 import NewCustomCursor from "@/components/NewCustomCursor";
 import InspectionPrevention from "@/components/InspectionPrevention";
+import dynamic from 'next/dynamic';
+import { FLAGS } from "@/constants/profile";
 
 export const metadata: Metadata = {
   title: "Sriram's Portfolio",
@@ -18,6 +20,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const PetCat = dynamic(() => import("@/components/PetCat"), { ssr: false });
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -32,6 +35,7 @@ export default function RootLayout({
         <Script src="/disable-preload-warnings.js" strategy="beforeInteractive" />
         <InspectionPrevention />
         <NewCustomCursor />
+        {FLAGS.desktopPet ? <PetCat /> : null}
         <MobileDetector>
           {children}
         </MobileDetector>

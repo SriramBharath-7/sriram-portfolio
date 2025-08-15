@@ -13,3 +13,8 @@ export const DEFAULT_WELCOME_TEXT =
   "🛡️ Aspiring Ethical Hacker and Cybersecurity Expert focused on defending the digital world";
 
 
+// Feature flags (opt-in, safe to deploy)
+export const FLAGS = {
+  desktopPet: true, // toggle the hacker cat pet
+} as const;
+
