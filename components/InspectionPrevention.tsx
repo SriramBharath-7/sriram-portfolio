@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import CustomAlert from './CustomAlert';
 
 const InspectionPrevention = () => {
@@ -9,6 +9,9 @@ const InspectionPrevention = () => {
   const [alertType, setAlertType] = useState<'right-click' | 'dev-tools' | 'inspect'>('inspect');
   const [attemptCount, setAttemptCount] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isTabVisible, setIsTabVisible] = useState(true);
+  const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastWindowSizeRef = useRef({ width: 0, height: 0 });
 
   // Function to show custom alert with rate limiting
   const showCustomAlert = useCallback((message: string, type: 'right-click' | 'dev-tools' | 'inspect') => {
@@ -27,6 +30,9 @@ const InspectionPrevention = () => {
       // Don't run detection until component is fully initialized
       if (!isInitialized) return;
 
+      // Don't run detection if tab is not visible (user switched away)
+      if (!isTabVisible) return;
+
       const threshold = 160;
       const widthThreshold = window.outerWidth - window.innerWidth > threshold;
       const heightThreshold = window.outerHeight - window.innerHeight > threshold;
@@ -44,6 +50,41 @@ const InspectionPrevention = () => {
         }
       } else {
         devToolsOpen = false;
+      }
+    };
+
+    // Debounced resize handler to prevent multiple rapid calls
+    const handleResize = () => {
+      // Clear existing timeout
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
+      }
+
+      // Set new timeout for debounced detection
+      resizeTimeoutRef.current = setTimeout(() => {
+        // Only detect if there's a significant size change
+        const currentSize = { width: window.innerWidth, height: window.innerHeight };
+        const lastSize = lastWindowSizeRef.current;
+        
+        const sizeChanged = Math.abs(currentSize.width - lastSize.width) > 10 || 
+                           Math.abs(currentSize.height - lastSize.height) > 10;
+        
+        if (sizeChanged) {
+          lastWindowSizeRef.current = currentSize;
+          detectDevTools();
+        }
+      }, 300); // 300ms debounce
+    };
+
+    // Handle tab visibility changes
+    const handleVisibilityChange = () => {
+      setIsTabVisible(!document.hidden);
+      
+      // When tab becomes visible again, wait a bit before allowing detection
+      if (!document.hidden) {
+        setTimeout(() => {
+          setIsTabVisible(true);
+        }, 500);
       }
     };
 
@@ -90,6 +131,12 @@ const InspectionPrevention = () => {
 
     // Initialize with a delay to prevent false positives
     const initializeDetection = () => {
+      // Store initial window size
+      lastWindowSizeRef.current = { 
+        width: window.innerWidth, 
+        height: window.innerHeight 
+      };
+      
       // Wait for the page to fully load and stabilize
       initialCheckTimeout = setTimeout(() => {
         setIsInitialized(true);
@@ -102,7 +149,8 @@ const InspectionPrevention = () => {
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('mouseover', handleMouseOver);
-    window.addEventListener('resize', detectDevTools);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('resize', handleResize);
 
     // Initialize detection
     initializeDetection();
@@ -112,12 +160,16 @@ const InspectionPrevention = () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('mouseover', handleMouseOver);
-      window.removeEventListener('resize', detectDevTools);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('resize', handleResize);
       if (initialCheckTimeout) {
         clearTimeout(initialCheckTimeout);
       }
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
+      }
     };
-  }, [showCustomAlert, isInitialized]);
+  }, [showCustomAlert, isInitialized, isTabVisible]);
 
   // Handle multiple attempts
   useEffect(() => {
