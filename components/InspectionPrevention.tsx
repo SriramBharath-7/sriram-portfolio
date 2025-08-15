@@ -9,9 +9,9 @@ const InspectionPrevention = () => {
   const [alertType, setAlertType] = useState<'right-click' | 'dev-tools' | 'inspect'>('inspect');
   const [attemptCount, setAttemptCount] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isTabVisible, setIsTabVisible] = useState(true);
   const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastWindowSizeRef = useRef({ width: 0, height: 0 });
+  const isTabSwitchingRef = useRef(false);
 
   // Function to show custom alert with rate limiting
   const showCustomAlert = useCallback((message: string, type: 'right-click' | 'dev-tools' | 'inspect') => {
@@ -30,8 +30,8 @@ const InspectionPrevention = () => {
       // Don't run detection until component is fully initialized
       if (!isInitialized) return;
 
-      // Don't run detection if tab is not visible (user switched away)
-      if (!isTabVisible) return;
+      // Don't run detection if we're in the middle of a tab switch
+      if (isTabSwitchingRef.current) return;
 
       const threshold = 160;
       const widthThreshold = window.outerWidth - window.innerWidth > threshold;
@@ -53,7 +53,7 @@ const InspectionPrevention = () => {
       }
     };
 
-    // Debounced resize handler to prevent multiple rapid calls
+    // Smart resize handler that distinguishes between tab switching and dev tools
     const handleResize = () => {
       // Clear existing timeout
       if (resizeTimeoutRef.current) {
@@ -62,29 +62,33 @@ const InspectionPrevention = () => {
 
       // Set new timeout for debounced detection
       resizeTimeoutRef.current = setTimeout(() => {
-        // Only detect if there's a significant size change
         const currentSize = { width: window.innerWidth, height: window.innerHeight };
         const lastSize = lastWindowSizeRef.current;
         
-        const sizeChanged = Math.abs(currentSize.width - lastSize.width) > 10 || 
-                           Math.abs(currentSize.height - lastSize.height) > 10;
+        // Check if this is likely a tab switch (small changes) vs dev tools (large changes)
+        const sizeChange = Math.abs(currentSize.width - lastSize.width) + Math.abs(currentSize.height - lastSize.height);
         
-        if (sizeChanged) {
+        // If it's a significant change (>50px total), it's likely dev tools
+        if (sizeChange > 50) {
           lastWindowSizeRef.current = currentSize;
           detectDevTools();
+        } else {
+          // Small change, likely tab switch - update size but don't detect
+          lastWindowSizeRef.current = currentSize;
         }
-      }, 300); // 300ms debounce
+      }, 200); // Reduced debounce time for better responsiveness
     };
 
-    // Handle tab visibility changes
+    // Handle tab visibility changes more intelligently
     const handleVisibilityChange = () => {
-      setIsTabVisible(!document.hidden);
-      
-      // When tab becomes visible again, wait a bit before allowing detection
-      if (!document.hidden) {
+      if (document.hidden) {
+        // Tab is being hidden - mark as switching
+        isTabSwitchingRef.current = true;
+      } else {
+        // Tab is becoming visible - wait a bit then allow detection
         setTimeout(() => {
-          setIsTabVisible(true);
-        }, 500);
+          isTabSwitchingRef.current = false;
+        }, 300);
       }
     };
 
@@ -169,7 +173,7 @@ const InspectionPrevention = () => {
         clearTimeout(resizeTimeoutRef.current);
       }
     };
-  }, [showCustomAlert, isInitialized, isTabVisible]);
+  }, [showCustomAlert, isInitialized]);
 
   // Handle multiple attempts
   useEffect(() => {
