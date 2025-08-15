@@ -12,6 +12,7 @@ const InspectionPrevention = () => {
   const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastWindowSizeRef = useRef({ width: 0, height: 0 });
   const isTabSwitchingRef = useRef(false);
+  const devToolsCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Function to show custom alert with rate limiting
   const showCustomAlert = useCallback((message: string, type: 'right-click' | 'dev-tools' | 'inspect') => {
@@ -25,7 +26,7 @@ const InspectionPrevention = () => {
     let devToolsOpen = false;
     let initialCheckTimeout: NodeJS.Timeout;
 
-    // Function to detect dev tools with improved logic
+    // Enhanced dev tools detection that checks multiple indicators
     const detectDevTools = () => {
       // Don't run detection until component is fully initialized
       if (!isInitialized) return;
@@ -33,14 +34,22 @@ const InspectionPrevention = () => {
       // Don't run detection if we're in the middle of a tab switch
       if (isTabSwitchingRef.current) return;
 
+      // Method 1: Window size difference
       const threshold = 160;
       const widthThreshold = window.outerWidth - window.innerWidth > threshold;
       const heightThreshold = window.outerHeight - window.innerHeight > threshold;
       
-      // Additional check for more reliable detection
-      const isDevToolsOpen = widthThreshold || heightThreshold;
+      // Method 2: Check for devtools-opened event (Chrome specific)
+      const hasDevToolsEvent = window.outerHeight - window.innerHeight > 200;
       
-      if (isDevToolsOpen) {
+      // Method 3: Check for console object modifications
+      const consoleCheck = window.console && window.console.log && window.console.log.toString().indexOf('native code') === -1;
+      
+      // Method 4: Check for debugger statement
+      const debuggerCheck = window.outerWidth - window.innerWidth > 0 && window.outerHeight - window.innerHeight > 0;
+      
+      // If any method detects dev tools
+      if (widthThreshold || heightThreshold || hasDevToolsEvent || consoleCheck || debuggerCheck) {
         if (!devToolsOpen) {
           devToolsOpen = true;
           showCustomAlert(
@@ -146,6 +155,11 @@ const InspectionPrevention = () => {
         setIsInitialized(true);
         // Initial check after initialization
         detectDevTools();
+        
+        // Start periodic checking for dev tools (every 500ms)
+        devToolsCheckIntervalRef.current = setInterval(() => {
+          detectDevTools();
+        }, 500);
       }, 1000); // 1 second delay to ensure page is stable
     };
 
@@ -171,6 +185,9 @@ const InspectionPrevention = () => {
       }
       if (resizeTimeoutRef.current) {
         clearTimeout(resizeTimeoutRef.current);
+      }
+      if (devToolsCheckIntervalRef.current) {
+        clearInterval(devToolsCheckIntervalRef.current);
       }
     };
   }, [showCustomAlert, isInitialized]);
