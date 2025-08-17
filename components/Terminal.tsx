@@ -382,6 +382,13 @@ export default function Terminal({
         
         console.log('Terminal: Executing projects command');
 
+        // Dispatch custom event to pop up Firefox if minimized
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('terminal-command', { 
+            detail: { command: 'projects' } 
+          }));
+        }
+
         // Add proper delay to ensure the command executes properly
         setTimeout(() => {
           console.log('Terminal: Minimizing terminal...');
@@ -413,6 +420,13 @@ export default function Terminal({
         
         console.log('Terminal: Executing toolspage command');
 
+        // Dispatch custom event to pop up Firefox if minimized
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('terminal-command', { 
+            detail: { command: 'toolspage' } 
+          }));
+        }
+
         // Add proper delay to ensure the command executes properly
         setTimeout(() => {
           console.log('Terminal: Minimizing terminal...');
@@ -440,6 +454,14 @@ export default function Terminal({
       certs: () => {
         setIsLoading(true);
         console.log('Terminal: Executing certs command');
+        
+        // Dispatch custom event to pop up Firefox if minimized
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('terminal-command', { 
+            detail: { command: 'certs' } 
+          }));
+        }
+        
         setTimeout(() => {
           console.log('Terminal: Minimizing terminal...');
           handleMinimize();
@@ -500,6 +522,14 @@ Working on various cybersecurity projects including vulnerability assessment too
       blog: () =>
         (() => {
           setIsLoading(true);
+          
+          // Dispatch custom event to pop up Firefox if minimized
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('terminal-command', { 
+              detail: { command: 'blog' } 
+            }));
+          }
+          
           setTimeout(() => {
             handleMinimize();
             setTimeout(() => {

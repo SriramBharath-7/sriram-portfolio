@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Terminal from "../components/Terminal";
 import ArchLinuxOS from "../components/ArchLinuxOS";
 import Firefox from "../components/Firefox";
@@ -18,6 +18,42 @@ export default function Home() {
     x: number;
     y: number;
   }>({ x: 0, y: 50 });
+
+  // Effect to pop up Firefox when terminal commands are used
+  useEffect(() => {
+    const handleTerminalCommand = (event: CustomEvent) => {
+      if (showFirefox && event.detail?.command) {
+        // Check if the command is one that should pop up Firefox
+        const firefoxCommands = ['projects', 'tools', 'certs', 'blogs', 'firefox', 'browser'];
+        const command = event.detail.command.toLowerCase();
+        
+        if (firefoxCommands.some(cmd => command.includes(cmd))) {
+          // Pop up Firefox by dispatching a custom event
+          window.dispatchEvent(new CustomEvent('popup-firefox'));
+        }
+      }
+    };
+
+    // Listen for terminal command events
+    window.addEventListener('terminal-command', handleTerminalCommand as EventListener);
+    
+    // Also listen for keyboard shortcuts that might indicate terminal usage
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Ctrl+T or Cmd+T to open new terminal (common shortcut)
+      if ((event.ctrlKey || event.metaKey) && event.key === 't') {
+        if (showFirefox) {
+          window.dispatchEvent(new CustomEvent('popup-firefox'));
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('terminal-command', handleTerminalCommand as EventListener);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showFirefox]);
 
   // Function to handle opening Firefox from Terminal
   const handleOpenFirefox = (showProjects = false, showTools = false, showCertsParam = false, showBlogsParam = false) => {

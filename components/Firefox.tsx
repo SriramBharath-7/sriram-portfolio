@@ -1227,6 +1227,46 @@ export default function Firefox({
     }
   }, [currentUrl]);
 
+  // Effect to handle window focus and pop up Firefox when minimized
+  useEffect(() => {
+    const handleWindowFocus = () => {
+      if (isMinimized) {
+        // Pop up Firefox when window gains focus
+        setIsMinimized(false);
+        setFirefoxState(prev => ({ ...prev, isMinimized: false }));
+      }
+    };
+
+    // Listen for window focus events
+    window.addEventListener('focus', handleWindowFocus);
+    
+    // Also listen for document visibility changes
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isMinimized) {
+        setIsMinimized(false);
+        setFirefoxState(prev => ({ ...prev, isMinimized: false }));
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Listen for custom event to pop up Firefox from terminal commands
+    const handlePopupFirefox = () => {
+      if (isMinimized) {
+        setIsMinimized(false);
+        setFirefoxState(prev => ({ ...prev, isMinimized: false }));
+      }
+    };
+    
+    window.addEventListener('popup-firefox', handlePopupFirefox);
+
+    return () => {
+      window.removeEventListener('focus', handleWindowFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('popup-firefox', handlePopupFirefox);
+    };
+  }, [isMinimized]);
+
   // Return the Firefox browser component JSX
   return (
     <>
@@ -1365,16 +1405,7 @@ export default function Firefox({
                  </div>
                ))}
                
-               {/* New Tab Button */}
-               <button
-                 onClick={() => addTab('start', 'New Tab', 'home://start')}
-                 className="new-tab-btn p-1 rounded hover:bg-gray-600/50 text-gray-400 hover:text-white transition-colors flex-shrink-0"
-                 title="New tab"
-               >
-                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                 </svg>
-               </button>
+               {/* New Tab Button - Removed to prevent misuse */}
              </div>
            </div>
 
@@ -2321,13 +2352,7 @@ export default function Firefox({
            opacity: 1;
          }
          
-         .new-tab-btn {
-           transition: all 0.2s ease;
-         }
-         
-         .new-tab-btn:hover {
-           transform: scale(1.1);
-         }
+
         `}
       </style>
     </>
