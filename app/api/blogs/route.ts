@@ -41,8 +41,11 @@ async function testDevToAPI() {
   }
 }
 
-export async function GET() {
-  console.log('Blog API called at:', new Date().toISOString());
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const forceRefresh = searchParams.get('refresh') === 'true';
+  
+  console.log('Blog API called at:', new Date().toISOString(), forceRefresh ? '(force refresh)' : '');
   
   // Test the API first
   await testDevToAPI();

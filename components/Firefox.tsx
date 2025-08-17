@@ -1003,23 +1003,28 @@ export default function Firefox({
     setBlogsLoading(true);
     setBlogsError(null);
     
-    // Always fetch fresh data
-    fetch('/api/blogs', { 
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      }
-    })
+         // Always fetch fresh data with timestamp to prevent caching
+     const timestamp = Date.now();
+     fetch(`/api/blogs?refresh=true&t=${timestamp}`, { 
+       cache: 'no-store',
+       headers: {
+         'Cache-Control': 'no-cache, no-store, must-revalidate',
+         'Pragma': 'no-cache'
+       }
+     })
       .then(async (r) => {
         if (!r.ok) {
           throw new Error(`HTTP ${r.status}: ${r.statusText}`);
         }
         return r.json();
       })
-      .then((data) => {
-        const posts = Array.isArray(data.posts) ? data.posts : [];
-        setBlogPosts(posts);
+             .then((data) => {
+         const posts = Array.isArray(data.posts) ? data.posts : [];
+         console.log('Blog posts received:', posts.length, 'posts');
+         if (posts.length > 0) {
+           console.log('Latest post:', posts[0].title);
+         }
+         setBlogPosts(posts);
         
         // Update cache with fresh data
         try {
