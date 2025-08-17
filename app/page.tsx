@@ -89,12 +89,25 @@ export default function Home() {
         
         console.log('Firefox position set to:', { x: boundedX, y: boundedY });
         
-        // Set these state variables AFTER position is calculated
-        setShowFirefox(true);
-        setShowGitHubProjects(showProjects);
-        setShowTools(showTools);
-        setShowCerts(showCertsParam);
-        setShowBlogs(showBlogsParam);
+        // If Firefox is already open, add a new tab instead of replacing
+        if (showFirefox && (window as any).firefoxAddTab) {
+          if (showProjects) {
+            (window as any).firefoxAddTab('projects', 'GitHub Projects', `https://github.com/${githubUsername}`);
+          } else if (showTools) {
+            (window as any).firefoxAddTab('projects', 'GitHub Tools', `https://github.com/${DEFAULT_GITHUB_USERNAME}`);
+          } else if (showCertsParam) {
+            (window as any).firefoxAddTab('certs', 'Certificates', 'home://certs');
+          } else if (showBlogsParam) {
+            (window as any).firefoxAddTab('blogs', 'Blogs', 'home://blogs');
+          }
+        } else {
+          // Set these state variables AFTER position is calculated for new window
+          setShowFirefox(true);
+          setShowGitHubProjects(showProjects);
+          setShowTools(showTools);
+          setShowCerts(showCertsParam);
+          setShowBlogs(showBlogsParam);
+        }
         
         console.log('Firefox states set:', { 
           showFirefox: true, 
@@ -108,6 +121,7 @@ export default function Home() {
       setShowGitHubProjects(showProjects);
       setShowTools(showTools);
       setShowCerts(showCertsParam);
+      setShowBlogs(showBlogsParam);
     }
   };
 

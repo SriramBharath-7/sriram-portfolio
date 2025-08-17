@@ -18,6 +18,14 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollToPlugin);
 }
 
+interface Tab {
+  id: string;
+  title: string;
+  url: string;
+  type: 'projects' | 'blogs' | 'certs' | 'start' | 'custom';
+  isActive: boolean;
+}
+
 interface FirefoxProps {
   onClose: () => void;
   initialUrl?: string;
@@ -26,6 +34,7 @@ interface FirefoxProps {
   showBlogs?: boolean; // Add flag for blogs mode
   githubUsername?: string; // Add prop for custom GitHub username
   initialPosition?: { x: number; y: number }; // Add initial position prop
+  onTabChange?: (tabs: Tab[]) => void; // Callback for tab changes
 }
 
 // Define GitHub repo interface
@@ -92,16 +101,54 @@ export default function Firefox({
   showBlogs = false, // Default to false
   githubUsername = DEFAULT_GITHUB_USERNAME, // User's actual GitHub username
   initialPosition = { x: 0, y: 0 }, // Default initial position
+  onTabChange,
 }: FirefoxProps) {
-  const [currentUrl, setCurrentUrl] = useState(
-    showProjects
-      ? `https://github.com/${githubUsername}`
-      : showTools
-      ? `https://github.com/${DEFAULT_GITHUB_USERNAME}`
-      : showBlogs
-      ? `home://blogs`
-      : initialUrl
-  );
+  // Initialize tabs based on props
+  const getInitialTabs = (): Tab[] => {
+    const tabs: Tab[] = [];
+    
+    if (showProjects) {
+      tabs.push({
+        id: 'projects',
+        title: 'GitHub Projects',
+        url: `https://github.com/${githubUsername}`,
+        type: 'projects',
+        isActive: true
+      });
+    } else if (showTools) {
+      tabs.push({
+        id: 'tools',
+        title: 'GitHub Tools',
+        url: `https://github.com/${DEFAULT_GITHUB_USERNAME}`,
+        type: 'projects',
+        isActive: true
+      });
+    } else if (showBlogs) {
+      tabs.push({
+        id: 'blogs',
+        title: 'Blogs',
+        url: 'home://blogs',
+        type: 'blogs',
+        isActive: true
+      });
+    } else {
+      tabs.push({
+        id: 'start',
+        title: 'Home',
+        url: initialUrl,
+        type: 'start',
+        isActive: true
+      });
+    }
+    
+    return tabs;
+  };
+
+  const [tabs, setTabs] = useState<Tab[]>(getInitialTabs);
+  const [currentUrl, setCurrentUrl] = useState(() => {
+    const activeTab = getInitialTabs().find(tab => tab.isActive);
+    return activeTab?.url || initialUrl;
+  });
   const [history, setHistory] = useState<string[]>([
     showProjects
       ? `https://github.com/${githubUsername}`
@@ -734,6 +781,92 @@ export default function Firefox({
     }
   }, [bookmarks, currentUrl]);
 
+  // Tab management functions
+  const addTab = useCallback((type: Tab['type'], title: string, url: string) => {
+    const newTab: Tab = {
+      id: `${type}-${Date.now()}`,
+      title,
+      url,
+      type,
+      isActive: true
+    };
+
+    setTabs(prev => {
+      const updated = prev.map(tab => ({ ...tab, isActive: false }));
+      return [...updated, newTab];
+    });
+
+    setCurrentUrl(url);
+    setHistory([url]);
+    setHistoryIndex(0);
+  }, []);
+
+  const switchTab = useCallback((tabId: string) => {
+    setTabs(prev => prev.map(tab => ({
+      ...tab,
+      isActive: tab.id === tabId
+    })));
+
+    const targetTab = tabs.find(tab => tab.id === tabId);
+    if (targetTab) {
+      setCurrentUrl(targetTab.url);
+      setHistory([targetTab.url]);
+      setHistoryIndex(0);
+    }
+  }, [tabs]);
+
+  const closeTab = useCallback((tabId: string) => {
+    setTabs(prev => {
+      const filtered = prev.filter(tab => tab.id !== tabId);
+      
+      // If we're closing the active tab, activate the last remaining tab
+      const activeTab = prev.find(tab => tab.id === tabId);
+      if (activeTab?.isActive && filtered.length > 0) {
+        const lastTab = filtered[filtered.length - 1];
+        lastTab.isActive = true;
+        setCurrentUrl(lastTab.url);
+        setHistory([lastTab.url]);
+        setHistoryIndex(0);
+      }
+      
+      // If no tabs left, close the window
+      if (filtered.length === 0) {
+        onClose();
+        return [];
+      }
+      
+      return filtered;
+    });
+  }, [onClose]);
+
+  // Update currentUrl when active tab changes
+  useEffect(() => {
+    const activeTab = tabs.find(tab => tab.isActive);
+    if (activeTab && activeTab.url !== currentUrl) {
+      setCurrentUrl(activeTab.url);
+    }
+  }, [tabs, currentUrl]);
+
+  // Notify parent of tab changes
+  useEffect(() => {
+    if (onTabChange) {
+      onTabChange(tabs);
+    }
+  }, [tabs, onTabChange]);
+
+  // Expose addTab function globally for terminal commands
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).firefoxAddTab = addTab;
+    }
+    
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete (window as any).firefoxAddTab;
+      }
+    };
+  }, [addTab]);
+
   // Function to get paginated repos
   const paginatedRepos = useMemo(() => {
     const startIndex = (currentPage - 1) * reposPerPage;
@@ -1121,56 +1254,129 @@ export default function Firefox({
             zIndex: 40,
           }}
         >
-          {/* Firefox title bar */}
-          <div
-            className="firefox-titlebar bg-gray-800/70 backdrop-blur-sm flex items-center p-2 cursor-move"
-            onMouseDown={handleMouseDown}
-          >
-            <div className="flex items-center w-full">
-              <div className="flex-1"></div>
-              <div className="firefox-title flex-shrink-0 text-gray-200/90 text-sm">
-                {currentUrl.includes("github.com")
-                  ? "GitHub Projects - Mozilla Firefox"
-                  : currentUrl.startsWith("home://certs")
-                  ? "Certifications - Mozilla Firefox"
-                  : currentUrl.startsWith("home://blogs")
-                  ? "Blogs - Mozilla Firefox"
-                  : `${DEFAULT_BRAND_NAME} - Mozilla Firefox`}
-              </div>
-              <div className="flex-1 flex justify-end items-center space-x-1.5">
-                <button
-                  type="button"
-                  className="px-1.5 py-0.5 rounded hover:bg-slate-700/60 text-slate-200/80 hover:text-white transition-colors"
-                onClick={handleMinimize}
-                title="Minimize"
-              >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                    <path d="M4 10.5h12a.5.5 0 0 1 0 1H4a.5.5 0 0 1 0-1Z" />
-                </svg>
-                </button>
-                <button
-                  type="button"
-                  className="px-1.5 py-0.5 rounded hover:bg-slate-700/60 text-slate-200/80 hover:text-white transition-colors"
-                onClick={handleMaximize}
-                title="Maximize"
-              >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                    <path d="M6 5h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2v6h6V7H7Z" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  className="px-1.5 py-0.5 rounded hover:bg-slate-700/60 text-slate-200/80 hover:text-white transition-colors"
-                  onClick={onClose}
-                  title="Close"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                    <path fillRule="evenodd" d="M6.28 6.28a.75.75 0 0 1 1.06 0L10 8.94l2.66-2.66a.75.75 0 1 1 1.06 1.06L11.06 10l2.66 2.66a.75.75 0 1 1-1.06 1.06L10 11.06l-2.66 2.66a.75.75 0 1 1-1.06-1.06L8.94 10 6.28 7.34a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-                </svg>
-                </button>
-              </div>
-            </div>
-          </div>
+                     {/* Firefox title bar */}
+           <div
+             className="firefox-titlebar bg-gray-800/70 backdrop-blur-sm flex items-center p-2 cursor-move"
+             onMouseDown={handleMouseDown}
+           >
+             <div className="flex items-center w-full">
+               <div className="flex-1"></div>
+               <div className="firefox-title flex-shrink-0 text-gray-200/90 text-sm">
+                 {currentUrl.includes("github.com")
+                   ? "GitHub Projects - Mozilla Firefox"
+                   : currentUrl.startsWith("home://certs")
+                   ? "Certifications - Mozilla Firefox"
+                   : currentUrl.startsWith("home://blogs")
+                   ? "Blogs - Mozilla Firefox"
+                   : `${DEFAULT_BRAND_NAME} - Mozilla Firefox`}
+               </div>
+               <div className="flex-1 flex justify-end items-center space-x-1.5">
+                 <button
+                   type="button"
+                   className="px-1.5 py-0.5 rounded hover:bg-slate-700/60 text-slate-200/80 hover:text-white transition-colors"
+                 onClick={handleMinimize}
+                 title="Minimize"
+               >
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                     <path d="M4 10.5h12a.5.5 0 0 1 0 1H4a.5.5 0 0 1 0-1Z" />
+                 </svg>
+                 </button>
+                 <button
+                   type="button"
+                   className="px-1.5 py-0.5 rounded hover:bg-slate-700/60 text-slate-200/80 hover:text-white transition-colors"
+                 onClick={handleMaximize}
+                 title="Maximize"
+               >
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                     <path d="M6 5h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2v6h6V7H7Z" />
+                   </svg>
+                 </button>
+                 <button
+                   type="button"
+                   className="px-1.5 py-0.5 rounded hover:bg-slate-700/60 text-slate-200/80 hover:text-white transition-colors"
+                   onClick={onClose}
+                   title="Close"
+                 >
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                     <path fillRule="evenodd" d="M6.28 6.28a.75.75 0 0 1 1.06 0L10 8.94l2.66-2.66a.75.75 0 1 1 1.06 1.06L11.06 10l2.66 2.66a.75.75 0 1 1-1.06 1.06L10 11.06l-2.66 2.66a.75.75 0 1 1-1.06-1.06L8.94 10 6.28 7.34a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+                   </svg>
+                 </button>
+               </div>
+             </div>
+           </div>
+
+           {/* Tab Bar */}
+           <div className="tab-bar bg-gray-700/50 backdrop-blur-sm border-b border-gray-600/30">
+             <div className="flex items-center h-8 px-2 gap-1 overflow-x-auto custom-scrollbar">
+               {tabs.map((tab) => (
+                 <div
+                   key={tab.id}
+                   className={`tab-item flex items-center gap-2 px-3 py-1 rounded-t-md cursor-pointer transition-all duration-200 min-w-0 flex-shrink-0 ${
+                     tab.isActive
+                       ? 'bg-gray-800/80 text-white border-b-2 border-blue-500'
+                       : 'bg-gray-600/30 text-gray-300 hover:bg-gray-600/50 hover:text-white'
+                   }`}
+                   onClick={() => switchTab(tab.id)}
+                 >
+                   {/* Tab Icon */}
+                   <div className="tab-icon flex-shrink-0">
+                     {tab.type === 'projects' && (
+                       <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
+                         <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                       </svg>
+                     )}
+                     {tab.type === 'blogs' && (
+                       <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                       </svg>
+                     )}
+                     {tab.type === 'certs' && (
+                       <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                       </svg>
+                     )}
+                     {tab.type === 'start' && (
+                       <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                       </svg>
+                     )}
+                   </div>
+                   
+                   {/* Tab Title */}
+                   <span className="tab-title text-xs font-medium truncate max-w-24">
+                     {tab.title}
+                   </span>
+                   
+                   {/* Close Button */}
+                   {tabs.length > 1 && (
+                     <button
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         closeTab(tab.id);
+                       }}
+                       className="tab-close ml-1 p-0.5 rounded hover:bg-gray-500/50 transition-colors opacity-60 hover:opacity-100"
+                       title="Close tab"
+                     >
+                       <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                       </svg>
+                     </button>
+                   )}
+                 </div>
+               ))}
+               
+               {/* New Tab Button */}
+               <button
+                 onClick={() => addTab('start', 'New Tab', 'home://start')}
+                 className="new-tab-btn p-1 rounded hover:bg-gray-600/50 text-gray-400 hover:text-white transition-colors flex-shrink-0"
+                 title="New tab"
+               >
+                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                 </svg>
+               </button>
+             </div>
+           </div>
 
           {/* Browser content */}
           <div
@@ -1557,79 +1763,60 @@ export default function Firefox({
                               )}
                             </div>
                           </div>
-                                                                                <div className="flex gap-2">
-                             <button
-                               onClick={() => {
+                                                                                <button
+                             onClick={async () => {
+                               try {
+                                 setBlogsLoading(true);
+                                 // Clear cache
                                  try {
                                    localStorage.removeItem('blogs-cache');
                                    localStorage.removeItem('blogs-cache-ts');
                                  } catch (error) {
                                    console.error('Cache clear error:', error);
                                  }
-                                 const current = currentUrl;
-                                 setCurrentUrl('home://temp');
-                                 setTimeout(() => setCurrentUrl(current), 100);
-                               }}
-                               disabled={blogsLoading}
-                               className="px-3 py-1.5 bg-pink-600/60 hover:bg-pink-600/80 disabled:bg-pink-600/30 text-white rounded-md text-sm transition-colors flex items-center gap-2"
-                             >
-                               {blogsLoading ? (
-                                 <>
-                                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                   Loading...
-                                 </>
-                               ) : (
-                                 <>
-                                   <span>🔄</span>
-                                   Refresh
-                                 </>
-                               )}
-                             </button>
-                             <button
-                               onClick={async () => {
-                                 try {
-                                   const response = await fetch('/api/blogs/test');
-                                   const data = await response.json();
-                                   console.log('Blog API test result:', data);
-                                   alert(`Found ${data.count} articles. Check console for details.`);
-                                 } catch (error) {
-                                   console.error('Test failed:', error);
-                                   alert('Test failed. Check console for details.');
-                                 }
-                               }}
-                               className="px-3 py-1.5 bg-blue-600/60 hover:bg-blue-600/80 text-white rounded-md text-sm transition-colors"
-                             >
-                               Test API
-                             </button>
-                             <button
-                               onClick={async () => {
-                                 try {
-                                   setBlogsLoading(true);
-                                   const timestamp = Date.now();
-                                   const response = await fetch(`/api/blogs/simple?t=${timestamp}`);
-                                   const data = await response.json();
-                                   console.log('Simple API force refresh result:', data);
+                                 
+                                 // Fetch fresh data
+                                 const timestamp = Date.now();
+                                 const response = await fetch(`/api/blogs/simple?t=${timestamp}`);
+                                 const data = await response.json();
+                                 console.log('Blog refresh result:', data);
+                                 
+                                 if (data.success && Array.isArray(data.posts)) {
+                                   setBlogPosts(data.posts);
+                                   setBlogsLastUpdated(new Date().toLocaleTimeString());
                                    
-                                   if (data.success && Array.isArray(data.posts)) {
-                                     setBlogPosts(data.posts);
-                                     setBlogsLastUpdated(new Date().toLocaleTimeString());
-                                     alert(`Force refreshed! Found ${data.count} posts.`);
-                                   } else {
-                                     alert(`Force refresh failed: ${data.error || 'Unknown error'}`);
+                                   // Update cache with fresh data
+                                   try {
+                                     localStorage.setItem('blogs-cache', JSON.stringify(data.posts));
+                                     localStorage.setItem('blogs-cache-ts', Date.now().toString());
+                                   } catch (error) {
+                                     console.error('Cache write error:', error);
                                    }
-                                 } catch (error) {
-                                   console.error('Force refresh failed:', error);
-                                   alert('Force refresh failed. Check console for details.');
-                                 } finally {
-                                   setBlogsLoading(false);
+                                 } else {
+                                   setBlogsError(data.error || 'Failed to load blogs');
                                  }
-                               }}
-                               disabled={blogsLoading}
-                               className="px-3 py-1.5 bg-red-600/60 hover:bg-red-600/80 disabled:bg-red-600/30 text-white rounded-md text-sm transition-colors"
-                             >
-                               {blogsLoading ? 'Refreshing...' : 'Force Refresh'}
-                             </button>
-                           </div>
+                               } catch (error) {
+                                 console.error('Blog refresh failed:', error);
+                                 setBlogsError('Failed to refresh blogs');
+                               } finally {
+                                 setBlogsLoading(false);
+                               }
+                             }}
+                             disabled={blogsLoading}
+                             className="px-3 py-1.5 bg-pink-600/60 hover:bg-pink-600/80 disabled:bg-pink-600/30 text-white rounded-md text-sm transition-colors flex items-center gap-2"
+                           >
+                             {blogsLoading ? (
+                               <>
+                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                 Refreshing...
+                               </>
+                             ) : (
+                               <>
+                                 <span>🔄</span>
+                                 Refresh Blogs
+                               </>
+                             )}
+                           </button>
                         </div>
                       </div>
                       {blogsError && (
@@ -2083,12 +2270,64 @@ export default function Firefox({
           overflow: hidden;
         }
 
-        .line-clamp-3 {
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;  
-          overflow: hidden;
-        }
+                 .line-clamp-3 {
+           display: -webkit-box;
+           -webkit-line-clamp: 3;
+           -webkit-box-orient: vertical;  
+           overflow: hidden;
+         }
+
+         /* Tab styles */
+         .tab-bar {
+           scrollbar-width: none;
+           -ms-overflow-style: none;
+         }
+         
+         .tab-bar::-webkit-scrollbar {
+           display: none;
+         }
+         
+         .tab-item {
+           position: relative;
+           overflow: hidden;
+         }
+         
+         .tab-item::before {
+           content: '';
+           position: absolute;
+           top: 0;
+           left: 0;
+           right: 0;
+           bottom: 0;
+           background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+           transform: translateX(-100%);
+           transition: transform 0.3s ease;
+         }
+         
+         .tab-item:hover::before {
+           transform: translateX(100%);
+         }
+         
+         .tab-item.active {
+           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+         }
+         
+         .tab-close {
+           opacity: 0;
+           transition: opacity 0.2s ease;
+         }
+         
+         .tab-item:hover .tab-close {
+           opacity: 1;
+         }
+         
+         .new-tab-btn {
+           transition: all 0.2s ease;
+         }
+         
+         .new-tab-btn:hover {
+           transform: scale(1.1);
+         }
         `}
       </style>
     </>
