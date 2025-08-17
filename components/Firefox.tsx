@@ -143,6 +143,7 @@ export default function Firefox({
   }>>([]);
   const [blogsLoading, setBlogsLoading] = useState(false);
   const [blogsError, setBlogsError] = useState<string | null>(null);
+  const [blogsLastUpdated, setBlogsLastUpdated] = useState<string | null>(null);
   
   interface Certification {
     id: number;
@@ -982,9 +983,12 @@ export default function Firefox({
   useEffect(() => {
     const isBlogs = currentUrl.startsWith('home://blogs');
     if (!isBlogs) return;
+    
     const cacheKey = 'blogs-cache';
     const cacheTsKey = 'blogs-cache-ts';
-    const expiry = 10 * 60 * 1000; // 10 minutes
+    const expiry = 2 * 60 * 1000; // Reduced to 2 minutes for faster updates
+    
+    // Try to load from cache first for immediate display
     try {
       const cached = localStorage.getItem(cacheKey);
       const ts = localStorage.getItem(cacheTsKey);
@@ -992,20 +996,56 @@ export default function Firefox({
         const parsed = JSON.parse(cached);
         setBlogPosts(parsed);
       }
-    } catch {}
+    } catch (error) {
+      console.error('Cache read error:', error);
+    }
+    
     setBlogsLoading(true);
     setBlogsError(null);
-    fetch('/api/blogs', { cache: 'no-store' })
-      .then(async (r) => (r.ok ? r.json() : { posts: [] }))
+    
+    // Always fetch fresh data
+    fetch('/api/blogs', { 
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    })
+      .then(async (r) => {
+        if (!r.ok) {
+          throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+        }
+        return r.json();
+      })
       .then((data) => {
         const posts = Array.isArray(data.posts) ? data.posts : [];
         setBlogPosts(posts);
+        
+        // Update cache with fresh data
         try {
           localStorage.setItem(cacheKey, JSON.stringify(posts));
           localStorage.setItem(cacheTsKey, Date.now().toString());
-        } catch {}
+        } catch (error) {
+          console.error('Cache write error:', error);
+        }
+        
+        // Update last updated timestamp
+        setBlogsLastUpdated(new Date().toLocaleTimeString());
+        
+        // Log meta info for debugging
+        if (data.meta) {
+          console.log('Blogs loaded:', data.meta);
+        }
       })
-      .catch(() => setBlogsError('Failed to load blogs'))
+      .catch((error) => {
+        console.error('Blog fetch error:', error);
+        // If we have cached data, show it but with a warning
+        if (blogPosts.length > 0) {
+          setBlogsError('Showing cached data. Failed to fetch latest blogs.');
+        } else {
+          setBlogsError('Failed to load blogs. Please try refreshing.');
+        }
+      })
       .finally(() => setBlogsLoading(false));
   }, [currentUrl]);
 
@@ -1491,12 +1531,44 @@ export default function Firefox({
                   ) : currentUrl.startsWith('home://blogs') ? (
                     <div className="blogs-page">
                       <div className="bg-gray-800/60 backdrop-blur-md p-6 rounded-lg border border-pink-500/30 shadow-[0_0_25px_rgba(236,72,153,0.25)] mb-6">
-                        <div className="flex items-center gap-3">
-                          <span className="text-pink-400 text-xl">📝</span>
-                          <div>
-                            <h2 className="text-2xl font-bold text-pink-200">Latest Blogs</h2>
-                            <p className="text-pink-300/80">From DEV.to and Medium</p>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className="text-pink-400 text-xl">📝</span>
+                            <div>
+                              <h2 className="text-2xl font-bold text-pink-200">Latest Blogs</h2>
+                              <p className="text-pink-300/80">From DEV.to and Medium</p>
+                              {blogsLastUpdated && (
+                                <p className="text-xs text-pink-300/60 mt-1">Last updated: {blogsLastUpdated}</p>
+                              )}
+                            </div>
                           </div>
+                          <button
+                            onClick={() => {
+                              try {
+                                localStorage.removeItem('blogs-cache');
+                                localStorage.removeItem('blogs-cache-ts');
+                              } catch (error) {
+                                console.error('Cache clear error:', error);
+                              }
+                              const current = currentUrl;
+                              setCurrentUrl('home://temp');
+                              setTimeout(() => setCurrentUrl(current), 100);
+                            }}
+                            disabled={blogsLoading}
+                            className="px-3 py-1.5 bg-pink-600/60 hover:bg-pink-600/80 disabled:bg-pink-600/30 text-white rounded-md text-sm transition-colors flex items-center gap-2"
+                          >
+                            {blogsLoading ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                Loading...
+                              </>
+                            ) : (
+                              <>
+                                <span>🔄</span>
+                                Refresh
+                              </>
+                            )}
+                          </button>
                         </div>
                       </div>
                       {blogsError && (
@@ -1510,7 +1582,30 @@ export default function Firefox({
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                          {blogPosts.map((post) => (
+                          {blogPosts.length === 0 ? (
+                            <div className="col-span-full text-center py-12">
+                              <div className="text-pink-300/60 text-6xl mb-4">📝</div>
+                              <h3 className="text-xl font-semibold text-pink-200 mb-2">No blogs found</h3>
+                              <p className="text-pink-300/60 mb-4">Check back later for new content from DEV.to and Medium</p>
+                              <button
+                                onClick={() => {
+                                  try {
+                                    localStorage.removeItem('blogs-cache');
+                                    localStorage.removeItem('blogs-cache-ts');
+                                  } catch (error) {
+                                    console.error('Cache clear error:', error);
+                                  }
+                                  const current = currentUrl;
+                                  setCurrentUrl('home://temp');
+                                  setTimeout(() => setCurrentUrl(current), 100);
+                                }}
+                                className="px-4 py-2 bg-pink-600/60 hover:bg-pink-600/80 text-white rounded-md"
+                              >
+                                Try Again
+                              </button>
+                            </div>
+                          ) : (
+                            blogPosts.map((post) => (
                             <a
                               key={post.id}
                               href={post.url}
@@ -1548,7 +1643,7 @@ export default function Firefox({
                                 <div className="absolute bottom-3 right-3 text-pink-300 text-sm flex items-center">Read <span className="ml-1">→</span></div>
                               </div>
                             </a>
-                          ))}
+                          ))
                         </div>
                       )}
                     </div>
