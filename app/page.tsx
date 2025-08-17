@@ -127,6 +127,12 @@ export default function Home() {
         
         // If Firefox is already open, add a new tab instead of replacing
         if (showFirefox && (window as any).firefoxAddTab) {
+          console.log('Firefox: Already open, popping up and adding new tab');
+          
+          // Popup Firefox if it's minimized
+          window.dispatchEvent(new CustomEvent('popup-firefox'));
+          
+          // Add new tab based on the command
           if (showProjects) {
             (window as any).firefoxAddTab('projects', 'GitHub Projects', `https://github.com/${githubUsername}`);
           } else if (showTools) {
@@ -137,6 +143,8 @@ export default function Home() {
             (window as any).firefoxAddTab('blogs', 'Blogs', 'home://blogs');
           }
         } else {
+          console.log('Firefox: Not open, creating new window');
+          
           // Set these state variables AFTER position is calculated for new window
           setShowFirefox(true);
           setShowGitHubProjects(showProjects);

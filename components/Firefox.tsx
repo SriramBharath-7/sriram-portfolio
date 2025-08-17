@@ -1276,6 +1276,15 @@ export default function Firefox({
       if (isMinimized) {
         setIsMinimized(false);
         setFirefoxState(prev => ({ ...prev, isMinimized: false }));
+        
+        // Add a brief flash effect to make the popup more visible
+        const firefoxWindow = document.querySelector('.firefox-window');
+        if (firefoxWindow) {
+          firefoxWindow.classList.add('popup-flash');
+          setTimeout(() => {
+            firefoxWindow.classList.remove('popup-flash');
+          }, 300);
+        }
       }
     };
     
@@ -2373,6 +2382,25 @@ export default function Firefox({
            opacity: 1;
          }
          
+         /* Popup flash effect */
+         .popup-flash {
+           animation: popupFlash 0.3s ease-out;
+         }
+         
+         @keyframes popupFlash {
+           0% { 
+             box-shadow: 0 0 20px rgba(123, 104, 238, 0.3);
+             transform: scale(0.98);
+           }
+           50% { 
+             box-shadow: 0 0 40px rgba(123, 104, 238, 0.8);
+             transform: scale(1.02);
+           }
+           100% { 
+             box-shadow: 0 0 20px rgba(123, 104, 238, 0.3);
+             transform: scale(1);
+           }
+         }
 
         `}
       </style>

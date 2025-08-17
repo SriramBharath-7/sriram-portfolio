@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+import { DEFAULT_GITHUB_USERNAME } from "../constants/profile";
 
 // Register ScrollToPlugin for smooth scrolling
 if (typeof window !== "undefined") {
@@ -382,6 +383,12 @@ export default function Terminal({
         
         console.log('Terminal: Executing projects command');
 
+        // Check if Firefox is already open
+        const firefoxWindow = document.querySelector('.firefox-window');
+        const isFirefoxOpen = !!firefoxWindow;
+        
+        console.log('Terminal: Firefox window detected:', isFirefoxOpen);
+
         // Dispatch custom event to pop up Firefox if minimized
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('terminal-command', { 
@@ -389,6 +396,21 @@ export default function Terminal({
           }));
         }
 
+        // If Firefox is already open, just pop it up and add tab
+        if (isFirefoxOpen) {
+          // Popup Firefox if minimized
+          window.dispatchEvent(new CustomEvent('popup-firefox'));
+          
+          // Add new tab using the global function
+          if (typeof window !== 'undefined' && (window as any).firefoxAddTab) {
+            (window as any).firefoxAddTab('projects', 'GitHub Projects', `https://github.com/${DEFAULT_GITHUB_USERNAME}`);
+          }
+          
+          setIsLoading(false);
+          return "Adding new GitHub Projects tab to Firefox...";
+        }
+
+        // If Firefox is not open, open it normally
         // Add proper delay to ensure the command executes properly
         setTimeout(() => {
           console.log('Terminal: Minimizing terminal...');
@@ -420,6 +442,12 @@ export default function Terminal({
         
         console.log('Terminal: Executing toolspage command');
 
+        // Check if Firefox is already open
+        const firefoxWindow = document.querySelector('.firefox-window');
+        const isFirefoxOpen = !!firefoxWindow;
+        
+        console.log('Terminal: Firefox window detected (toolspage):', isFirefoxOpen);
+
         // Dispatch custom event to pop up Firefox if minimized
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('terminal-command', { 
@@ -427,6 +455,21 @@ export default function Terminal({
           }));
         }
 
+        // If Firefox is already open, just pop it up and add tab
+        if (isFirefoxOpen) {
+          // Popup Firefox if minimized
+          window.dispatchEvent(new CustomEvent('popup-firefox'));
+          
+          // Add new tab using the global function
+          if (typeof window !== 'undefined' && (window as any).firefoxAddTab) {
+            (window as any).firefoxAddTab('projects', 'GitHub Tools', `https://github.com/${DEFAULT_GITHUB_USERNAME}`);
+          }
+          
+          setIsLoading(false);
+          return "Adding new GitHub Tools tab to Firefox...";
+        }
+
+        // If Firefox is not open, open it normally
         // Add proper delay to ensure the command executes properly
         setTimeout(() => {
           console.log('Terminal: Minimizing terminal...');
@@ -455,6 +498,12 @@ export default function Terminal({
         setIsLoading(true);
         console.log('Terminal: Executing certs command');
         
+        // Check if Firefox is already open
+        const firefoxWindow = document.querySelector('.firefox-window');
+        const isFirefoxOpen = !!firefoxWindow;
+        
+        console.log('Terminal: Firefox window detected (certs):', isFirefoxOpen);
+
         // Dispatch custom event to pop up Firefox if minimized
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('terminal-command', { 
@@ -462,6 +511,21 @@ export default function Terminal({
           }));
         }
         
+        // If Firefox is already open, just pop it up and add tab
+        if (isFirefoxOpen) {
+          // Popup Firefox if minimized
+          window.dispatchEvent(new CustomEvent('popup-firefox'));
+          
+          // Add new tab using the global function
+          if (typeof window !== 'undefined' && (window as any).firefoxAddTab) {
+            (window as any).firefoxAddTab('certs', 'Certificates', 'home://certs');
+          }
+          
+          setIsLoading(false);
+          return "Adding new Certificates tab to Firefox...";
+        }
+        
+        // If Firefox is not open, open it normally
         setTimeout(() => {
           console.log('Terminal: Minimizing terminal...');
           handleMinimize();
@@ -523,6 +587,12 @@ Working on various cybersecurity projects including vulnerability assessment too
         (() => {
           setIsLoading(true);
           
+          // Check if Firefox is already open
+          const firefoxWindow = document.querySelector('.firefox-window');
+          const isFirefoxOpen = !!firefoxWindow;
+          
+          console.log('Terminal: Firefox window detected (blog):', isFirefoxOpen);
+          
           // Dispatch custom event to pop up Firefox if minimized
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('terminal-command', { 
@@ -530,6 +600,21 @@ Working on various cybersecurity projects including vulnerability assessment too
             }));
           }
           
+          // If Firefox is already open, just pop it up and add tab
+          if (isFirefoxOpen) {
+            // Popup Firefox if minimized
+            window.dispatchEvent(new CustomEvent('popup-firefox'));
+            
+            // Add new tab using the global function
+            if (typeof window !== 'undefined' && (window as any).firefoxAddTab) {
+              (window as any).firefoxAddTab('blogs', 'Blogs', 'home://blogs');
+            }
+            
+            setIsLoading(false);
+            return "Adding new Blogs tab to Firefox...";
+          }
+          
+          // If Firefox is not open, open it normally
           setTimeout(() => {
             handleMinimize();
             setTimeout(() => {
