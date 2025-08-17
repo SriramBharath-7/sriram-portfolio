@@ -1591,6 +1591,33 @@ export default function Firefox({
                              >
                                Test API
                              </button>
+                             <button
+                               onClick={async () => {
+                                 try {
+                                   setBlogsLoading(true);
+                                   const response = await fetch('/api/blogs/force-refresh');
+                                   const data = await response.json();
+                                   console.log('Force refresh result:', data);
+                                   
+                                   if (data.success && data.posts) {
+                                     setBlogPosts(data.posts);
+                                     setBlogsLastUpdated(new Date().toLocaleTimeString());
+                                     alert(`Force refreshed! Found ${data.count} posts.`);
+                                   } else {
+                                     alert(`Force refresh failed: ${data.error || 'Unknown error'}`);
+                                   }
+                                 } catch (error) {
+                                   console.error('Force refresh failed:', error);
+                                   alert('Force refresh failed. Check console for details.');
+                                 } finally {
+                                   setBlogsLoading(false);
+                                 }
+                               }}
+                               disabled={blogsLoading}
+                               className="px-3 py-1.5 bg-red-600/60 hover:bg-red-600/80 disabled:bg-red-600/30 text-white rounded-md text-sm transition-colors"
+                             >
+                               {blogsLoading ? 'Refreshing...' : 'Force Refresh'}
+                             </button>
                            </div>
                         </div>
                       </div>

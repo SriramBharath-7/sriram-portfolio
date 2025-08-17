@@ -44,8 +44,9 @@ async function testDevToAPI() {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const forceRefresh = searchParams.get('refresh') === 'true';
+  const timestamp = searchParams.get('t');
   
-  console.log('Blog API called at:', new Date().toISOString(), forceRefresh ? '(force refresh)' : '');
+  console.log('Blog API called at:', new Date().toISOString(), forceRefresh ? '(force refresh)' : '', timestamp ? `(t: ${timestamp})` : '');
   
   // Test the API first
   await testDevToAPI();
@@ -120,22 +121,25 @@ export async function GET(request: Request) {
 
     console.log(`Blog API: Found ${devto.length} dev.to posts, ${medium.length} medium posts, ${posts.length} total after deduplication`);
     
-    return NextResponse.json({ 
-      posts,
-      meta: {
-        devtoCount: devto.length,
-        mediumCount: medium.length,
-        totalCount: posts.length,
-        timestamp: new Date().toISOString()
-      }
-    }, { 
-      status: 200,
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
-    });
+         return NextResponse.json({ 
+       posts,
+       meta: {
+         devtoCount: devto.length,
+         mediumCount: medium.length,
+         totalCount: posts.length,
+         timestamp: new Date().toISOString(),
+         cacheBuster: timestamp || Date.now().toString()
+       }
+     }, { 
+       status: 200,
+       headers: {
+         'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+         'Pragma': 'no-cache',
+         'Expires': '0',
+         'X-Cache-Buster': timestamp || Date.now().toString(),
+         'X-Last-Modified': new Date().toISOString()
+       }
+     });
   } catch (err) {
     console.error('Blog API error:', err);
     return NextResponse.json({ 
