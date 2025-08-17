@@ -164,7 +164,10 @@ export default function Home() {
   return (
     <main className="min-h-screen p-4 font-mono text-green-400 flex items-center justify-center relative overflow-hidden">
       {/* Arch Linux with Hyprland desktop - always show the desktop */}
-      <ArchLinuxOS onOpenTerminal={() => setShowTerminal(true)} />
+      <ArchLinuxOS 
+        onOpenTerminal={() => setShowTerminal(true)} 
+        onOpenFirefox={handleOpenFirefox}
+      />
 
       {/* Terminal component */}
       {showTerminal && (

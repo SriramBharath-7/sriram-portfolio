@@ -144,9 +144,12 @@ export default function Firefox({
     return tabs;
   };
 
-  const [tabs, setTabs] = useState<Tab[]>(getInitialTabs);
+  // Use useMemo to compute initial tabs once
+  const initialTabs = useMemo(() => getInitialTabs(), [showProjects, showTools, showBlogs, githubUsername, initialUrl]);
+
+  const [tabs, setTabs] = useState<Tab[]>(initialTabs);
   const [currentUrl, setCurrentUrl] = useState(() => {
-    const activeTab = getInitialTabs().find(tab => tab.isActive);
+    const activeTab = initialTabs.find(tab => tab.isActive);
     return activeTab?.url || initialUrl;
   });
   const [history, setHistory] = useState<string[]>([
@@ -853,6 +856,24 @@ export default function Firefox({
       onTabChange(tabs);
     }
   }, [tabs, onTabChange]);
+
+  // Ensure initial tab is created properly
+  useEffect(() => {
+    console.log('Firefox: Initial tabs state:', tabs);
+    console.log('Firefox: Props - showProjects:', showProjects, 'showTools:', showTools, 'showBlogs:', showBlogs, 'initialUrl:', initialUrl);
+    
+    // If no tabs exist, create the initial tab
+    if (tabs.length === 0) {
+      console.log('Firefox: No tabs found, creating initial tab');
+      const initialTab = initialTabs[0];
+      if (initialTab) {
+        setTabs([initialTab]);
+        setCurrentUrl(initialTab.url);
+        setHistory([initialTab.url]);
+        setHistoryIndex(0);
+      }
+    }
+  }, [initialTabs]); // Run when initialTabs changes
 
   // Expose addTab function globally for terminal commands
   useEffect(() => {

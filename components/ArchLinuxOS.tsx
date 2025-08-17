@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import dynamic from "next/dynamic";
-// Import Firefox dynamically to fix the rendering issue
-const Firefox = dynamic(() => import('./Firefox'), { ssr: false });
+
 // Import the PNG logo and wallpaper with Next.js Image
 import archLinuxLogo from "../public/assets/svg/kali-logo.png";
 import wallpaper from "../public/assets/wallpaper/kali-ferrofluid.jpg";
@@ -13,16 +11,15 @@ const firefoxLogoPath = "/assets/svg/firefox.svg";
 const terminalLogoPath = "/assets/svg/terminal.svg";
 
 interface ArchLinuxOSProps {
-  onOpenTerminal: (initialPosition?: { x: number; y: number }) => void;
+  onOpenTerminal: (position: { x: number; y: number }) => void;
+  onOpenFirefox?: (showProjects?: boolean, showTools?: boolean, showCerts?: boolean, showBlogs?: boolean) => void;
 }
 
-export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
+export default function ArchLinuxOS({ onOpenTerminal, onOpenFirefox }: ArchLinuxOSProps) {
   const [currentTime, setCurrentTime] = useState<string>("");
   const [currentDate, setCurrentDate] = useState<string>("");
   const [showHint, setShowHint] = useState(true);
-  const [showFirefox, setShowFirefox] = useState(false);
-  const [showFirefoxProjects, setShowFirefoxProjects] = useState(false);
-  const [initialWindowPosition, setInitialWindowPosition] = useState<{ x: number; y: number } | null>(null);
+  const [showTerminal, setShowTerminal] = useState(false);
 
   useEffect(() => {
     // Set initial time and date values on client-side only
@@ -30,11 +27,7 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
     setCurrentTime(now.toLocaleTimeString());
     setCurrentDate(now.toLocaleDateString());
 
-    // Set the initial window position safely on the client side
-    setInitialWindowPosition({
-      x: window.innerWidth * 0.025,
-      y: window.innerHeight * 0.05 + 48, // Add 48px to start below the waybar
-    });
+
 
     // Update the time every second
     const timer = setInterval(() => {
@@ -54,66 +47,13 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
     };
   }, []);
 
-  // Function to handle opening Firefox from Terminal with projects
-  const handleOpenFirefox = (showProjects = false, showTools = false) => {
-    console.log('ArchLinuxOS: Opening Firefox with params:', { showProjects, showTools });
-    
-    // Calculate a properly centered position for Firefox
-    if (typeof window !== 'undefined') {
-      // First determine the appropriate size of Firefox window
-      let width, height;
-      
-      if (window.innerWidth < 768) {
-        width = '95vw';
-        height = '75vh';
-      } else if (window.innerWidth < 1024) {
-        width = '85vw';
-        height = '80vh';
-      } else {
-        width = '80vw';
-        height = '85vh';
-      }
-      
-      // Convert vw/vh to pixels
-      const parsedWidth = (parseFloat(width) / 100) * window.innerWidth;
-      const parsedHeight = (parseFloat(height) / 100) * window.innerHeight;
-      
-      // Define waybar height
-      const WAYBAR_HEIGHT = 48;
-      
-      // Calculate exact center position
-      const centerX = (window.innerWidth - parsedWidth) / 2;
-      const centerY = (window.innerHeight - parsedHeight) / 2;
-      
-      // Set centered position for Firefox
-      setInitialWindowPosition({
-        x: Math.max(0, centerX),
-        y: Math.max(WAYBAR_HEIGHT + 2, centerY)
-      });
-
-      console.log('ArchLinuxOS: Firefox position set to:', { 
-        x: Math.max(0, centerX), 
-        y: Math.max(WAYBAR_HEIGHT + 2, centerY) 
-      });
-    } else {
-      // Fallback if window is not defined
-      setInitialWindowPosition({
-        x: 0,
-        y: 56
-      });
-      console.log('ArchLinuxOS: Using fallback position because window is not defined');
-    }
-    
-    // Use a slight delay to prevent flickering
-    setTimeout(() => {
-      console.log('ArchLinuxOS: Setting Firefox states');
-      setShowFirefoxProjects(showProjects);
-      setShowFirefox(true);
-    }, 50);
+  // Function to handle opening Firefox from desktop icon
+  const handleFirefoxClick = () => {
+    // Use the passed onOpenFirefox function to open Firefox
+    onOpenFirefox?.(false, false, false, false);
   };
 
-  // Set initial position for windows to be below the waybar
-  // This declaration was moved to the useEffect hook to avoid "window is not defined" error
+
 
   return (
     <div className="hyprland-desktop w-full h-full absolute inset-0 z-10">
@@ -250,25 +190,13 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
       )}
 
       {/* Firefox browser */}
-      {showFirefox && initialWindowPosition && (
-        <Firefox
-          onClose={() => {
-            console.log('ArchLinuxOS: Closing Firefox');
-            setShowFirefox(false);
-            setShowFirefoxProjects(false);
-          }}
-          initialUrl={`home://start`}
-          showProjects={showFirefoxProjects}
-          showTools={false}
-          initialPosition={initialWindowPosition}
-        />
-      )}
+      {/* The Firefox component is now managed by the onOpenFirefox prop */}
 
       {/* Desktop icons with larger size */}
       <div className="desktop-icons absolute top-16 left-4 grid gap-6 z-30">
         <div
           className="desktop-icon flex flex-col items-center cursor-pointer group"
-          onClick={() => initialWindowPosition && onOpenTerminal(initialWindowPosition)}
+          onClick={() => onOpenTerminal({ x: 100, y: 100 })}
         >
           <div className="icon-bg p-3 mb-2 rounded-lg transition-all duration-300">
             <img
@@ -287,7 +215,7 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
 
         <div
           className="desktop-icon flex flex-col items-center cursor-pointer group"
-          onClick={() => handleOpenFirefox(false, false)}
+          onClick={handleFirefoxClick}
         >
           <div className="icon-bg p-3 mb-2 rounded-lg transition-all duration-300">
             <img
