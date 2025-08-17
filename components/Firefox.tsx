@@ -1643,7 +1643,7 @@ export default function Firefox({
                                 <div className="absolute bottom-3 right-3 text-pink-300 text-sm flex items-center">Read <span className="ml-1">→</span></div>
                               </div>
                             </a>
-                          ))
+                          )))}
                         </div>
                       )}
                     </div>
