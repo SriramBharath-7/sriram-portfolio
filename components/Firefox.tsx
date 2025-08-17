@@ -1542,33 +1542,51 @@ export default function Firefox({
                               )}
                             </div>
                           </div>
-                          <button
-                            onClick={() => {
-                              try {
-                                localStorage.removeItem('blogs-cache');
-                                localStorage.removeItem('blogs-cache-ts');
-                              } catch (error) {
-                                console.error('Cache clear error:', error);
-                              }
-                              const current = currentUrl;
-                              setCurrentUrl('home://temp');
-                              setTimeout(() => setCurrentUrl(current), 100);
-                            }}
-                            disabled={blogsLoading}
-                            className="px-3 py-1.5 bg-pink-600/60 hover:bg-pink-600/80 disabled:bg-pink-600/30 text-white rounded-md text-sm transition-colors flex items-center gap-2"
-                          >
-                            {blogsLoading ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                Loading...
-                              </>
-                            ) : (
-                              <>
-                                <span>🔄</span>
-                                Refresh
-                              </>
-                            )}
-                          </button>
+                                                                                <div className="flex gap-2">
+                             <button
+                               onClick={() => {
+                                 try {
+                                   localStorage.removeItem('blogs-cache');
+                                   localStorage.removeItem('blogs-cache-ts');
+                                 } catch (error) {
+                                   console.error('Cache clear error:', error);
+                                 }
+                                 const current = currentUrl;
+                                 setCurrentUrl('home://temp');
+                                 setTimeout(() => setCurrentUrl(current), 100);
+                               }}
+                               disabled={blogsLoading}
+                               className="px-3 py-1.5 bg-pink-600/60 hover:bg-pink-600/80 disabled:bg-pink-600/30 text-white rounded-md text-sm transition-colors flex items-center gap-2"
+                             >
+                               {blogsLoading ? (
+                                 <>
+                                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                   Loading...
+                                 </>
+                               ) : (
+                                 <>
+                                   <span>🔄</span>
+                                   Refresh
+                                 </>
+                               )}
+                             </button>
+                             <button
+                               onClick={async () => {
+                                 try {
+                                   const response = await fetch('/api/blogs/test');
+                                   const data = await response.json();
+                                   console.log('Blog API test result:', data);
+                                   alert(`Found ${data.count} articles. Check console for details.`);
+                                 } catch (error) {
+                                   console.error('Test failed:', error);
+                                   alert('Test failed. Check console for details.');
+                                 }
+                               }}
+                               className="px-3 py-1.5 bg-blue-600/60 hover:bg-blue-600/80 text-white rounded-md text-sm transition-colors"
+                             >
+                               Test API
+                             </button>
+                           </div>
                         </div>
                       </div>
                       {blogsError && (

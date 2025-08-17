@@ -14,7 +14,39 @@ type BlogPost = {
 const DEVTO_USERNAME = "sriram_bharath";
 const MEDIUM_HANDLE = "@srirambharath7";
 
+// Add a simple test function to verify the API is working
+async function testDevToAPI() {
+  try {
+    const response = await fetch(`https://dev.to/api/articles?username=${encodeURIComponent(DEVTO_USERNAME)}&per_page=5`, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "Mozilla/5.0",
+      },
+    });
+    
+    if (!response.ok) {
+      console.error(`Dev.to API error: ${response.status} ${response.statusText}`);
+      return null;
+    }
+    
+    const data = await response.json();
+    console.log(`Dev.to API test: Found ${data.length} articles`);
+    if (data.length > 0) {
+      console.log('Latest article:', data[0].title);
+    }
+    return data;
+  } catch (error) {
+    console.error('Dev.to API test failed:', error);
+    return null;
+  }
+}
+
 export async function GET() {
+  console.log('Blog API called at:', new Date().toISOString());
+  
+  // Test the API first
+  await testDevToAPI();
+  
   try {
     const [devto, medium] = await Promise.all([
       fetch(`https://dev.to/api/articles?username=${encodeURIComponent(DEVTO_USERNAME)}&per_page=50`, {
@@ -83,9 +115,41 @@ export async function GET() {
       return db - da;
     });
 
-    return NextResponse.json({ posts }, { status: 200 });
+    console.log(`Blog API: Found ${devto.length} dev.to posts, ${medium.length} medium posts, ${posts.length} total after deduplication`);
+    
+    return NextResponse.json({ 
+      posts,
+      meta: {
+        devtoCount: devto.length,
+        mediumCount: medium.length,
+        totalCount: posts.length,
+        timestamp: new Date().toISOString()
+      }
+    }, { 
+      status: 200,
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   } catch (err) {
-    return NextResponse.json({ posts: [], error: "Failed to load blogs" }, { status: 200 });
+    console.error('Blog API error:', err);
+    return NextResponse.json({ 
+      posts: [], 
+      error: "Failed to load blogs",
+      meta: {
+        error: err instanceof Error ? err.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      }
+    }, { 
+      status: 200,
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   }
 }
 
