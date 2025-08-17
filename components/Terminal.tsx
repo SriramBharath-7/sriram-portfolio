@@ -401,13 +401,20 @@ export default function Terminal({
           // Popup Firefox if minimized
           window.dispatchEvent(new CustomEvent('popup-firefox'));
           
-          // Add new tab using the global function
-          if (typeof window !== 'undefined' && (window as any).firefoxAddTab) {
-            (window as any).firefoxAddTab('projects', 'GitHub Projects', `https://github.com/${DEFAULT_GITHUB_USERNAME}`);
+          // Check if the tab already exists before adding a new one
+          const existingTab = document.querySelector('.tab-item[data-url*="github.com"]');
+          console.log('Terminal: Checking for existing GitHub tab:', existingTab);
+          if (!existingTab) {
+            // Add new tab using the global function only if it doesn't exist
+            if (typeof window !== 'undefined' && (window as any).firefoxAddTab) {
+              (window as any).firefoxAddTab('projects', 'GitHub Projects', `https://github.com/${DEFAULT_GITHUB_USERNAME}`);
+            }
+            setIsLoading(false);
+            return "Adding new GitHub Projects tab to Firefox...";
+          } else {
+            setIsLoading(false);
+            return "GitHub Projects tab already exists in Firefox...";
           }
-          
-          setIsLoading(false);
-          return "Adding new GitHub Projects tab to Firefox...";
         }
 
         // If Firefox is not open, open it normally
@@ -460,13 +467,20 @@ export default function Terminal({
           // Popup Firefox if minimized
           window.dispatchEvent(new CustomEvent('popup-firefox'));
           
-          // Add new tab using the global function
-          if (typeof window !== 'undefined' && (window as any).firefoxAddTab) {
-            (window as any).firefoxAddTab('projects', 'GitHub Tools', `https://github.com/${DEFAULT_GITHUB_USERNAME}`);
+          // Check if the tab already exists before adding a new one
+          const existingTab = document.querySelector('.tab-item[data-url*="github.com"]');
+          console.log('Terminal: Checking for existing GitHub Tools tab:', existingTab);
+          if (!existingTab) {
+            // Add new tab using the global function only if it doesn't exist
+            if (typeof window !== 'undefined' && (window as any).firefoxAddTab) {
+              (window as any).firefoxAddTab('projects', 'GitHub Tools', `https://github.com/${DEFAULT_GITHUB_USERNAME}`);
+            }
+            setIsLoading(false);
+            return "Adding new GitHub Tools tab to Firefox...";
+          } else {
+            setIsLoading(false);
+            return "GitHub Tools tab already exists in Firefox...";
           }
-          
-          setIsLoading(false);
-          return "Adding new GitHub Tools tab to Firefox...";
         }
 
         // If Firefox is not open, open it normally
@@ -516,13 +530,20 @@ export default function Terminal({
           // Popup Firefox if minimized
           window.dispatchEvent(new CustomEvent('popup-firefox'));
           
-          // Add new tab using the global function
-          if (typeof window !== 'undefined' && (window as any).firefoxAddTab) {
-            (window as any).firefoxAddTab('certs', 'Certificates', 'home://certs');
+          // Check if the tab already exists before adding a new one
+          const existingTab = document.querySelector('.tab-item[data-url="home://certs"]');
+          console.log('Terminal: Checking for existing Certs tab:', existingTab);
+          if (!existingTab) {
+            // Add new tab using the global function only if it doesn't exist
+            if (typeof window !== 'undefined' && (window as any).firefoxAddTab) {
+              (window as any).firefoxAddTab('certs', 'Certificates', 'home://certs');
+            }
+            setIsLoading(false);
+            return "Adding new Certificates tab to Firefox...";
+          } else {
+            setIsLoading(false);
+            return "Certificates tab already exists in Firefox...";
           }
-          
-          setIsLoading(false);
-          return "Adding new Certificates tab to Firefox...";
         }
         
         // If Firefox is not open, open it normally
@@ -605,13 +626,20 @@ Working on various cybersecurity projects including vulnerability assessment too
             // Popup Firefox if minimized
             window.dispatchEvent(new CustomEvent('popup-firefox'));
             
-            // Add new tab using the global function
-            if (typeof window !== 'undefined' && (window as any).firefoxAddTab) {
-              (window as any).firefoxAddTab('blogs', 'Blogs', 'home://blogs');
+            // Check if the tab already exists before adding a new one
+            const existingTab = document.querySelector('.tab-item[data-url="home://blogs"]');
+            console.log('Terminal: Checking for existing Blogs tab:', existingTab);
+            if (!existingTab) {
+              // Add new tab using the global function only if it doesn't exist
+              if (typeof window !== 'undefined' && (window as any).firefoxAddTab) {
+                (window as any).firefoxAddTab('blogs', 'Blogs', 'home://blogs');
+              }
+              setIsLoading(false);
+              return "Adding new Blogs tab to Firefox...";
+            } else {
+              setIsLoading(false);
+              return "Blogs tab already exists in Firefox...";
             }
-            
-            setIsLoading(false);
-            return "Adding new Blogs tab to Firefox...";
           }
           
           // If Firefox is not open, open it normally

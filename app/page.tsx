@@ -127,20 +127,36 @@ export default function Home() {
         
         // If Firefox is already open, add a new tab instead of replacing
         if (showFirefox && (window as any).firefoxAddTab) {
-          console.log('Firefox: Already open, popping up and adding new tab');
+          console.log('Firefox: Already open, popping up and checking for existing tabs');
           
           // Popup Firefox if it's minimized
           window.dispatchEvent(new CustomEvent('popup-firefox'));
           
-          // Add new tab based on the command
+          // Check if tabs already exist before adding new ones
           if (showProjects) {
-            (window as any).firefoxAddTab('projects', 'GitHub Projects', `https://github.com/${githubUsername}`);
+            const existingTab = document.querySelector('.tab-item[data-url*="github.com"]');
+            console.log('Main page: Checking for existing GitHub tab:', existingTab);
+            if (!existingTab) {
+              (window as any).firefoxAddTab('projects', 'GitHub Projects', `https://github.com/${githubUsername}`);
+            }
           } else if (showTools) {
-            (window as any).firefoxAddTab('projects', 'GitHub Tools', `https://github.com/${DEFAULT_GITHUB_USERNAME}`);
+            const existingTab = document.querySelector('.tab-item[data-url*="github.com"]');
+            console.log('Main page: Checking for existing GitHub Tools tab:', existingTab);
+            if (!existingTab) {
+              (window as any).firefoxAddTab('projects', 'GitHub Tools', `https://github.com/${DEFAULT_GITHUB_USERNAME}`);
+            }
           } else if (showCertsParam) {
-            (window as any).firefoxAddTab('certs', 'Certificates', 'home://certs');
+            const existingTab = document.querySelector('.tab-item[data-url="home://certs"]');
+            console.log('Main page: Checking for existing Certs tab:', existingTab);
+            if (!existingTab) {
+              (window as any).firefoxAddTab('certs', 'Certificates', 'home://certs');
+            }
           } else if (showBlogsParam) {
-            (window as any).firefoxAddTab('blogs', 'Blogs', 'home://blogs');
+            const existingTab = document.querySelector('.tab-item[data-url="home://blogs"]');
+            console.log('Main page: Checking for existing Blogs tab:', existingTab);
+            if (!existingTab) {
+              (window as any).firefoxAddTab('blogs', 'Blogs', 'home://blogs');
+            }
           }
         } else {
           console.log('Firefox: Not open, creating new window');

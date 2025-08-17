@@ -1387,6 +1387,8 @@ export default function Firefox({
                        : 'bg-gray-600/30 text-gray-300 hover:bg-gray-600/50 hover:text-white'
                    }`}
                    onClick={() => switchTab(tab.id)}
+                   data-url={tab.url}
+                   data-type={tab.type}
                  >
                    {/* Tab Icon */}
                    <div className="tab-icon flex-shrink-0">
