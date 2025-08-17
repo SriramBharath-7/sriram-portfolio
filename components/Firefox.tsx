@@ -1003,9 +1003,9 @@ export default function Firefox({
     setBlogsLoading(true);
     setBlogsError(null);
     
-         // Always fetch fresh data with timestamp to prevent caching
+         // Use the simple, guaranteed-to-work API
      const timestamp = Date.now();
-     fetch(`/api/blogs?refresh=true&t=${timestamp}`, { 
+     fetch(`/api/blogs/simple?t=${timestamp}`, { 
        cache: 'no-store',
        headers: {
          'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -1019,20 +1019,30 @@ export default function Firefox({
         return r.json();
       })
              .then((data) => {
-         const posts = Array.isArray(data.posts) ? data.posts : [];
-         console.log('Blog posts received:', posts.length, 'posts');
-         if (posts.length > 0) {
-           console.log('Latest post:', posts[0].title);
+         console.log('Simple API response:', data);
+         
+         if (data.success && Array.isArray(data.posts)) {
+           const posts = data.posts;
+           console.log('Blog posts received:', posts.length, 'posts');
+           if (posts.length > 0) {
+             console.log('Latest post:', posts[0].title);
+           }
+           setBlogPosts(posts);
+         } else {
+           console.error('API returned error or invalid data:', data);
+           setBlogsError(data.error || 'Invalid response from API');
+           setBlogPosts([]);
          }
-         setBlogPosts(posts);
         
-        // Update cache with fresh data
-        try {
-          localStorage.setItem(cacheKey, JSON.stringify(posts));
-          localStorage.setItem(cacheTsKey, Date.now().toString());
-        } catch (error) {
-          console.error('Cache write error:', error);
-        }
+                 // Update cache with fresh data
+         if (data.success && Array.isArray(data.posts)) {
+           try {
+             localStorage.setItem(cacheKey, JSON.stringify(data.posts));
+             localStorage.setItem(cacheTsKey, Date.now().toString());
+           } catch (error) {
+             console.error('Cache write error:', error);
+           }
+         }
         
         // Update last updated timestamp
         setBlogsLastUpdated(new Date().toLocaleTimeString());
@@ -1595,11 +1605,12 @@ export default function Firefox({
                                onClick={async () => {
                                  try {
                                    setBlogsLoading(true);
-                                   const response = await fetch('/api/blogs/force-refresh');
+                                   const timestamp = Date.now();
+                                   const response = await fetch(`/api/blogs/simple?t=${timestamp}`);
                                    const data = await response.json();
-                                   console.log('Force refresh result:', data);
+                                   console.log('Simple API force refresh result:', data);
                                    
-                                   if (data.success && data.posts) {
+                                   if (data.success && Array.isArray(data.posts)) {
                                      setBlogPosts(data.posts);
                                      setBlogsLastUpdated(new Date().toLocaleTimeString());
                                      alert(`Force refreshed! Found ${data.count} posts.`);
