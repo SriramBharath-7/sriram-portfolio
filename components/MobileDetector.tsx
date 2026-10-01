@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isMobile, isTablet, browserName, osName } from 'react-device-detect';
 import Image from 'next/image';
 
@@ -71,17 +71,15 @@ function useDeviceInfo(): DeviceInfo {
   return deviceInfo;
 }
 
-function LoadingScreen({ onComplete }: { onComplete: () => void }) {
+function LoadingScreen({ onComplete, messages }: { onComplete: () => void; messages: string[] }) {
   const [progress, setProgress] = useState(0);
-  const [loadingText, setLoadingText] = useState("Initializing Sriram's Portfolio");
+  const [loadingText, setLoadingText] = useState(messages[0]);
+  // Rotating copy comes from the admin settings; kept in a ref so a new array
+  // identity never restarts the boot timers.
+  const textsRef = useRef(messages);
 
   useEffect(() => {
-    const texts = [
-      "Initializing Sriram's Portfolio",
-      'Checking Device Compatibility',
-      'Loading Resources',
-      'Preparing Environment'
-    ];
+    const texts = textsRef.current;
     let currentIndex = 0;
 
     const progressInterval = setInterval(() => {
@@ -110,17 +108,19 @@ function LoadingScreen({ onComplete }: { onComplete: () => void }) {
   }, [onComplete]);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center cursor-none">
-      <div className="text-center relative w-64">
+    <div className="boot-screen min-h-screen bg-slate-950 flex items-center justify-center cursor-none">
+      <div className="boot-inner text-center relative">
         <div className="absolute inset-0 bg-transparent"></div>
         <div className="relative">
-          <p className="text-blue-400 text-sm animate-pulse mb-6">{loadingText}</p>
-          <div className="relative h-16 w-16 mx-auto">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500">
+          <p className="boot-text text-blue-400 t-lg animate-pulse mb-6">
+            {loadingText}
+          </p>
+          <div className="boot-spinner relative mx-auto">
+            <div className="animate-spin rounded-full w-full h-full border-t-2 border-b-2 border-blue-500">
               <div className="absolute inset-0 border-r-2 border-l-2 border-transparent rounded-full animate-pulse"></div>
             </div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-blue-400 text-sm font-mono">{progress}%</span>
+              <span className="text-blue-400 t-sm font-mono">{progress}%</span>
             </div>
           </div>
         </div>
@@ -289,7 +289,16 @@ function MobileWarning({ deviceInfo }: { deviceInfo: DeviceInfo }) {
   );
 }
 
-export default function MobileDetector({ children }: { children: React.ReactNode }) {
+const FALLBACK_BOOT_MESSAGES = ["Loading"];
+
+export default function MobileDetector({
+  children,
+  bootMessages,
+}: {
+  children: React.ReactNode;
+  /** Boot screen status lines (Settings → Boot screen in the admin). */
+  bootMessages?: string[];
+}) {
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showContent, setShowContent] = useState(false);
@@ -308,7 +317,12 @@ export default function MobileDetector({ children }: { children: React.ReactNode
   };
 
   if (!isClient || isLoading) {
-    return <LoadingScreen onComplete={handleLoadingComplete} />;
+    return (
+      <LoadingScreen
+        onComplete={handleLoadingComplete}
+        messages={bootMessages?.length ? bootMessages : FALLBACK_BOOT_MESSAGES}
+      />
+    );
   }
 
   // Show warning if:

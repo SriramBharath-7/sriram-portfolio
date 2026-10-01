@@ -78,7 +78,7 @@ export default function NotFound() {
   };
 
   return (
-    <main className="min-h-screen grid place-items-center p-6">
+    <main className="min-h-screen grid place-items-center p-6 bg-black font-mono">
       <div className="w-full max-w-2xl rounded-lg border border-slate-700/50 bg-black/60 text-slate-200 shadow-xl">
         <div className="border-b border-slate-700/40 px-4 py-2 text-sm text-slate-300">
           <span className="mr-2 text-cyan-300">kali@kali</span> — 404 terminal

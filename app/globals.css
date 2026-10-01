@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Desktop-only styles. Tailwind itself is loaded once for every route by
+   app/base.css; this file is imported by app/(desktop)/layout.tsx only, so
+   none of it (cursor hiding, terminal styles, the responsive scale) reaches
+   the admin dashboard. */
 
 :root {
   --background: #0f0f13;
@@ -12,27 +13,72 @@
   --accent-secondary: #7b68ee;
 }
 
-@layer base {
-  :root {
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --background: #0f0f13;
-      --foreground: #e0e0e0;
-    }
-  }
-
-  body {
-    background: transparent;
-    color: var(--foreground);
-    font-family: var(--font-mono, monospace);
-  }
+body {
+  background: transparent;
+  color: var(--foreground);
+  font-family: monospace;
 }
+
+/* ==========================================================================
+   Responsive desktop scale — one knob.
+
+   The root font-size follows the viewport, and everything sized in rem
+   (Tailwind utilities, the tokens below, container-query breakpoints)
+   follows it, so the whole shell keeps one perceived scale:
+
+     1366×650   14px    (0.875×, floor)    1920×950   16px  (1080p design size)
+     2560×1310  19.2px  (1.2×)             very large screens cap at 20.8px (1.3×)
+
+   min() of a width curve and a height curve keeps short-but-wide viewports
+   from blowing up. No transform: scale(), no zoom — real sizes.
+
+   Window-level reflow is a separate system: Terminal/Firefox content uses
+   container queries on the WINDOW width. Those breakpoints are in rem too, so
+   a window reflows at the same point relative to its (scaled) content.
+   lib/wm/metrics.ts reads the resulting sizes back for window geometry.
+   ========================================================================== */
+
+html {
+  font-size: clamp(14px, min(6.4px + 0.5vw, 7.55px + 0.889vh), 20.8px);
+}
+
+:root {
+  /* Type scale — px values at the 16px (1080p) design size. */
+  --fs-xs: 0.75rem;      /* 12  chips, tiny meta */
+  --fs-sm: 0.8125rem;    /* 13  metadata, captions */
+  --fs-md: 0.875rem;     /* 14  chrome text, tabs, window titles */
+  --fs-lg: 0.9375rem;    /* 15  page body text */
+  --fs-xl: 1.125rem;     /* 18  card and dialog titles */
+  --fs-2xl: 1.375rem;    /* 22  page headings, popup title */
+
+  /* Desktop shell */
+  --topbar-h: 3rem;      /* 48  top bar; window geometry reads this back */
+  --desk-icon: 3.5rem;   /* 56  desktop icon image */
+  --desk-gap: 1.25rem;   /* 20  icon grid gap and inset */
+
+  /* Windows */
+  --titlebar-h: 2.5rem;  /* 40  Terminal + Firefox titlebars */
+  --win-pad: 1.25rem;    /* 20  terminal body and browser page padding */
+
+  /* Browser chrome */
+  --tab-h: 2.25rem;      /* 36  tab height */
+  --control: 2.25rem;    /* 36  toolbar buttons and address bar */
+
+  /* Terminal: the root size itself — 16px at 1080p, 19.2px at 1440p. */
+  --term-size: 1rem;
+  --term-leading: 1.6;
+
+  /* Overlays */
+  --popup-w: 30rem;      /* 480  welcome popup */
+  --boot-spinner: 4.5rem;/* 72  boot loader ring */
+}
+
+.t-xs { font-size: var(--fs-xs); }
+.t-sm { font-size: var(--fs-sm); }
+.t-md { font-size: var(--fs-md); }
+.t-lg { font-size: var(--fs-lg); }
+.t-xl { font-size: var(--fs-xl); }
+.t-2xl { font-size: var(--fs-2xl); }
 
 /* Hyperland-inspired background - remove completely */
 .hyperland-bg {
@@ -145,20 +191,6 @@
   animation: terminal-pulse 3s infinite ease-in-out;
 }
 
-/* ASCII art banner gradient */
-.crypter-banner {
-  background: linear-gradient(90deg,rgb(250, 17, 17),rgb(255, 255, 255),rgb(0, 0, 255));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  display: inline-block;
-  font-weight: bold;
-  margin: 0;
-  padding: 0;
-  font-family: monospace;
-  white-space: pre;
-}
-
 /* Custom scrollbar */
 .terminal-scrollbar::-webkit-scrollbar {
   width: 8px;
@@ -227,21 +259,6 @@ html, body {
   width: 100%;
   height: 1px;
   background: linear-gradient(to right, rgba(96, 165, 250, 0.4), transparent);
-}
-
-/* File list styling */
-.file-item {
-  color: rgba(96, 165, 250, 0.2);
-  background: rgba(96, 165, 250, 0.1);
-  padding: 3px 8px;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.file-item:hover {
-  background: rgba(96, 165, 250, 0.2);
-  transform: translateY(-2px);
 }
 
 /* Version tags, boot sequences, prompts */
@@ -371,13 +388,1488 @@ form input {
   background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd) !important;
 }
 
-/* Directory items */
-.directory-item {
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.1);
+/* ==========================================================================
+   Terminal output styles.
+   Previously lived in a scoped <style jsx> block inside Terminal.tsx, where they
+   never reached the command output. Now global so the structured React output
+   renders with the intended Kali styling.
+   ========================================================================== */
+@keyframes loadingProgress {
+          0% {
+            width: 0%;
+          }
+          20% {
+            width: 20%;
+          }
+          40% {
+            width: 40%;
+          }
+          60% {
+            width: 60%;
+          }
+          80% {
+            width: 80%;
+          }
+          95% {
+            width: 95%;
+          }
+          100% {
+            width: 98%;
+          }
+        }
+
+        .animate-loading-progress {
+          animation: loadingProgress 0.2s ease-in-out forwards;
+        }
+
+        .loading-container {
+          background-color: rgba(0, 0, 0, 0.4);
+          border: 1px solid rgba(59, 130, 246, 0.2);
+          border-radius: 6px;
+          padding: 16px;
+          max-width: 100%;
+          box-shadow: 0 0 10px rgba(0, 50, 100, 0.1);
+          margin: 12px 0;
+        }
+
+        .loading-percentage::after {
+          content: "";
+          animation: percentageCount 0.2s linear forwards;
+        }
+
+        @keyframes percentageCount {
+          0% {
+            content: "0%";
+          }
+          20% {
+            content: "20%";
+          }
+          40% {
+            content: "40%";
+          }
+          60% {
+            content: "60%";
+          }
+          80% {
+            content: "80%";
+          }
+          95% {
+            content: "95%";
+          }
+          100% {
+            content: "98%";
+          }
+        }
+
+        /* Style the prompt to enhance visibility and spacing */
+        .prompt.terminal-glow {
+          font-weight: bold;
+          padding: 0 2px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 20px;
+          height: 26px;
+          background-color: rgba(0, 0, 0, 0.4);
+          border-radius: 4px;
+          border-left: 2px solid rgba(255, 255, 150, 0.4);
+        }
+
+        /* Command success animation */
+        @keyframes commandSuccess {
+          0% {
+            background-color: rgba(0, 255, 0, 0.1);
+          }
+          50% {
+            background-color: rgba(0, 255, 0, 0.2);
+          }
+          100% {
+            background-color: transparent;
+          }
+        }
+
+        .command-success {
+          animation: commandSuccess 1s ease-out;
+        }
+
+        /* Command error animation */
+        @keyframes commandError {
+          0% {
+            background-color: rgba(255, 0, 0, 0.1);
+          }
+          50% {
+            background-color: rgba(255, 0, 0, 0.2);
+          }
+          100% {
+            background-color: transparent;
+          }
+        }
+
+        .command-error {
+          animation: commandError 1s ease-out;
+        }
+
+        /* Terminal window appearance enhancement */
+        .terminal-window {
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 50, 0, 0.2),
+            inset 0 0 10px rgba(0, 50, 0, 0.1);
+          backdrop-filter: blur(10px);
+          border-radius: 10px;
+          overflow: hidden;
+        }
+
+        .error-message {
+          color: #ff6b6b;
+          padding: 2px 4px;
+          border-radius: 3px;
+          background-color: rgba(255, 0, 0, 0.1);
+          font-weight: 500;
+        }
+
+        .system-message {
+          color: #4ade80;
+          padding: 2px 4px;
+          border-radius: 3px;
+          background-color: rgba(0, 255, 0, 0.05);
+          border-left: 2px solid rgba(74, 222, 128, 0.5);
+          font-weight: 500;
+        }
+
+        .suggestion {
+          color: #60a5fa;
+          background-color: rgba(0, 100, 255, 0.1);
+          padding: 0 4px;
+          border-radius: 3px;
+          font-family: monospace;
+        }
+
+        .help-section-text {
+          color: #60a5fa;
+          font-weight: bold;
+          text-shadow: 0 0 5px rgba(96, 165, 250, 0.5);
+        }
+
+        .cmd-name {
+          color: #f59e0b;
+          text-shadow: 0 0 3px rgba(245, 158, 11, 0.5);
+        }
+
+        .cmd-desc {
+          color: #e2e8f0;
+        }
+        
+        
+
+        /* Responsive help grid to avoid scrolling */
+        
+        
+
+        /* Custom scrollbar styles */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 4px;
+          margin: 4px 0;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(59, 130, 246, 0.55);
+          border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(59, 130, 246, 0.8);
+        }
+
+        /* Hide scrollbar when not needed */
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+
+        .no-scrollbar {
+          -ms-overflow-style: none; /* IE and Edge */
+          scrollbar-width: none; /* Firefox */
+        }
+
+        /* Terminal output styles */
+        .terminal-output {
+          scroll-behavior: auto;
+          line-height: 1.6;
+        }
+
+        /* Fixed width pre for help command */
+        .fixed-width-pre {
+          min-width: 100%;
+          width: max-content;
+          max-width: 100%;
+          overflow-x: auto;
+          white-space: pre;
+          font-family: monospace;
+          margin: 0;
+          padding: 0;
+        }
+
+        /* Help menu styling */
+        .no-blink-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(59, 130, 246, 0.6) !important;
+          transition: none !important;
+        }
+
+        .no-blink-scrollbar::-webkit-scrollbar-track {
+          background: rgba(15, 23, 42, 0.35) !important;
+          transition: none !important;
+        }
+
+        /* Prevent layout shifts */
+        .terminal-output {
+          scroll-behavior: auto;
+          overflow-y: scroll; /* Always show scrollbar space */
+        }
+
+        /* Sticky input at bottom of terminal */
+        .sticky-input {
+          position: sticky;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.8);
+          padding: 8px 0;
+          margin-top: auto;
+          z-index: 10;
+        }
+
+        /* Ensure terminal container uses flex layout */
+        .terminal-window {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .terminal-output {
+          flex: 1;
+          overflow-y: auto;
+        }
+
+        /* Glowing cursor animation */
+        @keyframes cursorBlink {
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0;
+          }
+        }
+
+        .cursor {
+          display: inline-block;
+          width: 8px;
+          height: 16px;
+          background-color: #22d3ee;
+          vertical-align: middle;
+          animation: cursorBlink 1s infinite;
+          margin-left: 2px;
+        }
+
+        .blue-400 {
+          color: #60a5fa;
+        }
+        .purple-400 {
+          color: #a78bfa;
+        }
+        .red-400 {
+          color: #f87171;
+        }
+        .green-300 {
+          color: #86efac;
+        }
+
+        .user-info {
+          display: block;
+          margin-bottom: 4px;
+          font-size: 0.95em;
+        }
+
+        .user-value {
+          color: #60a5fa;
+          font-weight: 500;
+        }
+
+        @keyframes noise-anim {
+          0% {
+            clip-path: inset(40% 0 61% 0);
+          }
+          20% {
+            clip-path: inset(92% 0 1% 0);
+          }
+          40% {
+            clip-path: inset(43% 0 1% 0);
+          }
+          60% {
+            clip-path: inset(25% 0 58% 0);
+          }
+          80% {
+            clip-path: inset(54% 0 7% 0);
+          }
+          100% {
+            clip-path: inset(58% 0 43% 0);
+          }
+        }
+
+        /* Welcome message styling */
+        .welcome-message {
+          color: #f0e68c;
+          display: block;
+          padding: 12px 16px;
+          background-color: rgba(0, 0, 0, 0.3);
+          border-radius: 4px;
+          margin: 10px 0;
+          border-left: 3px solid #f0e68c;
+        }
+
+        .command-hint {
+          background-color: rgba(0, 0, 0, 0.3);
+          padding: 2px 6px;
+          border-radius: 3px;
+          color: #10b981;
+          font-weight: bold;
+        }
+
+        /* Special terminal text glow effect */
+        .terminal-glow {
+          text-shadow: 0 0 5px rgba(236, 252, 2, 0.7),
+            0 0 10px rgba(236, 252, 2, 0.5);
+        }
+
+        .prompt-wrapper {
+          display: inline-block;
+          min-width: 30px;
+          margin-right: 10px;
+          text-align: center;
+        }
+
+        /* Animated border for input - always on instead of just on focus */
+        @keyframes borderPulse {
+          0% {
+            border-color: rgba(74, 222, 128, 0.3);
+            box-shadow: 0 0 5px rgba(74, 222, 128, 0.2),
+              inset 0 0 3px rgba(74, 222, 128, 0.1);
+          }
+          50% {
+            border-color: rgba(74, 222, 128, 0.8);
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.5),
+              inset 0 0 8px rgba(74, 222, 128, 0.2);
+          }
+          100% {
+            border-color: rgba(74, 222, 128, 0.3);
+            box-shadow: 0 0 5px rgba(74, 222, 128, 0.2),
+              inset 0 0 3px rgba(74, 222, 128, 0.1);
+          }
+        }
+
+        /* More advanced animated gradient border */
+        
+
+        /* Combine both animations for a more striking effect */
+        
+
+        
+        .kali-prompt-block {
+          margin: 6px 0 2px 0;
+        }
+        .kali-top {
+          color: #22d3ee;
+          font-weight: 600;
+        }
+
+        /* Kali-like menubar */
+        .kali-menubar .kali-menu-item {
+          padding: 2px 6px;
+          border-radius: 4px;
+          transition: background-color 0.15s ease, color 0.15s ease;
+        }
+        .kali-menubar .kali-menu-item:hover {
+          background-color: rgba(30, 58, 138, 0.5);
+          color: #e0f2fe;
+        }
+        .kali-title {
+          text-shadow: 0 0 3px rgba(226, 232, 240, 0.35);
+        }
+
+        /* Add a hint of floating animation to the entire input container */
+        @keyframes subtleFloat {
+          0% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-2px);
+          }
+          100% {
+            transform: translateY(0);
+          }
+        }
+
+        /* Add animation to the prompt as well for a coordinated effect */
+        .prompt.terminal-glow {
+          animation: subtleFloat 4s infinite ease-in-out,
+            glowPulse 2s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+          0% {
+            text-shadow: 0 0 5px rgba(236, 252, 2, 0.5),
+              0 0 8px rgba(236, 252, 2, 0.3);
+          }
+          100% {
+            text-shadow: 0 0 8px rgba(236, 252, 2, 0.8),
+              0 0 12px rgba(236, 252, 2, 0.5);
+          }
+        }
+
+        .lang-python {
+          color: #3572a5;
+          font-weight: bold;
+        }
+        .lang-c {
+          color: #f34b7d;
+          font-weight: bold;
+        }
+        .lang-bash {
+          color: #89e051;
+          font-weight: bold;
+        }
+        .lang-ps {
+          color: #012456;
+          font-weight: bold;
+        }
+        .lang-go {
+          color: #00add8;
+          font-weight: bold;
+        }
+        .lang-rust {
+          color: #dea584;
+          font-weight: bold;
+        }
+
+        .skill-highlight {
+          color: #60a5fa;
+          font-weight: bold;
+          background-color: rgba(0, 0, 0, 0.2);
+          padding: 1px 5px;
+          border-radius: 3px;
+        }
+
+        .service-category {
+          display: block;
+          color: #ff9800;
+          font-weight: bold;
+          font-size: 1.05em;
+          margin-top: 15px;
+          margin-bottom: 8px;
+          text-decoration: underline;
+          text-underline-offset: 4px;
+          text-decoration-color: rgba(255, 152, 0, 0.5);
+        }
+
+        .service-name {
+          color: #f0e68c;
+          font-weight: bold;
+          background-color: rgba(0, 0, 0, 0.25);
+          padding: 1px 5px;
+          border-radius: 3px;
+        }
+
+        .focused-input { }
+        .focused-input
+
+        .cert-status {
+          display: inline-block;
+          margin-left: 8px;
+          font-size: 0.9em;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-weight: bold;
+        }
+
+        .cert-status.completed {
+          background-color: rgba(16, 185, 129, 0.2);
+          color: #10b981;
+          border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .cert-status.planned {
+          background-color: rgba(245, 158, 11, 0.2);
+          color: #f59e0b;
+          border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+/* ==========================================================================
+   Firefox (browser app) styles — certificate flip cards and loading states.
+   Moved out of a <style> block inside the old monolithic Firefox component.
+   ========================================================================== */
+/* 3D flip card for certifications */
+
+
+        @keyframes loadingProgress {
+          0% {
+            width: 0%;
+            opacity: 0.5;
+          }
+          50% {
+            opacity: 0.8;
+          }
+          100% {
+            width: 100%;
+            opacity: 0.7;
+          }
+        }
+
+        @keyframes pulseAnimation {
+          0% {
+            opacity: 0.7;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.02);
+          }
+          100% {
+            opacity: 0.7;
+            transform: scale(1);
+          }
+        }
+
+        @keyframes rotateGradient {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+
+        @keyframes loadingCircle {
+          0% {
+            transform: rotate(0deg);
+            border-width: 4px;
+          }
+          50% {
+            border-width: 2px;
+          }
+          100% {
+            transform: rotate(360deg);
+            border-width: 4px;
+          }
+        }
+
+        @keyframes scrollbarPulse {
+          0% {
+            background: rgba(124, 58, 237, 0.5);
+            box-shadow: 0 0 5px rgba(124, 58, 237, 0.3);
+          }
+          50% {
+            background: rgba(139, 92, 246, 0.7);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+          }
+          100% {
+            background: rgba(124, 58, 237, 0.5);
+            box-shadow: 0 0 5px rgba(124, 58, 237, 0.3);
+          }
+        }
+
+        /* Scroll progress container and bar */
+        .scroll-progress-container {
+          position: sticky;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 3px;
+          background: rgba(30, 30, 30, 0.3);
+          z-index: 100;
+        }
+
+        .scroll-progress-bar {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            #a855f7 0%,
+            #8b5cf6 50%,
+            #6366f1 100%
+          );
+          background-size: 200% 200%;
+          animation: rotateGradient 3s ease infinite;
+          width: 0%;
+          box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+        }
+
+        /* Floating card effect */
+        .floating-card {
+          transition: all 0.3s ease;
+        }
+
+        .floating-card:hover {
+          transform: translateY(-5px) !important;
+          box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.3) !important;
+        }
+
+        /* Enhanced custom scrollbar styles */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(30, 30, 40, 0.3);
+          border-radius: 8px;
+          margin: 4px 0;
+          box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(124, 58, 237, 0.5);
+          border-radius: 8px;
+          border: 2px solid rgba(20, 20, 30, 0.3);
+          animation: scrollbarPulse 3s infinite ease-in-out;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(139, 92, 246, 0.8);
+          box-shadow: 0 0 10px rgba(139, 92, 246, 0.7);
+        }
+
+        /* Firefox specific scrollbar styles */
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(124, 58, 237, 0.6) rgba(30, 30, 40, 0.3);
+        }
+
+        .animate-pulse-slow {
+          animation: pulseAnimation 3s infinite ease-in-out;
+        }
+
+        .firefox-loading-progress {
+          animation: loadingProgress 1.5s ease-in-out,
+            rotateGradient 3s ease infinite;
+          background: linear-gradient(
+            90deg,
+            #0060df 0%,
+            #0a84ff 30%,
+            #00ddff 100%
+          );
+          background-size: 200% 200%;
+          box-shadow: 0 0 8px rgba(10, 132, 255, 0.6);
+        }
+
+        .loading-circle-container {
+          width: 50px;
+          height: 50px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+        }
+
+        .loading-circle {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          border: 4px solid transparent;
+          border-top-color: #0a84ff;
+          border-left-color: #00ddff;
+          border-right-color: rgba(10, 132, 255, 0.3);
+          border-bottom-color: rgba(0, 221, 255, 0.3);
+          animation: loadingCircle 1.5s linear infinite;
+        }
+
+        .firefox-maximized {
+          border-radius: 0 !important;
+          border-width: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          left: 0 !important;
+          right: 0 !important;
+          top: var(--topbar-h) !important;
+          bottom: 0 !important;
+        }
+
+        /* Line clamp utilities */
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;  
+          overflow: hidden;
+        }
+
+        .line-clamp-3 {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;  
+          overflow: hidden;
+        }
+
+/* ==========================================================================
+   Terminal & browser presentation.
+
+   Type size comes from the responsive scale tokens at the top of this file and
+   never shrinks to make a layout fit. Layout responsiveness inside the apps is
+   driven by CONTAINER queries, because these apps live inside windows — the
+   browser viewport says nothing useful about how wide the terminal actually is.
+   ========================================================================== */
+
+:root {
+  /* Kali-Dark inspired palette. Directory colour follows GNU dircolors
+     (bold blue); regular files use the default foreground. */
+  --term-fg: #d6dae2;
+  --term-dim: #8b93a3;
+  --term-faint: #6b7280;
+  --term-blue: #5aa9ff;
+  --term-blue-bright: #7cc0ff;
+  --term-cyan: #4fd6d6;
+  --term-green: #74d68a;
+  --term-red: #f06c75;
+  --term-yellow: #e5c07b;
+  --term-magenta: #c79bf0;
+  --term-white: #f2f4f8;
+
+  --term-font: ui-monospace, "JetBrains Mono", "Fira Code", "DejaVu Sans Mono",
+    "Liberation Mono", Menlo, Consolas, monospace;
 }
 
-.directory-item:hover {
-  background: rgba(56, 189, 248, 0.2);
-  transform: translateY(-2px);
+/* --------------------------------------------------------------------------
+   Terminal screen
+   -------------------------------------------------------------------------- */
+
+.terminal-screen {
+  container-type: inline-size;
+  container-name: term;
+  font-family: var(--term-font);
+  font-size: var(--term-size);
+  line-height: var(--term-leading);
+  color: var(--term-fg);
+  font-variant-ligatures: none;
+  tab-size: 4;
+}
+
+.terminal-screen ::selection {
+  background: rgba(90, 169, 255, 0.28);
+}
+
+/* Each emitted line. Long unbroken tokens wrap instead of forcing the whole
+   window to scroll sideways. */
+.term-line {
+  margin-bottom: 0.3em;
+}
+
+.tw-line {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.tw-out { color: var(--term-fg); }
+.tw-error { color: var(--term-red); }
+.tw-muted { color: var(--term-dim); }
+.tw-accent { color: var(--term-cyan); }
+.tw-success { color: var(--term-green); }
+.tw-warning { color: var(--term-yellow); }
+
+/* --------------------------------------------------------------------------
+   Prompt — Kali's two-line zsh prompt
+   -------------------------------------------------------------------------- */
+
+.command-line {
+  margin-top: 0.7em;
+}
+
+.kali-prompt-top {
+  display: block;
+  white-space: nowrap;
+}
+
+.kali-brackets { color: var(--term-blue); }
+
+.kali-user {
+  color: var(--term-blue);
+  font-weight: 700;
+}
+
+.kali-path {
+  color: var(--term-white);
+  font-weight: 600;
+}
+
+.kali-bottom {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75ch;
+}
+
+.kali-arrow {
+  color: var(--term-blue);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.user-command {
+  color: var(--term-fg);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.terminal-input {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--term-white);
+  caret-color: var(--term-blue-bright);
+}
+
+.terminal-input::placeholder {
+  color: var(--term-faint);
+}
+
+/* --------------------------------------------------------------------------
+   ls — plain terminal text, never cards
+   -------------------------------------------------------------------------- */
+
+.ls-short {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 2.5ch;
+  row-gap: 0.1em;
+}
+
+.ls-dir {
+  color: var(--term-blue);
+  font-weight: 700;
+}
+
+.ls-file {
+  color: var(--term-fg);
+}
+
+/* Long listing keeps real column alignment; genuinely wide output scrolls
+   horizontally the way a terminal does rather than shrinking the type. */
+.ls-long {
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.ls-long-row,
+.ls-long-total {
+  white-space: pre;
+}
+
+.ls-long-total { color: var(--term-dim); }
+.ls-mode { color: var(--term-dim); }
+.ls-meta { color: var(--term-faint); }
+.ls-size { color: var(--term-fg); }
+.ls-date { color: var(--term-dim); }
+
+/* --------------------------------------------------------------------------
+   tree
+   -------------------------------------------------------------------------- */
+
+.tree-output { overflow-x: auto; }
+
+.tree-row { white-space: pre; }
+
+.tree-guide { color: var(--term-faint); }
+
+.tree-summary {
+  color: var(--term-dim);
+  margin-top: 0.5em;
+}
+
+/* --------------------------------------------------------------------------
+   Portfolio documents — enhanced terminal text, not a card.
+   No border, no background, no gradient.
+   -------------------------------------------------------------------------- */
+
+.doc-output {
+  margin: 0.35em 0 0.6em;
+  max-width: 100ch;
+}
+
+.doc-title {
+  display: flex;
+  align-items: center;
+  gap: 1.5ch;
+  margin-bottom: 0.75em;
+}
+
+.doc-title-text {
+  color: var(--term-green);
+  font-weight: 700;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.doc-rule {
+  flex: 1;
+  height: 1px;
+  min-width: 2ch;
+  background: linear-gradient(
+    to right,
+    rgba(116, 214, 138, 0.35),
+    rgba(116, 214, 138, 0)
+  );
+}
+
+.doc-block { margin-bottom: 1.2em; }
+.doc-block:last-child { margin-bottom: 0; }
+
+.doc-heading {
+  color: var(--term-cyan);
+  font-weight: 700;
+  font-size: 1em;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.3em;
+}
+
+.doc-body {
+  color: var(--term-fg);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+.doc-list {
+  list-style: none;
+  margin: 0.15em 0 0;
+  padding: 0;
+}
+
+.doc-item {
+  display: flex;
+  gap: 1ch;
+  align-items: baseline;
+}
+
+.doc-bullet {
+  color: var(--term-faint);
+  flex-shrink: 0;
+}
+
+.doc-item-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.doc-label {
+  color: var(--term-white);
+  font-weight: 600;
+}
+
+.doc-desc { color: var(--term-dim); }
+
+/* Highlight classes referenced by the content layer. */
+.skill-highlight { color: var(--term-cyan); font-weight: 600; }
+.lang-python { color: #6ab0f3; font-weight: 600; }
+.lang-bash { color: var(--term-green); font-weight: 600; }
+.lang-ps { color: #5aa9ff; font-weight: 600; }
+.lang-java { color: var(--term-yellow); font-weight: 600; }
+.lang-html { color: #e8905a; font-weight: 600; }
+.lang-markdown { color: var(--term-magenta); font-weight: 600; }
+
+/* --------------------------------------------------------------------------
+   Key/value output — whoami, contact, history
+   -------------------------------------------------------------------------- */
+
+.kv-output {
+  display: grid;
+  gap: 0.15em;
+  margin: 0.2em 0 0.4em;
+}
+
+.kv-row {
+  display: grid;
+  grid-template-columns: minmax(0, 12ch) 1fr;
+  gap: 0 1.5ch;
+  align-items: baseline;
+}
+
+.kv-label {
+  color: var(--term-dim);
+  font-weight: 600;
+}
+
+.kv-label::after {
+  content: ":";
+  color: var(--term-faint);
+}
+
+.kv-value {
+  color: var(--term-fg);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@container term (max-width: 26.25rem) {
+  .kv-row { grid-template-columns: 1fr; }
+  .kv-value { padding-left: 2ch; }
+}
+
+/* --------------------------------------------------------------------------
+   help — grouped CLI reference.
+   One column by default; two only when the WINDOW (not the viewport) is wide.
+   -------------------------------------------------------------------------- */
+
+/* Always a single vertical column — this is CLI help, not a settings grid. */
+.help-output {
+  display: block;
+  margin: 0.35em 0 0.7em;
+}
+
+.help-group + .help-group { margin-top: 1.7em; }
+
+.help-group { min-width: 0; }
+
+.help-group-title {
+  color: var(--term-green);
+  font-weight: 700;
+  font-size: 1em;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.45em;
+}
+
+.help-list { margin: 0; padding: 0; }
+
+.help-entry {
+  display: grid;
+  grid-template-columns: 22ch minmax(0, 1fr);
+  gap: 0 2ch;
+  align-items: baseline;
+  padding-left: 2ch;
+}
+
+.help-cmd {
+  color: var(--term-cyan);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.help-desc {
+  color: var(--term-dim);
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Narrow window: stack the description under the command instead of squeezing
+   it into a vertical strip. */
+@container term (max-width: 38.75rem) {
+  .help-entry { grid-template-columns: minmax(0, 1fr); }
+  .help-desc { padding-left: 2ch; margin-bottom: 0.4em; }
+}
+
+/* --------------------------------------------------------------------------
+   neofetch
+   -------------------------------------------------------------------------- */
+
+.neofetch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em 3ch;
+  margin: 0.35em 0 0.6em;
+}
+
+.neofetch-logo {
+  color: var(--term-blue);
+  margin: 0;
+  font-family: inherit;
+  line-height: 1.25;
+  flex-shrink: 0;
+}
+
+.neofetch-info { min-width: 0; }
+
+.neofetch-title {
+  color: var(--term-green);
+  font-weight: 700;
+  margin-bottom: 0.3em;
+}
+
+.neofetch-row {
+  display: grid;
+  grid-template-columns: minmax(0, 9ch) 1fr;
+  gap: 0 1.5ch;
+}
+
+.neofetch-key { color: var(--term-cyan); font-weight: 700; }
+
+.neofetch-value {
+  color: var(--term-fg);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@container term (max-width: 26.25rem) {
+  .neofetch-row { grid-template-columns: 1fr; }
+}
+
+/* --------------------------------------------------------------------------
+   Window chrome polish — focus transitions and control affordances
+   -------------------------------------------------------------------------- */
+
+.terminal-window,
+.firefox-window {
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.window-unfocused { opacity: 0.985; }
+
+.titlebar-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.875rem;
+  height: 1.625rem;
+  border-radius: 0.3125rem;
+  color: rgba(226, 232, 240, 0.75);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.titlebar-button:hover {
+  background-color: rgba(71, 85, 105, 0.55);
+  color: #fff;
+}
+
+.titlebar-button:active { background-color: rgba(51, 65, 85, 0.75); }
+
+.titlebar-button--close:hover {
+  background-color: rgba(220, 68, 68, 0.85);
+  color: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   Firefox chrome
+   -------------------------------------------------------------------------- */
+
+.browser-content {
+  container-type: inline-size;
+  container-name: browser;
+}
+
+.firefox-tab {
+  transition: background-color 120ms ease, color 120ms ease,
+    border-color 120ms ease;
+}
+
+.firefox-tab-close {
+  opacity: 0;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+
+.firefox-tab:hover .firefox-tab-close,
+.firefox-tab--active .firefox-tab-close {
+  opacity: 1;
+}
+
+.firefox-tab-close:hover { background-color: rgba(100, 116, 139, 0.55); }
+
+.address-bar {
+  transition: border-color 140ms ease, background-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.address-bar:focus-within {
+  border-color: rgba(168, 85, 247, 0.55);
+  background-color: rgba(30, 41, 59, 0.75);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.14);
+}
+
+.chrome-button {
+  transition: background-color 120ms ease, color 120ms ease,
+    transform 90ms ease;
+}
+
+.chrome-button:hover:not(:disabled) {
+  background-color: rgba(71, 85, 105, 0.5);
+  color: #e2e8f0;
+}
+
+.chrome-button:active:not(:disabled) { transform: translateY(1px); }
+
+.chrome-button:disabled {
+  color: #4b5563;
+  cursor: default;
+}
+
+/* Page-level press feedback, kept restrained. */
+.press:active { transform: translateY(1px); }
+
+.page-enter {
+  animation: pageEnter 160ms ease-out both;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter { animation: none; }
+  .terminal-window,
+  .firefox-window,
+  .firefox-tab,
+  .chrome-button,
+  .address-bar,
+  .titlebar-button { transition: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Browser page grids.
+
+   These respond to the Firefox WINDOW width via container queries, not the
+   viewport — a 1500px monitor can still hold a 650px-wide browser window.
+   -------------------------------------------------------------------------- */
+
+.cq-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@container browser (min-width: 38.75rem) {
+  .cq-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cq-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cq-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@container browser (min-width: 57.5rem) {
+  .cq-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cq-grid-4 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Certificate cards are wide (thumbnail + text), so they need more room per
+   column than the generic tiles. */
+.cq-grid-cert { grid-template-columns: 1fr; }
+
+@container browser (min-width: 48.75rem) {
+  .cq-grid-cert { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@container browser (min-width: 80rem) {
+  .cq-grid-cert { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@container browser (min-width: 75rem) {
+  .cq-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* ==========================================================================
+   Micro-interactions.
+   Timings stay in the 120-220ms range: responsive, never showy.
+   ========================================================================== */
+
+/* --- Boot screen --- */
+.boot-screen { animation: bootFade 220ms ease-out both; }
+.boot-inner { animation: bootRise 320ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+.boot-mark {
+  animation: bootPulse 2.4s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.25);
+}
+
+.boot-text { animation: bootFade 200ms ease-out both; }
+
+@keyframes bootFade { from { opacity: 0; } to { opacity: 1; } }
+
+@keyframes bootRise {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes bootPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.22); }
+  50% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+}
+
+/* --- Window open --- */
+.window-enter { animation: windowOpen 180ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes windowOpen {
+  from { opacity: 0; transform: translateY(8px) scale(0.99); }
+  to { opacity: 1; transform: none; }
+}
+
+/* --- Desktop icons --- */
+.desktop-icon .icon-bg {
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.desktop-icon:hover .icon-bg {
+  background-color: rgba(148, 163, 184, 0.16);
+  transform: translateY(-3px);
+}
+
+.desktop-icon:active .icon-bg { transform: translateY(-1px); }
+
+.desktop-icon-label {
+  transition: background-color 150ms ease, color 150ms ease;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.desktop-icon:hover .desktop-icon-label {
+  background-color: rgba(59, 130, 246, 0.28);
+}
+
+/* --- Taskbar --- */
+.taskbar-item {
+  transition: background-color 150ms ease, border-color 150ms ease,
+    color 150ms ease;
+}
+
+.taskbar-item:hover { background-color: rgba(71, 85, 105, 0.45); }
+.taskbar-item:active { background-color: rgba(51, 65, 85, 0.6); }
+
+.tray-icon {
+  color: #cbd5e1;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.tray-icon:hover {
+  background-color: rgba(71, 85, 105, 0.45);
+  color: #fff;
+}
+
+/* --- Terminal scrollbar: usable at desktop scale --- */
+.terminal-output::-webkit-scrollbar { width: 0.75rem; }
+.terminal-output::-webkit-scrollbar-track { background: transparent; }
+
+.terminal-output::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.4);
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.terminal-output::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+  background-clip: content-box;
+}
+
+/* --- Firefox tabs: real depth --- */
+.firefox-tab--active {
+  box-shadow: 0 -2px 0 0 rgba(168, 85, 247, 0.55) inset;
+}
+
+/* --- Certificate cards --- */
+.cert-card-v2 {
+  transition: transform 150ms ease, border-color 150ms ease,
+    background-color 150ms ease, box-shadow 150ms ease;
+}
+
+.cert-card-v2:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+}
+
+.cert-card-v2:active { transform: translateY(-1px); }
+
+.cert-thumb {
+  transition: transform 180ms ease;
+}
+
+.cert-card-v2:hover .cert-thumb { transform: scale(1.04); }
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-screen,
+  .boot-inner,
+  .boot-mark,
+  .boot-text,
+  .window-enter { animation: none; }
+  .desktop-icon .icon-bg,
+  .desktop-icon-label,
+  .taskbar-item,
+  .tray-icon,
+  .cert-card-v2,
+  .cert-thumb { transition: none; }
+  .cert-card-v2:hover { transform: none; }
+}
+
+/* ==========================================================================
+   Shell sizing — where the scale tokens are applied.
+   Everything here is rem/token based; see the scale block at the top.
+   ========================================================================== */
+
+/* --- Top bar --- */
+.taskbar { height: var(--topbar-h); }
+
+/* --- Desktop icons --- */
+.desktop-icons {
+  top: calc(var(--topbar-h) + var(--desk-gap));
+  left: var(--desk-gap);
+  gap: var(--desk-gap);
+}
+
+.desktop-icon { width: calc(var(--desk-icon) + 2.5rem); }
+
+.desktop-icon-img {
+  width: var(--desk-icon);
+  height: var(--desk-icon);
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* --- Window titlebars and controls --- */
+.terminal-titlebar,
+.firefox-titlebar {
+  height: var(--titlebar-h);
+  padding-inline: 0.75rem;
+}
+
+.titlebar-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* --- Terminal body --- */
+.terminal-output {
+  padding: var(--win-pad) var(--win-pad) calc(var(--win-pad) + 0.25rem);
+}
+
+/* --- Firefox chrome --- */
+.firefox-tab {
+  height: var(--tab-h);
+  padding-inline: 0.875rem;
+  font-size: var(--fs-md);
+}
+
+.url-bar .chrome-button {
+  width: var(--control);
+  height: var(--control);
+}
+
+.url-bar .address-bar { height: var(--control); }
+
+/* --- Browser pages (narrow-window override must stay after the base) --- */
+.page-enter {
+  padding: calc(var(--win-pad) + 0.5rem) calc(var(--win-pad) + 0.75rem);
+}
+
+@container browser (max-width: 35rem) {
+  .page-enter { padding-left: 1rem; padding-right: 1rem; }
+}
+
+/* --- Welcome popup --- */
+.welcome-hint {
+  width: min(var(--popup-w), 92vw);
+  padding: 1.75rem;
+}
+
+/* --- Boot screen --- */
+.boot-inner {
+  width: 20rem;
+  max-width: 90vw;
+}
+
+.boot-spinner {
+  width: var(--boot-spinner);
+  height: var(--boot-spinner);
 }

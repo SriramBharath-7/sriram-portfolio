@@ -7,6 +7,7 @@ yarn-error.log
 # Next.js
 .next/
 out/
+*.tsbuildinfo
 
 # Environments
 .env
@@ -23,5 +24,3 @@ Thumbs.db
 .vscode/
 *.iml
 .idea/
-node_modules
-node_modules

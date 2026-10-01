@@ -1,0 +1,451 @@
+/* Portfolio Control Center. Scoped to .admin-root; the desktop's globals.css
+   is never loaded on /admin, so nothing here competes with the Kali UI. */
+
+body:has(.admin-root) {
+  background: #0a0d13;
+}
+
+.admin-root {
+  --bg: #0a0d13;
+  --surface: #10141c;
+  --surface-2: #151b25;
+  --surface-3: #1b2230;
+  --border: #212a38;
+  --border-strong: #2f3a4c;
+  --text: #e6eaf1;
+  --muted: #8f9aad;
+  --faint: #626e82;
+  --accent: #5b8def;
+  --accent-strong: #4677e0;
+  --accent-soft: rgba(91, 141, 239, 0.14);
+  --danger: #ef6170;
+  --danger-soft: rgba(239, 97, 112, 0.12);
+  --success: #3ccf8e;
+  --success-soft: rgba(60, 207, 142, 0.12);
+  --warning: #f2b54a;
+  --warning-soft: rgba(242, 181, 74, 0.12);
+
+  color-scheme: dark;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.admin-root ::selection {
+  background: rgba(91, 141, 239, 0.35);
+}
+
+.admin-root :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.admin-root ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.admin-root ::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+}
+
+/* --- Surfaces ----------------------------------------------------------- */
+
+.adm-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.adm-muted {
+  color: var(--muted);
+}
+
+.adm-faint {
+  color: var(--faint);
+}
+
+/* --- Form controls ------------------------------------------------------ */
+
+.adm-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #c9d1de;
+  margin-bottom: 6px;
+}
+
+.adm-hint {
+  font-size: 12px;
+  color: var(--faint);
+  margin-top: 5px;
+}
+
+.adm-error {
+  font-size: 12px;
+  color: var(--danger);
+  margin-top: 5px;
+}
+
+.adm-input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-size: 14px;
+  color: var(--text);
+  transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.adm-input::placeholder {
+  color: var(--faint);
+}
+
+.adm-input:hover {
+  border-color: var(--border-strong);
+}
+
+.adm-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  background: #171e2a;
+}
+
+.adm-input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.adm-input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+textarea.adm-input {
+  resize: vertical;
+  min-height: 84px;
+  line-height: 1.55;
+}
+
+select.adm-input {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 52%, calc(100% - 11px) 52%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 30px;
+}
+
+/* --- Buttons ------------------------------------------------------------ */
+
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 13px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--text);
+  white-space: nowrap;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease,
+    transform 80ms ease;
+}
+
+.adm-btn:hover:not(:disabled) {
+  background: var(--surface-3);
+  border-color: #3a4659;
+}
+
+.adm-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.adm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.adm-btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.adm-btn--primary:hover:not(:disabled) {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+.adm-btn--danger {
+  background: transparent;
+  border-color: rgba(239, 97, 112, 0.45);
+  color: #ff8d98;
+}
+
+.adm-btn--danger:hover:not(:disabled) {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+
+.adm-btn--danger-solid {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.adm-btn--danger-solid:hover:not(:disabled) {
+  background: #dc4c5c;
+  border-color: #dc4c5c;
+}
+
+.adm-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+}
+
+.adm-btn--ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: transparent;
+  color: var(--text);
+}
+
+.adm-btn--sm {
+  height: 28px;
+  padding: 0 9px;
+  font-size: 12.5px;
+  border-radius: 7px;
+}
+
+.adm-btn--icon {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+
+/* --- Toggle ------------------------------------------------------------- */
+
+.adm-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--border-strong);
+  transition: background-color 140ms ease;
+}
+
+.adm-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #fff;
+  transition: transform 140ms ease;
+}
+
+.adm-switch[aria-checked="true"] {
+  background: var(--accent);
+}
+
+.adm-switch[aria-checked="true"]::after {
+  transform: translateX(16px);
+}
+
+/* --- Badges ------------------------------------------------------------- */
+
+.adm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1px solid var(--border-strong);
+  color: var(--muted);
+  background: var(--surface-2);
+  white-space: nowrap;
+}
+
+.adm-badge--accent {
+  color: #9dbcff;
+  border-color: rgba(91, 141, 239, 0.4);
+  background: var(--accent-soft);
+}
+
+.adm-badge--success {
+  color: #6ee7b0;
+  border-color: rgba(60, 207, 142, 0.35);
+  background: var(--success-soft);
+}
+
+.adm-badge--warning {
+  color: #f8cd7c;
+  border-color: rgba(242, 181, 74, 0.35);
+  background: var(--warning-soft);
+}
+
+.adm-badge--danger {
+  color: #ff9aa4;
+  border-color: rgba(239, 97, 112, 0.4);
+  background: var(--danger-soft);
+}
+
+/* --- Navigation --------------------------------------------------------- */
+
+.adm-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-weight: 500;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.adm-nav-link:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.adm-nav-link[aria-current="page"] {
+  background: var(--accent-soft);
+  color: #cfdcff;
+}
+
+.adm-nav-link[aria-current="page"] svg {
+  color: var(--accent);
+}
+
+/* --- Sortable lists ----------------------------------------------------- */
+
+.adm-item {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+.adm-item[data-open="true"] {
+  border-color: var(--border-strong);
+}
+
+.adm-item[data-invalid="true"] {
+  border-color: rgba(239, 97, 112, 0.55);
+}
+
+.adm-item[data-dragging="true"] {
+  opacity: 0.45;
+}
+
+.adm-item[data-drop-target="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.adm-handle {
+  cursor: grab;
+  color: var(--faint);
+  border-radius: 6px;
+}
+
+.adm-handle:hover {
+  color: var(--text);
+  background: var(--surface-3);
+}
+
+.adm-handle:active {
+  cursor: grabbing;
+}
+
+/* --- Dialog / toast / progress ----------------------------------------- */
+
+.adm-dialog {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  padding: 0;
+  width: min(440px, calc(100vw - 32px));
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+}
+
+.adm-dialog::backdrop {
+  background: rgba(3, 6, 12, 0.66);
+  backdrop-filter: blur(2px);
+}
+
+.adm-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.adm-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: inherit;
+  transition: width 120ms linear;
+}
+
+.adm-toast {
+  animation: adm-toast-in 160ms ease-out both;
+}
+
+@keyframes adm-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.adm-savebar {
+  animation: adm-toast-in 140ms ease-out both;
+}
+
+.adm-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  animation: adm-spin 700ms linear infinite;
+}
+
+@keyframes adm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-toast,
+  .adm-savebar,
+  .adm-spinner {
+    animation: none;
+  }
+}

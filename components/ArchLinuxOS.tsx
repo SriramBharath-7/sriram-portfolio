@@ -2,118 +2,49 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import dynamic from "next/dynamic";
-// Import Firefox dynamically to fix the rendering issue
-const Firefox = dynamic(() => import('./Firefox'), { ssr: false });
-// Import the PNG logo and wallpaper with Next.js Image
-import archLinuxLogo from "../public/assets/svg/kali-logo.png";
 import wallpaper from "../public/assets/wallpaper/kali-ferrofluid.jpg";
-// Define paths for SVG files
-const firefoxLogoPath = "/assets/svg/firefox.svg";
-const terminalLogoPath = "/assets/svg/terminal.svg";
+import DesktopIcons from "./desktop/DesktopIcons";
+import Taskbar from "./desktop/Taskbar";
+import { usePortfolioContent } from "@/lib/content/provider";
 
-interface ArchLinuxOSProps {
-  onOpenTerminal: (initialPosition?: { x: number; y: number }) => void;
+/**
+ * Renders the welcome message with two inline markers: **highlight** and
+ * `command`. Output is plain React text, never HTML.
+ */
+function renderInline(text: string): React.ReactNode[] {
+  return text
+    .split(/(\*\*[^*]+\*\*|`[^`]+`)/g)
+    .filter(Boolean)
+    .map((part, index) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return (
+          <span key={index} className="text-blue-400 font-medium">
+            {part.slice(2, -2)}
+          </span>
+        );
+      }
+      if (part.startsWith("`") && part.endsWith("`")) {
+        return (
+          <span key={index} className="bg-slate-700/70 px-1 rounded text-cyan-300 font-mono t-md">
+            {part.slice(1, -1)}
+          </span>
+        );
+      }
+      return part;
+    });
 }
 
-export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
-  const [currentTime, setCurrentTime] = useState<string>("");
-  const [currentDate, setCurrentDate] = useState<string>("");
-  const [showHint, setShowHint] = useState(true);
-  const [showFirefox, setShowFirefox] = useState(false);
-  const [showFirefoxProjects, setShowFirefoxProjects] = useState(false);
-  const [initialWindowPosition, setInitialWindowPosition] = useState<{ x: number; y: number } | null>(null);
+/** Desktop shell: wallpaper, welcome hint, launcher icons and the top bar. */
+export default function ArchLinuxOS() {
+  const { welcome, githubWidget } = usePortfolioContent().settings;
+  const [showHint, setShowHint] = useState(welcome.enabled);
 
   useEffect(() => {
-    // Set initial time and date values on client-side only
-    const now = new Date();
-    setCurrentTime(now.toLocaleTimeString());
-    setCurrentDate(now.toLocaleDateString());
+    if (!welcome.enabled) return;
+    const hintTimer = setTimeout(() => setShowHint(false), welcome.autoCloseSeconds * 1000);
+    return () => clearTimeout(hintTimer);
+  }, [welcome.enabled, welcome.autoCloseSeconds]);
 
-    // Set the initial window position safely on the client side
-    setInitialWindowPosition({
-      x: window.innerWidth * 0.025,
-      y: window.innerHeight * 0.05 + 48, // Add 48px to start below the waybar
-    });
-
-    // Update the time every second
-    const timer = setInterval(() => {
-      const now = new Date();
-      setCurrentTime(now.toLocaleTimeString());
-      setCurrentDate(now.toLocaleDateString());
-    }, 1000);
-
-    // Hide hint after 5 seconds (reduced from 10)
-    const hintTimer = setTimeout(() => {
-      setShowHint(false);
-    }, 5000); // Increased to 8 seconds to give more time to read
-
-    return () => {
-      clearInterval(timer);
-      clearTimeout(hintTimer);
-    };
-  }, []);
-
-  // Function to handle opening Firefox from Terminal with projects
-  const handleOpenFirefox = (showProjects = false, showTools = false) => {
-    console.log('ArchLinuxOS: Opening Firefox with params:', { showProjects, showTools });
-    
-    // Calculate a properly centered position for Firefox
-    if (typeof window !== 'undefined') {
-      // First determine the appropriate size of Firefox window
-      let width, height;
-      
-      if (window.innerWidth < 768) {
-        width = '95vw';
-        height = '75vh';
-      } else if (window.innerWidth < 1024) {
-        width = '85vw';
-        height = '80vh';
-      } else {
-        width = '80vw';
-        height = '85vh';
-      }
-      
-      // Convert vw/vh to pixels
-      const parsedWidth = (parseFloat(width) / 100) * window.innerWidth;
-      const parsedHeight = (parseFloat(height) / 100) * window.innerHeight;
-      
-      // Define waybar height
-      const WAYBAR_HEIGHT = 48;
-      
-      // Calculate exact center position
-      const centerX = (window.innerWidth - parsedWidth) / 2;
-      const centerY = (window.innerHeight - parsedHeight) / 2;
-      
-      // Set centered position for Firefox
-      setInitialWindowPosition({
-        x: Math.max(0, centerX),
-        y: Math.max(WAYBAR_HEIGHT + 2, centerY)
-      });
-
-      console.log('ArchLinuxOS: Firefox position set to:', { 
-        x: Math.max(0, centerX), 
-        y: Math.max(WAYBAR_HEIGHT + 2, centerY) 
-      });
-    } else {
-      // Fallback if window is not defined
-      setInitialWindowPosition({
-        x: 0,
-        y: 56
-      });
-      console.log('ArchLinuxOS: Using fallback position because window is not defined');
-    }
-    
-    // Use a slight delay to prevent flickering
-    setTimeout(() => {
-      console.log('ArchLinuxOS: Setting Firefox states');
-      setShowFirefoxProjects(showProjects);
-      setShowFirefox(true);
-    }, 50);
-  };
-
-  // Set initial position for windows to be below the waybar
-  // This declaration was moved to the useEffect hook to avoid "window is not defined" error
 
   return (
     <div className="hyprland-desktop w-full h-full absolute inset-0 z-10">
@@ -146,7 +77,7 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
 
       {/* Enhanced Welcome hint - Smaller size */}
       {showHint && (
-        <div className="welcome-hint fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-900/90 backdrop-blur-md p-5 rounded-lg shadow-2xl z-50 text-center max-w-md border-2 border-blue-500/40 animate-fadeIn">
+        <div className="welcome-hint fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-900/95 backdrop-blur-md rounded-xl shadow-2xl z-50 text-center border-2 border-blue-500/40 animate-fadeIn">
           <div className="absolute -top-3 -right-3 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full p-1.5 shadow-lg pulse-glow">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -165,10 +96,10 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
           </div>
           
           <div className="mb-4 animate-slideUp">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2 flex items-center justify-center">
+            <h2 className="t-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-3 flex items-center justify-center gap-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 mr-2 text-blue-400"
+                className="h-6 w-6 text-blue-400 flex-shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -180,39 +111,40 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
                   d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                 />
               </svg>
-              Welcome to My Portfolio
+              {welcome.title}
             </h2>
-            <div className="w-20 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 mx-auto rounded-full mb-3"></div>
+            <div className="w-20 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 mx-auto rounded-full mb-2"></div>
           </div>
           
           <div className="mb-4 animate-fadeIn delay-300">
             {/* Only Terminal Instructions */}
-            <div className="instruction-container bg-slate-800/70 p-3 rounded-lg border border-blue-500/30 text-left animate-float">
-              <div className="flex items-center mb-1">
-                <div className="p-1.5 rounded-full bg-blue-500/20 mr-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <div className="instruction-container bg-slate-800/70 p-4 rounded-lg border border-blue-500/30 text-left animate-float">
+              <div className="flex items-center mb-2">
+                <div className="p-2 rounded-full bg-blue-500/20 mr-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <span className="text-blue-400 font-bold text-sm">Terminal Interaction</span>
+                <span className="text-blue-400 font-bold t-lg">{welcome.heading}</span>
               </div>
-              <p className="text-gray-300 text-xs leading-relaxed pl-8">
-                Click <span className="text-blue-400 font-medium">Terminal</span> icon for CLI. Type <span className="bg-slate-700/70 px-1 rounded text-cyan-300 font-mono text-xs">help</span> for commands.
+              <p className="text-gray-300 t-md leading-relaxed pl-12">
+                {renderInline(welcome.message)}
               </p>
             </div>
           </div>
           
           <div className="flex items-center justify-center animate-fadeIn delay-500">
-            <div className="w-full h-6 bg-gradient-to-r from-slate-800/90 to-slate-900/90 p-1.5 rounded-md border border-blue-500/30 mb-2 flex items-center justify-center overflow-hidden">
+            <div className="w-full h-6 bg-gradient-to-r from-slate-800/90 to-slate-900/90 p-1.5 rounded-md border border-blue-500/30 mb-3 flex items-center justify-center overflow-hidden">
               <div className="h-0.5 bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500 w-full animate-scanning"></div>
             </div>
           </div>
           
           <div className="flex flex-col items-center justify-center animate-fadeIn delay-600">
-            <div className="flex items-center justify-center text-xs bg-gradient-to-r from-slate-800/90 to-slate-900/90 p-2 rounded-md border border-blue-500/30 w-full mb-1">
+            {welcome.callToAction && (
+            <div className="flex items-center justify-center t-md bg-gradient-to-r from-slate-800/90 to-slate-900/90 px-3 py-2.5 rounded-md border border-blue-500/30 w-full mb-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-blue-400 mr-1.5 animate-pulse"
+                className="h-5 w-5 text-blue-400 mr-2 animate-pulse"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -225,13 +157,14 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
                 />
               </svg>
               <span className="text-blue-400 font-medium">
-                Click Terminal to begin exploring
+                {welcome.callToAction}
               </span>
             </div>
-            <div className="text-[10px] text-gray-400 flex items-center mt-1">
+            )}
+            <div className="t-xs text-gray-400 flex items-center mt-1">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-3 w-3 mr-1 text-gray-500"
+                className="h-3.5 w-3.5 mr-1.5 text-gray-500"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -249,209 +182,47 @@ export default function ArchLinuxOS({ onOpenTerminal }: ArchLinuxOSProps) {
         </div>
       )}
 
-      {/* Firefox browser */}
-      {showFirefox && initialWindowPosition && (
-        <Firefox
-          onClose={() => {
-            console.log('ArchLinuxOS: Closing Firefox');
-            setShowFirefox(false);
-            setShowFirefoxProjects(false);
-          }}
-          initialUrl={`home://start`}
-          showProjects={showFirefoxProjects}
-          showTools={false}
-          initialPosition={initialWindowPosition}
-        />
-      )}
-
       {/* Desktop icons with larger size */}
-      <div className="desktop-icons absolute top-16 left-4 grid gap-6 z-30">
-        <div
-          className="desktop-icon flex flex-col items-center cursor-pointer group"
-          onClick={() => initialWindowPosition && onOpenTerminal(initialWindowPosition)}
-        >
-          <div className="icon-bg p-3 mb-2 rounded-lg transition-all duration-300">
-            <img
-              src={terminalLogoPath}
-              alt="Terminal Logo"
-              width={56}
-              height={56}
-              className="transition-all duration-300"
-              style={{ width: '56px', height: '56px', maxWidth: '100%', objectFit: 'contain' }}
-            />
-          </div>
-          <span className="text-xs text-white font-medium px-2 py-1 rounded transition-colors duration-300">
-            Terminal
-          </span>
-        </div>
-
-        <div
-          className="desktop-icon flex flex-col items-center cursor-pointer group"
-          onClick={() => handleOpenFirefox(false, false)}
-        >
-          <div className="icon-bg p-3 mb-2 rounded-lg transition-all duration-300">
-            <img
-              src={firefoxLogoPath}
-              alt="Firefox Logo"
-              width={56}
-              height={56}
-              className="transition-all duration-300"
-              style={{ width: '56px', height: '56px', maxWidth: '100%', objectFit: 'contain' }}
-            />
-          </div>
-          <span className="text-xs text-white font-medium px-2 py-1 rounded transition-colors duration-300">
-            Firefox
-          </span>
-        </div>
-      </div>
-
-      {/* Hyprland window decorations - subtle border glow */}
+      <DesktopIcons />
       <div className="hyprland-window-effect"></div>
 
       {/* Hyprland taskbar - with customized transparency */}
-      <div className="taskbar fixed top-0 left-0 right-0 h-12 bg-gray-900/60 backdrop-blur-sm flex items-center px-4 z-[100] border-b border-gray-800/40 shadow-md pointer-events-auto">
-        <div className="arch-logo mr-4 text-green-400 flex items-center justify-center">
-          <Image
-            src={archLinuxLogo}
-            alt="Arch Linux Logo"
-            width={24}
-            height={24}
-            className="transition-all duration-300"
-            style={{ width: '24px', height: '24px', maxWidth: '100%', objectFit: 'contain' }}
-          />
-        </div>
-
-        {/* Active applications in taskbar */}
-        <div className="active-apps flex space-x-2 ml-4">
-          {/* Terminal and Firefox icons will appear here when minimized */}
-          {/* The minimized application indicators are created directly in their respective components */}
-          {/* This allows each component to control its own taskbar indicator */}
-        </div>
-
-        {/* System tray */}
-        <div className="system-tray ml-auto flex items-center space-x-4">
-          <div className="tray-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-          <div className="tray-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 010-7.072m12.728 0l-3.536 3.536M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-          </div>
-          {currentDate && currentTime && (
-            <div className="datetime-widget flex items-center space-x-2 bg-gray-800/40 px-2 py-1 rounded-md border border-gray-700/50 backdrop-blur-sm">
-              <div className="date-section flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-3.5 w-3.5 text-green-400 mr-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-gray-400 font-medium tracking-wide leading-tight">
-                    {new Date().toLocaleDateString('en-US', { weekday: 'short' })}
-                  </span>
-                  <span className="text-xs text-gray-200 font-medium leading-tight">
-                    {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </span>
-                </div>
-              </div>
-              <div className="time-section flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-3.5 w-3.5 text-cyan-400 mr-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-gray-400 font-medium tracking-wide leading-tight">
-                    {new Date().toLocaleTimeString('en-US', { hour12: false }).split(':')[0]}h
-                  </span>
-                  <span className="text-xs text-gray-200 font-mono leading-tight">
-                    {new Date().toLocaleTimeString('en-US', { 
-                      hour12: false,
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
+      <Taskbar />
       {/* GitHub Star Button - keep behind app windows */}
-      <div className="fixed bottom-4 right-4 z-20 group">
+      {githubWidget.enabled && (
+      <div className="fixed bottom-6 right-6 z-20 group">
         <a
-          href="https://github.com/SriramBharath-7/sriram-portfolio"
+          href={githubWidget.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 bg-gradient-to-r from-gray-900/90 to-gray-800/90 hover:from-gray-800/90 hover:to-gray-700/90 text-white px-4 py-2 rounded-lg border border-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 group-hover:border-blue-500/50"
+          className="github-widget press flex items-center gap-3 px-4 py-2.5 bg-gray-900/85 hover:bg-gray-800/90 text-white rounded-lg border border-gray-700/60 hover:border-blue-500/50 backdrop-blur-md shadow-[0_8px_24px_rgba(0,0,0,0.5)] transition-colors duration-150"
         >
           <div className="relative">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-yellow-400 transform group-hover:rotate-12 transition-transform duration-300"
+              className="h-6 w-6 text-yellow-400 transition-transform duration-150 group-hover:rotate-12"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
               <path d="M12 .587l3.668 7.431 8.2 1.191-5.932 5.783 1.4 8.168-7.336-3.857-7.336 3.857 1.4-8.168-5.932-5.783 8.2-1.191z" />
             </svg>
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-              <span className="text-[10px] font-bold text-gray-900">★</span>
+              <span className="text-[0.625rem] leading-none font-bold text-gray-900">★</span>
             </div>
           </div>
           <div className="flex flex-col items-start">
-            <span className="text-sm font-medium group-hover:text-blue-400 transition-colors duration-300">Star on GitHub</span>
-            <span className="text-[10px] text-gray-400 group-hover:text-gray-300 transition-colors duration-300">Support the project</span>
+            <span className="t-md font-semibold group-hover:text-blue-300 transition-colors duration-150">{githubWidget.label}</span>
+            {githubWidget.caption && (
+              <span className="t-xs text-gray-400 group-hover:text-gray-300 transition-colors duration-150 mt-0.5">{githubWidget.caption}</span>
+            )}
           </div>
-          <div className="ml-2 px-2 py-1 bg-gray-800/50 rounded-md border border-gray-700/50 group-hover:border-blue-500/30 transition-colors duration-300">
-            <span className="text-xs font-mono text-gray-300 group-hover:text-blue-400 transition-colors duration-300">★</span>
+          <div className="px-2 py-1 bg-gray-800/60 rounded-md border border-gray-700/60 group-hover:border-blue-500/40 transition-colors duration-150">
+            <span className="t-xs font-mono text-gray-300 group-hover:text-blue-300 transition-colors duration-150">★</span>
           </div>
         </a>
       </div>
-      
+      )}
+
     </div>
   );
 }

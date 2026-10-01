@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getPortfolioContent } from "@/lib/content/repository";
 
 type BlogPost = {
   id: string;
@@ -11,13 +12,16 @@ type BlogPost = {
   source: "devto" | "medium";
 };
 
-const DEVTO_USERNAME = "sriram_bharath";
-const MEDIUM_HANDLE = "@srirambharath7";
-
 export async function GET() {
   try {
+    const { blog } = await getPortfolioContent();
+    const DEVTO_USERNAME = blog.devtoUsername;
+    const MEDIUM_HANDLE = blog.mediumHandle;
+
+    // An empty handle (cleared in the admin) disables that source; an empty
+    // dev.to username would otherwise return everyone's latest articles.
     const [devto, medium] = await Promise.all([
-      fetch(`https://dev.to/api/articles?username=${encodeURIComponent(DEVTO_USERNAME)}&per_page=50`, {
+      !DEVTO_USERNAME ? ([] as BlogPost[]) : fetch(`https://dev.to/api/articles?username=${encodeURIComponent(DEVTO_USERNAME)}&per_page=50`, {
         headers: {
           Accept: "application/json",
           "User-Agent": "Mozilla/5.0",
@@ -37,7 +41,7 @@ export async function GET() {
             source: "devto" as const,
           }))
         ),
-      fetch(`https://medium.com/feed/${encodeURIComponent(MEDIUM_HANDLE)}`, {
+      !MEDIUM_HANDLE ? ([] as BlogPost[]) : fetch(`https://medium.com/feed/${encodeURIComponent(MEDIUM_HANDLE)}`, {
         headers: {
           Accept: "application/rss+xml, application/xml;q=0.9, */*;q=0.8",
           "User-Agent": "Mozilla/5.0",
@@ -94,7 +98,10 @@ function parseMediumRss(xml: string): BlogPost[] {
   const items = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
   const posts: BlogPost[] = [];
   for (const item of items) {
-    const title = cdataBetween(item, "<title>", "</title>") || textBetween(item, "<title>", "</title>");
+    const title =
+      cdataBetween(item, "<title>", "</title>") ||
+      textBetween(item, "<title>", "</title>") ||
+      "";
     const url = textBetween(item, "<link>", "</link>");
     const pubDate = textBetween(item, "<pubDate>", "</pubDate>");
     const content =
