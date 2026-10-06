@@ -6,8 +6,9 @@ These steps turn on the admin dashboard at `/admin`. Plan for about 15 minutes.
 ## 1. Create the project
 
 1. Create a free project at [supabase.com](https://supabase.com).
-2. Project Settings → API: copy the **Project URL** and the **anon / publishable key**.
-   Do not copy the service-role key — nothing here uses it.
+2. Project Settings → API Keys: copy the **Project URL** and the **publishable key**
+   (`sb_publishable_...`). Do not create or copy a secret key (`sb_secret_...`):
+   every write goes through your signed-in session and Row Level Security.
 
 ## 2. Environment variables
 
@@ -15,7 +16,7 @@ Copy `.env.example` to `.env.local` and fill in:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon or publishable key>
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 ADMIN_EMAILS=<the email you will sign in with>
 ```
 

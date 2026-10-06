@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { ProjectsDocument } from "@/content/documents";
 import type { RepoOverride } from "@/content/types";
 import type { Repo } from "@/lib/github/types";
-import { Badge, Card, IconButton, Notice, TextField, Toggle } from "../ui";
+import { Badge, Card, EmptyLine, IconButton, Notice, TextField, Toggle } from "../ui";
 import { Icon } from "../icons";
 import { SortableList } from "../lists";
 import { SaveBar } from "../SaveBar";
@@ -70,8 +70,8 @@ export default function ProjectsEditor({
   const repoFor = (name: string) => repos?.find((repo) => repo.name === name);
 
   return (
-    <div className="space-y-5">
-      <Card title="Source" description={`Repositories are fetched live from github.com/${username}. Change the username on the Profile page.`}>
+    <div className="adm-stack">
+      <Card doc="projects" icon="globe" title="Source" description={`Repositories are fetched live from github.com/${username}. Change the username on the Profile page.`}>
         <Toggle
           label="Hide forks"
           description="Forked repositories are left out of the Projects page."
@@ -80,31 +80,40 @@ export default function ProjectsEditor({
         />
       </Card>
 
-      <Card title="Featured" description="Pinned to the top of the Projects page in this order. Star a repository below to feature it.">
+      <Card doc="projects.repos" icon="star" title="Featured" description="Pinned to the top of the Projects page in this order. Star a repository below to feature it.">
         {featured.length === 0 ? (
-          <p className="adm-muted text-[13px]">No featured repositories. The page sorts by stars, then last update.</p>
+          <EmptyLine>No featured repositories. The page sorts by stars, then last update.</EmptyLine>
         ) : (
-          <SortableList items={featured} getKey={(override) => override.name} onMove={moveFeatured} className="space-y-2">
+          <SortableList items={featured} getKey={(override) => override.name} onMove={moveFeatured} tight>
             {(override, index, controls) => (
-              <div
-                className="adm-item flex items-center gap-2 px-2.5 py-2"
-                data-dragging={controls.isDragging}
-                data-drop-target={controls.isDropTarget}
-              >
-                <button {...controls.handleProps} className="adm-handle w-7 h-7 flex items-center justify-center">
-                  <Icon name="grip" size={16} />
-                </button>
-                <span className="w-6 text-center text-[12px] adm-faint">{index + 1}</span>
-                <span className="flex-1 min-w-0">
-                  <span className="block font-medium truncate">{override.name}</span>
-                  <span className="block text-[12px] adm-faint truncate">
-                    {override.description || repoFor(override.name)?.description || "No description"}
+              <div className="adm-item" data-dragging={controls.isDragging} data-flash={controls.flash}>
+                <div className="adm-item-head">
+                  <button {...controls.handleProps} className="adm-handle">
+                    <Icon name="grip" size={16} />
+                  </button>
+                  <span className="adm-item-index" aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
                   </span>
-                </span>
-                {!liveNames.has(override.name) && repos && <Badge tone="warning">Not on GitHub</Badge>}
-                <IconButton icon="up" label="Move up" onClick={controls.moveUp} disabled={!controls.moveUp} />
-                <IconButton icon="down" label="Move down" onClick={controls.moveDown} disabled={!controls.moveDown} />
-                <IconButton icon="x" label="Unfeature" onClick={() => patch(override.name, { featured: false })} />
+                  <Icon name="star" size={16} className="text-[var(--warn)]" />
+                  <span className="min-w-0 flex-1 px-1">
+                    <span className="adm-item-title adm-mono !text-[length:var(--fs-sm)]">{override.name}</span>
+                    <span className="adm-item-sub">
+                      {override.description || repoFor(override.name)?.description || "No description"}
+                    </span>
+                  </span>
+                  {!liveNames.has(override.name) && repos && <Badge tone="warning">Not on GitHub</Badge>}
+                  <div className="adm-item-actions">
+                    <IconButton icon="up" label="Move up" className="adm-move" onClick={controls.moveUp} disabled={!controls.moveUp} />
+                    <IconButton
+                      icon="down"
+                      label="Move down"
+                      className="adm-move"
+                      onClick={controls.moveDown}
+                      disabled={!controls.moveDown}
+                    />
+                    <IconButton icon="x" label="Unfeature" remove onClick={() => patch(override.name, { featured: false })} />
+                  </div>
+                </div>
               </div>
             )}
           </SortableList>
@@ -112,31 +121,40 @@ export default function ProjectsEditor({
       </Card>
 
       <Card
+        doc="projects.repos + github"
+        icon="projects"
         title="All repositories"
         description="Hide, feature, or fill in a missing description or demo link. GitHub stays the source of truth."
         actions={
           repos && repos.length > 6 ? (
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter…"
-              aria-label="Filter repositories"
-              className="adm-input h-8 w-44"
-            />
+            <div className="adm-input-wrap w-[min(15rem,100%)]">
+              <span className="adm-input-icon">
+                <Icon name="search" size={15} />
+              </span>
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Filter repositories…"
+                aria-label="Filter repositories"
+                spellCheck={false}
+                className="adm-input adm-input--icon adm-input--mono !h-[var(--control-sm)]"
+              />
+            </div>
           ) : undefined
         }
       >
         {repoError && (
-          <div className="mb-4">
+          <div className="mb-5">
             <Notice tone="warning" title="Could not load repositories from GitHub">
               {repoError} Existing settings below are kept and still saved.
             </Notice>
           </div>
         )}
 
-        {repos && repos.length === 0 && <p className="adm-muted text-[13px]">No public repositories found for {username}.</p>}
+        {repos && repos.length === 0 && <EmptyLine>No public repositories found for {username}.</EmptyLine>}
+        {repos && repos.length > 0 && visibleRepos.length === 0 && <EmptyLine>No repository matches “{query}”.</EmptyLine>}
 
-        <ul className="space-y-2">
+        <ul className="adm-sortable adm-sortable--tight">
           {visibleRepos.map((repo) => {
             const override = byName.get(repo.name);
             const hiddenByFork = editor.value.excludeForks && repo.fork;
@@ -145,62 +163,72 @@ export default function ProjectsEditor({
             const index = overrides.findIndex((o) => o.name === repo.name);
             return (
               <li key={repo.id} className="adm-item" data-open={isOpen}>
-                <div className="flex items-center gap-2 px-3 py-2">
+                <div className="adm-item-head !min-h-[3.25rem] !pl-2">
                   <button
                     type="button"
-                    className="flex-1 min-w-0 text-left flex items-center gap-2.5"
+                    className="adm-item-toggle"
                     aria-expanded={isOpen}
                     onClick={() => setExpanded(isOpen ? null : repo.name)}
                   >
-                    <Icon name="chevron" size={15} className={`adm-faint transition-transform ${isOpen ? "rotate-90" : ""}`} />
+                    <Icon name="chevron" size={15} className="adm-chevron" />
                     <span className="min-w-0">
-                      <span className={`block font-medium truncate ${hidden ? "adm-faint line-through" : ""}`}>{repo.name}</span>
-                      <span className="block text-[12px] adm-faint truncate">
-                        {override?.description || repo.description || "No description"}
+                      <span className={`adm-item-title adm-mono !text-[length:var(--fs-sm)] ${hidden ? "!text-[var(--faint)] line-through" : ""}`}>
+                        {repo.name}
                       </span>
+                      <span className="adm-item-sub">{override?.description || repo.description || "No description"}</span>
                     </span>
                   </button>
-                  <span className="hidden sm:inline text-[12px] adm-faint w-14 text-right">★ {repo.stars}</span>
-                  {repo.fork && <Badge>Fork</Badge>}
-                  {repo.archived && <Badge>Archived</Badge>}
-                  {(override?.description || override?.homepage) && <Badge tone="accent">Edited</Badge>}
-                  <IconButton
-                    icon="star"
-                    label={override?.featured ? "Unfeature" : "Feature"}
-                    onClick={() => patch(repo.name, { featured: !override?.featured })}
-                    className={override?.featured ? "!text-[var(--warning)]" : ""}
-                  />
-                  <IconButton
-                    icon={override?.hidden ? "eyeOff" : "eye"}
-                    label={override?.hidden ? "Show on portfolio" : "Hide from portfolio"}
-                    onClick={() => patch(repo.name, { hidden: !override?.hidden })}
-                    className={override?.hidden ? "!text-[var(--danger)]" : ""}
-                  />
+                  <span className="hidden sm:inline adm-mono text-[length:var(--fs-xs)] adm-faint w-14 text-right">★ {repo.stars}</span>
+                  <div className="adm-item-tags">
+                    {repo.fork && <Badge>Fork</Badge>}
+                    {repo.archived && <Badge>Archived</Badge>}
+                    {(override?.description || override?.homepage) && <Badge tone="accent">Edited</Badge>}
+                  </div>
+                  <div className="flex items-center gap-0.5">
+                    <IconButton
+                      icon="star"
+                      label={override?.featured ? "Unfeature" : "Feature"}
+                      aria-pressed={Boolean(override?.featured)}
+                      onClick={() => patch(repo.name, { featured: !override?.featured })}
+                      className={override?.featured ? "!text-[var(--warn)] !bg-[var(--warn-soft)]" : ""}
+                    />
+                    <IconButton
+                      icon={override?.hidden ? "eyeOff" : "eye"}
+                      label={override?.hidden ? "Show on portfolio" : "Hide from portfolio"}
+                      aria-pressed={Boolean(override?.hidden)}
+                      onClick={() => patch(repo.name, { hidden: !override?.hidden })}
+                      className={override?.hidden ? "!text-[var(--danger)] !bg-[var(--danger-soft)]" : ""}
+                    />
+                  </div>
                 </div>
                 {isOpen && (
-                  <div className="px-4 pb-4 pt-3 border-t border-[var(--border)] grid sm:grid-cols-2 gap-4">
-                    <TextField
-                      label="Description override"
-                      value={override?.description ?? ""}
-                      onChange={(value) => patch(repo.name, { description: value })}
-                      placeholder={repo.description ?? "No GitHub description"}
-                      error={index >= 0 ? editor.issue(`repos.${index}.description`) : undefined}
-                      hint="Leave empty to use the GitHub description."
-                    />
-                    <TextField
-                      label="Demo URL override"
-                      type="url"
-                      value={override?.homepage ?? ""}
-                      onChange={(value) => patch(repo.name, { homepage: value })}
-                      placeholder={repo.homepage ?? "https://…"}
-                      error={index >= 0 ? editor.issue(`repos.${index}.homepage`) : undefined}
-                      hint="Leave empty to use the GitHub homepage."
-                    />
-                    <p className="sm:col-span-2 text-[12px] adm-faint">
-                      {hiddenByFork ? "Hidden because forks are excluded. " : ""}
-                      {repo.archived ? "Archived repositories are never listed. " : ""}
-                      <a href={repo.url} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">
-                        Open on GitHub ↗
+                  <div className="adm-item-body">
+                    <div className="adm-form-grid">
+                      <TextField
+                        label="Description override"
+                        value={override?.description ?? ""}
+                        onChange={(value) => patch(repo.name, { description: value })}
+                        placeholder={repo.description ?? "No GitHub description"}
+                        error={index >= 0 ? editor.issue(`repos.${index}.description`) : undefined}
+                        hint="Leave empty to use the GitHub description."
+                      />
+                      <TextField
+                        label="Demo URL override"
+                        type="url"
+                        value={override?.homepage ?? ""}
+                        onChange={(value) => patch(repo.name, { homepage: value })}
+                        placeholder={repo.homepage ?? "https://…"}
+                        error={index >= 0 ? editor.issue(`repos.${index}.homepage`) : undefined}
+                        hint="Leave empty to use the GitHub homepage."
+                        mono
+                      />
+                    </div>
+                    <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[length:var(--fs-xs)] adm-faint">
+                      {hiddenByFork && <span>Hidden because forks are excluded.</span>}
+                      {repo.archived && <span>Archived repositories are never listed.</span>}
+                      <a href={repo.url} target="_blank" rel="noopener noreferrer" className="adm-link inline-flex items-center gap-1">
+                        Open on GitHub
+                        <Icon name="external" size={13} />
                       </a>
                     </p>
                   </div>
@@ -211,15 +239,15 @@ export default function ProjectsEditor({
         </ul>
 
         {stale.length > 0 && (
-          <div className="mt-5">
+          <div className="mt-6">
             <p className="adm-label">Settings for repositories no longer on GitHub</p>
-            <ul className="space-y-1.5">
+            <ul className="flex flex-col gap-1.5">
               {stale.map((override) => (
-                <li key={override.name} className="flex items-center gap-2 text-[13px]">
-                  <span className="flex-1 truncate adm-muted">{override.name}</span>
+                <li key={override.name} className="flex items-center gap-2 text-[length:var(--fs-sm)]">
+                  <span className="flex-1 truncate adm-mono adm-muted">{override.name}</span>
                   <button
                     type="button"
-                    className="adm-btn adm-btn--sm adm-btn--ghost"
+                    className="adm-btn adm-btn--sm adm-btn--danger"
                     onClick={() => writeRepos(overrides.filter((o) => o.name !== override.name))}
                   >
                     Remove

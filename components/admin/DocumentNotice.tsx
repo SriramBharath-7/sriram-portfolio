@@ -1,7 +1,34 @@
 import type { DocumentKey } from "@/content/documents";
 import type { AdminDocumentsPayload } from "@/lib/admin/types";
+import RelativeTime from "./RelativeTime";
 import { DOCUMENT_SECTIONS } from "./sections";
-import { Notice } from "./ui";
+import { Notice, StatusDot } from "./ui";
+
+/** One line per stored document the page edits: state and last write. */
+function DocumentStatus({ payload, keys }: { payload: AdminDocumentsPayload; keys: DocumentKey[] }) {
+  return (
+    <div className="adm-docbar" aria-label="Stored documents">
+      {keys.map((key) => {
+        const meta = payload.meta[key];
+        return (
+          <span key={key}>
+            <StatusDot tone={meta?.invalid ? "danger" : meta?.stored ? "success" : "neutral"} />
+            <b>{key}</b>
+            {meta?.invalid ? (
+              "invalid · using defaults"
+            ) : meta?.stored ? (
+              <>
+                stored · <RelativeTime iso={meta.updatedAt} />
+              </>
+            ) : (
+              "built-in default · never saved"
+            )}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
 
 /**
  * Explains where the data on a page came from when it is not a normal stored
@@ -35,8 +62,9 @@ export default function DocumentNotice({
 
   return (
     <>
+      {payload.configured && <DocumentStatus payload={payload} keys={keys} />}
       {(invalid.length > 0 || unsaved.length > 0) && (
-        <div className="mb-6 space-y-3">
+        <div className="mb-6 flex flex-col gap-3">
           {invalid.length > 0 && (
             <Notice tone="warning" title={`Stored ${name(invalid)} data failed validation`}>
               The live site is using the built-in defaults for it. Review the values below and save to repair it.

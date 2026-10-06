@@ -6,6 +6,6 @@ import { getSupabaseEnv } from "./env";
  * with the server; @supabase/ssr returns the same instance on every call.
  */
 export function getSupabaseBrowserClient() {
-  const { url, anonKey } = getSupabaseEnv();
-  return createBrowserClient(url, anonKey);
+  const { url, publishableKey } = getSupabaseEnv();
+  return createBrowserClient(url, publishableKey);
 }

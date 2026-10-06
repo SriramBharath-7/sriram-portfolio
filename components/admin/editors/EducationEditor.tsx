@@ -1,7 +1,7 @@
 "use client";
 
 import type { Education, EducationEntry, EducationGoal } from "@/content/types";
-import { Button, Card, TextAreaField, TextField } from "../ui";
+import { Button, Card, EmptyLine, TextAreaField, TextField } from "../ui";
 import { ItemCard, SortableList, StringListEditor, useOpenItem } from "../lists";
 import { SaveBar } from "../SaveBar";
 import { uniqueId, useDocumentEditor } from "../useDocumentEditor";
@@ -15,12 +15,14 @@ export default function EducationEditor({ education }: { education: Education })
   const openGoal = useOpenItem();
 
   return (
-    <div className="space-y-5">
-      <Card title="Page">
+    <div className="adm-stack">
+      <Card doc="education" icon="layers" title="Page">
         <TextField label="Headline" {...editor.field("headline")} hint="Title of the Education page and education.txt." />
       </Card>
 
       <Card
+        doc="education.entries"
+        icon="education"
         title="Education entries"
         description="Degrees, schools and courses, in display order."
         actions={
@@ -37,7 +39,7 @@ export default function EducationEditor({ education }: { education: Education })
           </Button>
         }
       >
-        {entries.items.length === 0 && <p className="adm-muted text-[13px]">No entries yet.</p>}
+        {entries.items.length === 0 && <EmptyLine>No entries yet.</EmptyLine>}
         <SortableList
           items={entries.items}
           getKey={(_, index) => String(index)}
@@ -59,8 +61,8 @@ export default function EducationEditor({ education }: { education: Education })
                 deleteConfirm={`Delete “${entry.degree || "this entry"}”?`}
                 errorCount={editor.issuesUnder(base)}
               >
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <TextField label="Degree / programme" className="sm:col-span-2" {...editor.field(`${base}.degree`)} />
+                <div className="adm-form-grid">
+                  <TextField label="Degree / programme" className="adm-col-full" {...editor.field(`${base}.degree`)} />
                   <TextField label="Institution (optional)" {...editor.field(`${base}.institution`)} />
                   <TextField label="Status" {...editor.field(`${base}.status`)} placeholder="e.g. Currently pursuing" />
                 </div>
@@ -79,6 +81,8 @@ export default function EducationEditor({ education }: { education: Education })
       </Card>
 
       <Card
+        doc="education.goals"
+        icon="star"
         title="Goals"
         description="Certification and learning goals listed under the entries."
         actions={
@@ -95,7 +99,7 @@ export default function EducationEditor({ education }: { education: Education })
           </Button>
         }
       >
-        {goals.items.length === 0 && <p className="adm-muted text-[13px]">No goals yet.</p>}
+        {goals.items.length === 0 && <EmptyLine>No goals yet.</EmptyLine>}
         <SortableList
           items={goals.items}
           getKey={(_, index) => String(index)}
@@ -117,7 +121,7 @@ export default function EducationEditor({ education }: { education: Education })
                 deleteConfirm={`Delete “${goal.title || "this goal"}”?`}
                 errorCount={editor.issuesUnder(base)}
               >
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="adm-form-grid">
                   <TextField label="Goal" {...editor.field(`${base}.title`)} placeholder="e.g. OSCP" />
                   <TextField label="Detail (optional)" {...editor.field(`${base}.description`)} placeholder="e.g. Long-term goal" />
                 </div>

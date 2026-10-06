@@ -12,20 +12,20 @@ export default function SettingsEditor({ settings, blog }: { settings: SiteSetti
   const welcome = editor.value.welcome;
 
   return (
-    <div className="space-y-5">
-      <Card title="Welcome popup" description="The card shown in the middle of the desktop after the boot screen.">
-        <div className="space-y-4">
+    <div className="adm-stack">
+      <Card doc="settings.welcome" icon="overview" title="Welcome popup" description="The card shown in the middle of the desktop after the boot screen.">
+        <div className="flex flex-col gap-5">
           <Toggle
             label="Show the welcome popup"
             checked={welcome.enabled}
             onChange={(checked) => editor.set("welcome.enabled", checked)}
           />
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="adm-form-grid">
             <TextField label="Title" {...editor.field("welcome.title")} />
             <TextField label="Box heading" {...editor.field("welcome.heading")} />
             <TextAreaField
               label="Message"
-              className="sm:col-span-2"
+              className="adm-col-full"
               rows={2}
               {...editor.field("welcome.message")}
               hint="Wrap words in **double asterisks** to highlight them and `backticks` for a command."
@@ -43,7 +43,7 @@ export default function SettingsEditor({ settings, blog }: { settings: SiteSetti
         </div>
       </Card>
 
-      <Card title="Boot screen" description="Status lines that rotate above the circular loader.">
+      <Card doc="settings.boot" icon="server" title="Boot screen" description="Status lines that rotate above the circular loader.">
         <StringListEditor
           label="Loading messages"
           items={editor.value.boot.messages}
@@ -53,7 +53,7 @@ export default function SettingsEditor({ settings, blog }: { settings: SiteSetti
         />
       </Card>
 
-      <Card title="Terminal" description="Lines printed when a terminal window opens.">
+      <Card doc="settings.terminal" icon="commands" title="Terminal" description="Lines printed when a terminal window opens.">
         <StringListEditor
           label="Message of the day"
           items={editor.value.terminal.motd}
@@ -64,23 +64,23 @@ export default function SettingsEditor({ settings, blog }: { settings: SiteSetti
         />
       </Card>
 
-      <Card title="GitHub widget" description="The “Star on GitHub” button in the bottom-right corner of the desktop.">
-        <div className="space-y-4">
+      <Card doc="settings.githubWidget" icon="star" title="GitHub widget" description="The “Star on GitHub” button in the bottom-right corner of the desktop.">
+        <div className="flex flex-col gap-5">
           <Toggle
             label="Show the widget"
             checked={editor.value.githubWidget.enabled}
             onChange={(checked) => editor.set("githubWidget.enabled", checked)}
           />
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="adm-form-grid">
             <TextField label="Label" {...editor.field("githubWidget.label")} />
             <TextField label="Caption" {...editor.field("githubWidget.caption")} />
-            <TextField label="Link" type="url" className="sm:col-span-2" {...editor.field("githubWidget.url")} />
+            <TextField label="Link" type="url" className="adm-col-full" {...editor.field("githubWidget.url")} mono />
           </div>
         </div>
       </Card>
 
-      <Card title="Blog sources" description="The Blogs page merges posts from both accounts.">
-        <div className="grid sm:grid-cols-2 gap-4">
+      <Card doc="blog" icon="globe" title="Blog sources" description="The Blogs page merges posts from both accounts.">
+        <div className="adm-form-grid">
           <TextField label="DEV.to username" {...blogEditor.field("devtoUsername")} mono />
           <TextField label="Medium handle" {...blogEditor.field("mediumHandle")} placeholder="e.g. @you" mono />
         </div>

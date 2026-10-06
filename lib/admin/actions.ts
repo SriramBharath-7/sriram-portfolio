@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { DEFAULT_DOCUMENTS, isDocumentKey, type DocumentKey } from "@/content";
@@ -12,7 +13,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { CERTIFICATE_BUCKET, pathFromPublicUrl } from "@/lib/supabase/storage";
 import { getCommand } from "@/lib/terminal/registry";
 import { getAdminUser } from "./auth";
-import type { AuthFormState, SaveResult } from "./types";
+import { ACCESS_COOKIE, type AuthFormState, type SaveResult } from "./types";
 
 const INVALID_LOGIN = "Invalid email or password.";
 const NOT_ADMIN =
@@ -42,6 +43,13 @@ export async function signInAction(
     return { error: "This account is not authorized to use the admin dashboard." };
   }
 
+  // One-shot UI marker: the dashboard plays its access sequence, then clears it.
+  cookies().set(ACCESS_COOKIE, "1", {
+    path: "/admin",
+    maxAge: 120,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
   redirect("/admin");
 }
 

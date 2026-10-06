@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { redirect } from "next/navigation";
+import kaliLogo from "@/public/assets/svg/kali-logo.png";
+import { Icon } from "@/components/admin/icons";
 import LoginForm from "@/components/admin/LoginForm";
 import SetupGuide from "@/components/admin/SetupGuide";
+import SystemClock from "@/components/admin/SystemClock";
+import { StatusDot } from "@/components/admin/ui";
+import Wallpaper from "@/components/admin/Wallpaper";
 import { getAdminUser } from "@/lib/admin/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
@@ -17,32 +23,42 @@ export default async function LoginPage({
   if (configured && (await getAdminUser())) redirect("/admin");
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-5 py-12">
-      <div className="w-full max-w-[400px]">
-        <div className="text-center mb-7">
-          <div className="mx-auto w-11 h-11 rounded-xl bg-[var(--accent-soft)] text-[var(--accent)] flex items-center justify-center mb-4">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M6 11V8a6 6 0 1112 0v3M5 11h14v10H5V11z" />
-            </svg>
-          </div>
-          <h1 className="text-[22px] font-semibold tracking-tight">Portfolio Control Center</h1>
-          <p className="adm-muted mt-1">Private area. Sign in with your admin account.</p>
+    <div className="adm-login">
+      <Wallpaper variant="login" />
+
+      <header className="adm-bar">
+        <span className="adm-bar-logo" aria-hidden="true">
+          <Image src={kaliLogo} alt="" width={24} height={24} priority />
+        </span>
+        <p className="adm-bar-brand">
+          <strong>kali</strong>
+          <span>tty1 · admin console</span>
+        </p>
+        <div className="adm-bar-tray">
+          <span className="adm-tray">
+            <StatusDot tone="warning" />
+            <span className="adm-tray-label">locked</span>
+          </span>
+          <SystemClock />
+        </div>
+      </header>
+
+      <main className="adm-login-stage">
+        <div className="adm-login-card">
+          {configured ? (
+            <LoginForm
+              initialError={searchParams.error === "unauthorized" ? "This account is not authorized." : undefined}
+            />
+          ) : (
+            <SetupGuide />
+          )}
         </div>
 
-        {configured ? (
-          <div className="adm-card p-6">
-            <LoginForm initialError={searchParams.error === "unauthorized" ? "This account is not authorized." : undefined} />
-          </div>
-        ) : (
-          <SetupGuide />
-        )}
-
-        <p className="text-center text-[12px] adm-faint mt-6">
-          <a href="/" className="hover:text-[var(--text)]">
-            ← Back to the portfolio
-          </a>
-        </p>
-      </div>
+        <a href="/" className="adm-login-back">
+          <Icon name="arrowLeft" size={15} />
+          back to the portfolio
+        </a>
+      </main>
     </div>
   );
 }

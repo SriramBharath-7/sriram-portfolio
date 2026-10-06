@@ -60,7 +60,7 @@ export async function uploadCertificateImage(
   const problem = validateImageFile(file);
   if (problem) throw new Error(problem);
 
-  const { url, anonKey } = getSupabaseEnv();
+  const { url, publishableKey } = getSupabaseEnv();
   const { data } = await getSupabaseBrowserClient().auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new Error("Your session has expired. Sign in again.");
@@ -78,7 +78,7 @@ export async function uploadCertificateImage(
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `${url}/storage/v1/object/${CERTIFICATE_BUCKET}/${encodeStoragePath(path)}`);
     xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-    xhr.setRequestHeader("apikey", anonKey);
+    xhr.setRequestHeader("apikey", publishableKey);
     xhr.setRequestHeader("x-upsert", "false");
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {

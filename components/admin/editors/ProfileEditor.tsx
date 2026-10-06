@@ -1,9 +1,8 @@
 "use client";
 
 import type { About, AboutBullet, AboutSection, Profile } from "@/content/types";
-import { Button, Card, IconButton, TextAreaField, TextField } from "../ui";
-import { Icon } from "../icons";
-import { ItemCard, SortableList, useOpenItem } from "../lists";
+import { Button, Card, TextAreaField, TextField } from "../ui";
+import { ItemCard, SortableList, SubItem, useOpenItem } from "../lists";
 import { SaveBar } from "../SaveBar";
 import { uniqueId, useDocumentEditor, type DocumentEditor } from "../useDocumentEditor";
 import { HighlightSelect, preview } from "./shared";
@@ -23,29 +22,24 @@ function BulletsEditor({
     <div>
       <p className="adm-label">Bullet points</p>
       {bullets.items.length > 0 && (
-        <SortableList items={bullets.items} getKey={(_, index) => String(index)} onMove={bullets.move} className="space-y-2 mb-2">
+        <SortableList items={bullets.items} getKey={(_, index) => String(index)} onMove={bullets.move} tight className="mb-3">
           {(bullet, index, controls) => (
-            <div
-              className={`rounded-lg border bg-[var(--surface)] p-3 ${
-                editor.issuesUnder(`${path}.${index}`) ? "border-[var(--danger)]" : "border-[var(--border)]"
-              } ${controls.isDropTarget ? "border-[var(--accent)]" : ""}`}
+            <SubItem
+              controls={controls}
+              invalid={editor.issuesUnder(`${path}.${index}`) > 0}
+              onRemove={() => bullets.remove(index)}
+              removeLabel="Remove bullet"
             >
-              <div className="flex items-start gap-2">
-                <button {...controls.handleProps} className="adm-handle w-6 h-8 flex items-center justify-center mt-6">
-                  <Icon name="grip" size={14} />
-                </button>
-                <div className="flex-1 grid sm:grid-cols-[1fr_1.4fr_180px] gap-3">
-                  <TextField label="Label" {...editor.field(`${path}.${index}.label`)} />
-                  <TextField label="Description (optional)" {...editor.field(`${path}.${index}.description`)} />
-                  <HighlightSelect
-                    value={bullet.highlightClass}
-                    onChange={(value) => editor.set(`${path}.${index}.highlightClass`, value)}
-                    error={editor.issue(`${path}.${index}.highlightClass`)}
-                  />
-                </div>
-                <IconButton icon="x" label="Remove bullet" className="mt-6" onClick={() => bullets.remove(index)} />
+              <div className="adm-subgrid">
+                <TextField label="Label" {...editor.field(`${path}.${index}.label`)} />
+                <TextField label="Description (optional)" {...editor.field(`${path}.${index}.description`)} />
+                <HighlightSelect
+                  value={bullet.highlightClass}
+                  onChange={(value) => editor.set(`${path}.${index}.highlightClass`, value)}
+                  error={editor.issue(`${path}.${index}.highlightClass`)}
+                />
               </div>
-            </div>
+            </SubItem>
           )}
         </SortableList>
       )}
@@ -75,14 +69,14 @@ export default function ProfileEditor({ profile, about }: { profile: Profile; ab
   };
 
   return (
-    <div className="space-y-5">
-      <Card title="Identity" description="Used by whoami, neofetch, the Start page, About page and about.txt.">
-        <div className="grid sm:grid-cols-2 gap-4">
+    <div className="adm-stack">
+      <Card doc="profile" icon="profile" title="Identity" description="Used by whoami, neofetch, the Start page, About page and about.txt.">
+        <div className="adm-form-grid">
           <TextField label="Name" {...identityEditor.field("name")} />
           <TextField label="Role" {...identityEditor.field("role")} placeholder="e.g. College Student (CSE)" />
           <TextAreaField
             label="Tagline"
-            className="sm:col-span-2"
+            className="adm-col-full"
             rows={2}
             {...identityEditor.field("tagline")}
             hint="One line under your name on the Firefox start page."
@@ -99,6 +93,8 @@ export default function ProfileEditor({ profile, about }: { profile: Profile; ab
       </Card>
 
       <Card
+        doc="about"
+        icon="layers"
         title="About"
         description="The About page in Firefox, the about command and about.txt all render these sections."
         actions={
@@ -111,7 +107,7 @@ export default function ProfileEditor({ profile, about }: { profile: Profile; ab
           label="Headline"
           {...aboutEditor.field("headline")}
           hint="Shown at the top of the About page and the about command."
-          className="mb-5"
+          className="mb-6"
         />
 
         <SortableList

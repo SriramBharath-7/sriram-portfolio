@@ -22,25 +22,17 @@ body {
 /* ==========================================================================
    Responsive desktop scale — one knob.
 
-   The root font-size follows the viewport, and everything sized in rem
-   (Tailwind utilities, the tokens below, container-query breakpoints)
-   follows it, so the whole shell keeps one perceived scale:
-
-     1366×650   14px    (0.875×, floor)    1920×950   16px  (1080p design size)
-     2560×1310  19.2px  (1.2×)             very large screens cap at 20.8px (1.3×)
-
-   min() of a width curve and a height curve keeps short-but-wide viewports
-   from blowing up. No transform: scale(), no zoom — real sizes.
+   The fluid root font-size lives in app/base.css (shared with the admin
+   dashboard), and everything sized in rem (Tailwind utilities, the tokens
+   below, container-query breakpoints) follows it, so the whole shell keeps
+   one perceived scale: 14px on laptops, 16px at 1080p, 19.2px at 1440p,
+   capped at 20.8px. No transform: scale(), no zoom — real sizes.
 
    Window-level reflow is a separate system: Terminal/Firefox content uses
    container queries on the WINDOW width. Those breakpoints are in rem too, so
    a window reflows at the same point relative to its (scaled) content.
    lib/wm/metrics.ts reads the resulting sizes back for window geometry.
    ========================================================================== */
-
-html {
-  font-size: clamp(14px, min(6.4px + 0.5vw, 7.55px + 0.889vh), 20.8px);
-}
 
 :root {
   /* Type scale — px values at the 16px (1080p) design size. */

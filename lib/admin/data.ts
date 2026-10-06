@@ -2,7 +2,7 @@ import "server-only";
 import { DEFAULT_DOCUMENTS, DOCUMENT_KEYS, type DocumentKey } from "@/content";
 import { resolveStoredDocuments } from "@/content/schema";
 import { DOCUMENTS_TABLE, rowsToStoredDocuments, type StoredRow } from "@/lib/content/repository";
-import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { getSupabaseEnv, isSupabaseConfigured } from "@/lib/supabase/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { AdminDocumentsPayload, DocumentMeta } from "./types";
 
@@ -64,5 +64,39 @@ export async function loadAdminDocuments(): Promise<AdminDocumentsPayload> {
     documents,
     meta: buildMeta(rows, invalid),
     lastUpdated,
+  };
+}
+
+/**
+ * Read-only checks for the post-sign-in access sequence: does the database
+ * answer, does RLS recognise this user as an admin, how much content is
+ * stored. Runs once per sign-in, never on normal navigation.
+ */
+export async function loadAccessChecks(): Promise<{
+  host: string | null;
+  database: "ok" | "error";
+  adminRole: boolean;
+  documents: number | null;
+  totalDocuments: number;
+}> {
+  const supabase = createSupabaseServerClient();
+  const [role, rows] = await Promise.all([
+    supabase.rpc("is_admin"),
+    supabase.from(DOCUMENTS_TABLE).select("key", { count: "exact", head: true }),
+  ]);
+
+  let host: string | null = null;
+  try {
+    host = new URL(getSupabaseEnv().url).host;
+  } catch {
+    host = null;
+  }
+
+  return {
+    host,
+    database: role.error && rows.error ? "error" : "ok",
+    adminRole: !role.error && role.data === true,
+    documents: rows.error ? null : rows.count ?? 0,
+    totalDocuments: DOCUMENT_KEYS.length,
   };
 }

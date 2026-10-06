@@ -9,10 +9,10 @@ import { getSupabaseEnv } from "./env";
  * and Row Level Security decides what is allowed.
  */
 export function createSupabaseServerClient() {
-  const { url, anonKey } = getSupabaseEnv();
+  const { url, publishableKey } = getSupabaseEnv();
   const cookieStore = cookies();
 
-  return createServerClient(url, anonKey, {
+  return createServerClient(url, publishableKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();

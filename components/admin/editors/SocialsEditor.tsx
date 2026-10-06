@@ -1,7 +1,7 @@
 "use client";
 
 import type { Profile, SocialLink } from "@/content/types";
-import { Badge, Button, Card, EmptyState, TextField, Toggle } from "../ui";
+import { Badge, Button, Card, ChipButton, EmptyState, TextField, Toggle } from "../ui";
 import { ItemCard, SortableList, useOpenItem } from "../lists";
 import { SaveBar } from "../SaveBar";
 import { uniqueId, useDocumentEditor } from "../useDocumentEditor";
@@ -33,9 +33,13 @@ export default function SocialsEditor({ profile }: { profile: Profile }) {
     open.open(String(socials.items.length));
   };
 
+  const presets = PRESETS.filter((preset) => !socials.items.some((social) => social.label === preset.label));
+
   return (
-    <div className="space-y-5">
+    <div className="adm-stack">
       <Card
+        doc="profile.socials"
+        icon="socials"
         title="Links"
         description="Shown on the Firefox start page, by the contact command and in contact.txt. Web links are also bookmarked in Firefox."
         actions={
@@ -76,7 +80,7 @@ export default function SocialsEditor({ profile }: { profile: Profile }) {
                     checked={enabled}
                     onChange={(checked) => editor.set(`${base}.enabled`, checked)}
                   />
-                  <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="adm-form-grid">
                     <div
                       onBlur={() => {
                         if (social.label.trim() && PLACEHOLDER_ID.test(social.id)) {
@@ -94,10 +98,11 @@ export default function SocialsEditor({ profile }: { profile: Profile }) {
                     />
                     <TextField
                       label="URL"
-                      className="sm:col-span-2"
+                      className="adm-col-full"
                       {...editor.field(`${base}.url`)}
                       placeholder="https://… or mailto:you@example.com"
                       hint="http(s):// links open in a new tab; mailto: opens the mail client."
+                      mono
                     />
                     <TextField
                       label="ID"
@@ -112,14 +117,16 @@ export default function SocialsEditor({ profile }: { profile: Profile }) {
           </SortableList>
         )}
 
-        <div className="flex flex-wrap items-center gap-2 mt-4">
-          <span className="text-[12px] adm-faint mr-1">Quick add:</span>
-          {PRESETS.filter((preset) => !socials.items.some((social) => social.label === preset.label)).map((preset) => (
-            <button key={preset.label} type="button" className="adm-badge hover:text-[var(--text)]" onClick={() => add(preset.label, preset.url)}>
-              + {preset.label}
-            </button>
-          ))}
-        </div>
+        {presets.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mt-5">
+            <span className="adm-eyebrow mr-1">Quick add</span>
+            {presets.map((preset) => (
+              <ChipButton key={preset.label} onClick={() => add(preset.label, preset.url)}>
+                + {preset.label}
+              </ChipButton>
+            ))}
+          </div>
+        )}
       </Card>
 
       <SaveBar editors={[editor]} />

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Icon } from "./icons";
+import { Icon, type IconName } from "./icons";
 
 type Tone = "success" | "error" | "info";
 
@@ -16,6 +16,8 @@ interface ConfirmOptions {
   message?: React.ReactNode;
   confirmLabel?: string;
   tone?: "danger" | "default";
+  /** Glyph beside the title; defaults to a warning sign. */
+  icon?: IconName;
 }
 
 interface FeedbackContextValue {
@@ -28,20 +30,36 @@ interface FeedbackContextValue {
 
 const FeedbackContext = createContext<FeedbackContextValue | null>(null);
 
+/** Separate so only the system bar re-renders when the unsaved count changes. */
+const UnsavedContext = createContext(0);
+
+const TOAST_STYLE: Record<Tone, { icon: IconName; source: string }> = {
+  success: { icon: "check", source: "done" },
+  error: { icon: "alert", source: "error" },
+  info: { icon: "info", source: "notice" },
+};
+
 export function AdminFeedbackProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [pending, setPending] = useState<(ConfirmOptions & { resolve: (ok: boolean) => void }) | null>(
     null
   );
+  const [closing, setClosing] = useState(false);
+  const [unsaved, setUnsaved] = useState(0);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const dirtySources = useRef(new Set<string>());
   const nextId = useRef(1);
 
-  const toast = useCallback((message: string, tone: Tone = "success") => {
-    const id = nextId.current++;
-    setToasts((current) => [...current.slice(-3), { id, tone, message }]);
-    window.setTimeout(() => setToasts((current) => current.filter((t) => t.id !== id)), 3800);
-  }, []);
+  const dismiss = useCallback((id: number) => setToasts((current) => current.filter((t) => t.id !== id)), []);
+
+  const toast = useCallback(
+    (message: string, tone: Tone = "success") => {
+      const id = nextId.current++;
+      setToasts((current) => [...current.slice(-3), { id, tone, message }]);
+      window.setTimeout(() => dismiss(id), 3800);
+    },
+    [dismiss]
+  );
 
   const confirm = useCallback(
     (options: ConfirmOptions) => new Promise<boolean>((resolve) => setPending({ ...options, resolve })),
@@ -49,15 +67,21 @@ export function AdminFeedbackProvider({ children }: { children: React.ReactNode 
   );
 
   const setDirty = useCallback((source: string, dirty: boolean) => {
-    if (dirty) dirtySources.current.add(source);
-    else dirtySources.current.delete(source);
+    const sources = dirtySources.current;
+    if (dirty === sources.has(source)) return;
+    if (dirty) sources.add(source);
+    else sources.delete(source);
+    setUnsaved(sources.size);
   }, []);
 
   const hasUnsavedChanges = useCallback(() => dirtySources.current.size > 0, []);
 
   useEffect(() => {
     const dialog = dialogRef.current;
-    if (pending && dialog && !dialog.open) dialog.showModal();
+    if (pending && dialog && !dialog.open) {
+      setClosing(false);
+      dialog.showModal();
+    }
   }, [pending]);
 
   // Native browser prompt when closing or reloading the tab with unsaved edits.
@@ -71,10 +95,16 @@ export function AdminFeedbackProvider({ children }: { children: React.ReactNode 
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, []);
 
+  /** Resolves immediately; the dialog animates out before it actually closes. */
   const settle = (ok: boolean) => {
-    pending?.resolve(ok);
-    setPending(null);
-    dialogRef.current?.close();
+    if (!pending || closing) return;
+    pending.resolve(ok);
+    setClosing(true);
+    window.setTimeout(() => {
+      dialogRef.current?.close();
+      setPending(null);
+      setClosing(false);
+    }, 150);
   };
 
   const value = useMemo(
@@ -82,63 +112,86 @@ export function AdminFeedbackProvider({ children }: { children: React.ReactNode 
     [toast, confirm, setDirty, hasUnsavedChanges]
   );
 
+  const danger = pending?.tone === "danger";
+
   return (
     <FeedbackContext.Provider value={value}>
-      {children}
+      <UnsavedContext.Provider value={unsaved}>{children}</UnsavedContext.Provider>
 
       <dialog
         ref={dialogRef}
         className="adm-dialog"
+        data-closing={closing}
         onCancel={(event) => {
           event.preventDefault();
           settle(false);
         }}
+        onClick={(event) => {
+          // Clicking the backdrop (the dialog element itself) cancels.
+          if (event.target === event.currentTarget) settle(false);
+        }}
         aria-labelledby="adm-confirm-title"
       >
         {pending && (
-          <div className="p-5">
-            <h2 id="adm-confirm-title" className="text-[16px] font-semibold">
-              {pending.title}
-            </h2>
-            {pending.message && <div className="adm-muted mt-2 text-[13.5px]">{pending.message}</div>}
-            <div className="flex justify-end gap-2 mt-5">
-              <button type="button" className="adm-btn" onClick={() => settle(false)}>
+          <>
+            <div className="adm-dialog-bar">Confirm</div>
+            <div className="adm-dialog-body">
+              <span className="adm-dialog-icon" data-tone={danger ? "danger" : undefined}>
+                <Icon name={pending.icon ?? "alert"} size={18} />
+              </span>
+              <div className="min-w-0 pt-0.5">
+                <h2 id="adm-confirm-title" className="text-[length:var(--fs-lg)] font-semibold leading-snug">
+                  {pending.title}
+                </h2>
+                {pending.message && (
+                  <div className="adm-muted mt-1.5 text-[length:var(--fs-sm)]">{pending.message}</div>
+                )}
+              </div>
+            </div>
+            <div className="adm-dialog-actions">
+              <button type="button" className="adm-btn adm-btn--ghost" onClick={() => settle(false)}>
                 Cancel
               </button>
               <button
                 type="button"
                 autoFocus
-                className={`adm-btn ${pending.tone === "danger" ? "adm-btn--danger-solid" : "adm-btn--primary"}`}
+                className={`adm-btn ${danger ? "adm-btn--danger-solid" : "adm-btn--primary"}`}
                 onClick={() => settle(true)}
               >
                 {pending.confirmLabel ?? "Confirm"}
               </button>
             </div>
-          </div>
+          </>
         )}
       </dialog>
 
-      <div className="fixed bottom-5 right-5 z-[60] flex flex-col gap-2 w-[min(360px,calc(100vw-40px))]" aria-live="polite">
-        {toasts.map((item) => (
-          <div
-            key={item.id}
-            className="adm-toast adm-card flex items-start gap-2.5 px-4 py-3 shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
-            role={item.tone === "error" ? "alert" : "status"}
-          >
-            <Icon
-              name={item.tone === "error" ? "alert" : item.tone === "info" ? "database" : "check"}
-              size={17}
-              className={
-                item.tone === "error"
-                  ? "text-[var(--danger)] mt-0.5"
-                  : item.tone === "info"
-                  ? "text-[var(--accent)] mt-0.5"
-                  : "text-[var(--success)] mt-0.5"
-              }
-            />
-            <p className="text-[13.5px] min-w-0">{item.message}</p>
-          </div>
-        ))}
+      <div className="adm-toasts" aria-live="polite">
+        {toasts.map((item) => {
+          const style = TOAST_STYLE[item.tone];
+          return (
+            <div
+              key={item.id}
+              className="adm-toast"
+              data-tone={item.tone}
+              role={item.tone === "error" ? "alert" : "status"}
+            >
+              <Icon name={style.icon} size={18} />
+              <div className="min-w-0 flex-1">
+                <p className="adm-toast-src">{style.source}</p>
+                <p className="adm-toast-msg">{item.message}</p>
+              </div>
+              <button
+                type="button"
+                className="adm-btn adm-btn--ghost adm-btn--icon !w-7 !h-7 -mr-1 -mt-1"
+                aria-label="Dismiss notification"
+                onClick={() => dismiss(item.id)}
+              >
+                <Icon name="x" size={14} />
+              </button>
+              <span className="adm-toast-timer" aria-hidden="true" />
+            </div>
+          );
+        })}
       </div>
     </FeedbackContext.Provider>
   );
@@ -148,4 +201,9 @@ export function useFeedback(): FeedbackContextValue {
   const context = useContext(FeedbackContext);
   if (!context) throw new Error("useFeedback must be used inside AdminFeedbackProvider");
   return context;
+}
+
+/** Number of editors on the page with unsaved edits. */
+export function useUnsavedCount(): number {
+  return useContext(UnsavedContext);
 }

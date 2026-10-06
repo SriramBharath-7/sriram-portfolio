@@ -2,20 +2,23 @@
  * Supabase configuration. Safe to import anywhere (server, middleware, browser):
  * only the NEXT_PUBLIC_* values are ever inlined into client bundles, and
  * ADMIN_EMAILS is read on the server only.
+ *
+ * The app uses Supabase's publishable key (sb_publishable_...) everywhere:
+ * browser, auth, database and storage. Writes are authorized by the signed-in
+ * user's session plus Row Level Security, so no secret / service-role key
+ * exists in this project.
  */
 
 export interface SupabaseEnv {
   url: string;
-  anonKey: string;
+  publishableKey: string;
 }
 
 /** Each variable is referenced literally so Next.js can inline it at build time. */
 function readEnv(): SupabaseEnv | null {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const anonKey = (
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-  )?.trim();
-  return url && anonKey ? { url: url.replace(/\/+$/, ""), anonKey } : null;
+  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
+  return url && publishableKey ? { url: url.replace(/\/+$/, ""), publishableKey } : null;
 }
 
 /** False means "serve the static content and show the admin setup screen". */
@@ -27,7 +30,7 @@ export function getSupabaseEnv(): SupabaseEnv {
   const env = readEnv();
   if (!env) {
     throw new Error(
-      "Supabase is not configured: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+      "Supabase is not configured: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY."
     );
   }
   return env;

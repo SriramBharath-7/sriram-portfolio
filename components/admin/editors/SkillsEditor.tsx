@@ -1,9 +1,8 @@
 "use client";
 
 import type { SkillGroup, SkillItem, Skills } from "@/content/types";
-import { Button, Card, IconButton, TextField } from "../ui";
-import { Icon } from "../icons";
-import { ItemCard, SortableList, StringListEditor, useOpenItem } from "../lists";
+import { Button, Card, EmptyLine, TextField } from "../ui";
+import { ItemCard, SortableList, StringListEditor, SubItem, useOpenItem } from "../lists";
 import { SaveBar } from "../SaveBar";
 import { uniqueId, useDocumentEditor, type DocumentEditor } from "../useDocumentEditor";
 import { HighlightSelect } from "./shared";
@@ -16,29 +15,24 @@ function SkillItems({ editor, groupIndex }: { editor: DocumentEditor<Skills>; gr
     <div>
       <p className="adm-label">Skills in this group</p>
       {items.items.length > 0 && (
-        <SortableList items={items.items} getKey={(_, index) => String(index)} onMove={items.move} className="space-y-2 mb-2">
+        <SortableList items={items.items} getKey={(_, index) => String(index)} onMove={items.move} tight className="mb-3">
           {(item, index, controls) => (
-            <div
-              className={`rounded-lg border bg-[var(--surface)] p-3 ${
-                editor.issuesUnder(`${path}.${index}`) ? "border-[var(--danger)]" : "border-[var(--border)]"
-              } ${controls.isDropTarget ? "border-[var(--accent)]" : ""}`}
+            <SubItem
+              controls={controls}
+              invalid={editor.issuesUnder(`${path}.${index}`) > 0}
+              onRemove={() => items.remove(index)}
+              removeLabel="Remove skill"
             >
-              <div className="flex items-start gap-2">
-                <button {...controls.handleProps} className="adm-handle w-6 h-8 flex items-center justify-center mt-6">
-                  <Icon name="grip" size={14} />
-                </button>
-                <div className="flex-1 grid sm:grid-cols-[1fr_1.5fr_170px] gap-3">
-                  <TextField label="Name" {...editor.field(`${path}.${index}.name`)} />
-                  <TextField label="Description (optional)" {...editor.field(`${path}.${index}.description`)} />
-                  <HighlightSelect
-                    value={item.highlightClass}
-                    onChange={(value) => editor.set(`${path}.${index}.highlightClass`, value)}
-                    error={editor.issue(`${path}.${index}.highlightClass`)}
-                  />
-                </div>
-                <IconButton icon="x" label="Remove skill" className="mt-6" onClick={() => items.remove(index)} />
+              <div className="adm-subgrid">
+                <TextField label="Name" {...editor.field(`${path}.${index}.name`)} />
+                <TextField label="Description (optional)" {...editor.field(`${path}.${index}.description`)} />
+                <HighlightSelect
+                  value={item.highlightClass}
+                  onChange={(value) => editor.set(`${path}.${index}.highlightClass`, value)}
+                  error={editor.issue(`${path}.${index}.highlightClass`)}
+                />
               </div>
-            </div>
+            </SubItem>
           )}
         </SortableList>
       )}
@@ -62,15 +56,17 @@ export default function SkillsEditor({ skills }: { skills: Skills }) {
   const open = useOpenItem();
 
   return (
-    <div className="space-y-5">
-      <Card title="Page">
-        <div className="grid sm:grid-cols-2 gap-4">
+    <div className="adm-stack">
+      <Card doc="skills" icon="layers" title="Page">
+        <div className="adm-form-grid">
           <TextField label="Headline" {...editor.field("headline")} />
           <TextField label="Intro line" {...editor.field("intro")} placeholder="e.g. Learning and practicing:" />
         </div>
       </Card>
 
       <Card
+        doc="skills.groups"
+        icon="skills"
         title="Skill groups"
         description="For example Languages, Cybersecurity areas, Tools & technologies, Currently learning."
         actions={
@@ -87,7 +83,7 @@ export default function SkillsEditor({ skills }: { skills: Skills }) {
           </Button>
         }
       >
-        {groups.items.length === 0 && <p className="adm-muted text-[13px]">No groups yet.</p>}
+        {groups.items.length === 0 && <EmptyLine>No groups yet.</EmptyLine>}
         <SortableList
           items={groups.items}
           getKey={(_, index) => String(index)}
@@ -114,7 +110,7 @@ export default function SkillsEditor({ skills }: { skills: Skills }) {
         </SortableList>
       </Card>
 
-      <Card title="Areas of interest" description="Chips on the Skills page; also the Focus line in neofetch.">
+      <Card doc="skills.interests" icon="activity" title="Areas of interest" description="Chips on the Skills page; also the Focus line in neofetch.">
         <StringListEditor
           label="Interests"
           items={editor.value.interests}

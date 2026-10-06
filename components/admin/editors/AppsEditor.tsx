@@ -25,10 +25,10 @@ const KIND_LABELS: Record<AppConfig["kind"], string> = {
 
 function AppIcon({ src }: { src: string }) {
   return (
-    <span className="w-9 h-9 rounded-lg bg-[var(--surface-3)] flex items-center justify-center flex-shrink-0 overflow-hidden">
+    <span className="adm-app-icon">
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt="" className="w-6 h-6 object-contain" />
+        <img src={src} alt="" />
       ) : null}
     </span>
   );
@@ -44,9 +44,9 @@ function IconPicker({
   error?: string;
 }) {
   return (
-    <div>
+    <div className="adm-field">
       <p className="adm-label">Icon</p>
-      <div className="flex flex-wrap gap-2 mb-2">
+      <div className="flex flex-wrap gap-2 mb-3">
         {KNOWN_ICONS.map((icon) => (
           <button
             key={icon}
@@ -54,12 +54,10 @@ function IconPicker({
             onClick={() => onChange(icon)}
             aria-label={`Use ${icon.split("/").pop()}`}
             aria-pressed={value === icon}
-            className={`w-11 h-11 rounded-lg border flex items-center justify-center bg-[var(--surface)] ${
-              value === icon ? "border-[var(--accent)] shadow-[0_0_0_3px_var(--accent-soft)]" : "border-[var(--border)] hover:border-[var(--border-strong)]"
-            }`}
+            className="adm-icon-pick"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={icon} alt="" className="w-7 h-7 object-contain" />
+            <img src={icon} alt="" />
           </button>
         ))}
       </div>
@@ -96,7 +94,7 @@ export default function AppsEditor({ apps }: { apps: AppConfig[] }) {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="adm-stack">
       <Notice tone="accent" title="What can be managed here">
         Terminal and Firefox are real React apps, so they can be renamed, re-iconed, hidden and reordered but not
         deleted. New entries are shortcuts that open a Firefox page or an external link. An app with its own new
@@ -104,17 +102,19 @@ export default function AppsEditor({ apps }: { apps: AppConfig[] }) {
       </Notice>
 
       <Card
+        doc="apps"
+        icon="apps"
         title="Desktop applications"
         description="Order here is the order of desktop icons."
         actions={
-          <div className="flex gap-2">
+          <>
             <Button size="sm" icon="plus" onClick={() => addShortcut("route")}>
               Page shortcut
             </Button>
             <Button size="sm" icon="plus" onClick={() => addShortcut("link")}>
               Link shortcut
             </Button>
-          </div>
+          </>
         }
       >
         <SortableList
@@ -147,7 +147,7 @@ export default function AppsEditor({ apps }: { apps: AppConfig[] }) {
                 deleteConfirm={`Delete the ${app.name || "untitled"} shortcut?`}
                 errorCount={editor.issuesUnder(base)}
               >
-                <div className="grid sm:grid-cols-3 gap-4">
+                <div className="adm-form-grid adm-form-grid--3">
                   <Toggle label="Enabled" checked={app.enabled} onChange={(checked) => editor.set(`${base}.enabled`, checked)} />
                   <Toggle
                     label="Desktop icon"
@@ -163,12 +163,12 @@ export default function AppsEditor({ apps }: { apps: AppConfig[] }) {
                   />
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="adm-form-grid">
                   <TextField label="Display name" {...editor.field(`${base}.name`)} />
                   {builtin ? (
-                    <div>
+                    <div className="adm-field">
                       <p className="adm-label">ID</p>
-                      <p className="adm-input font-mono text-[13px] adm-muted">{app.id}</p>
+                      <p className="adm-input adm-input--static adm-input--mono">{app.id}</p>
                       <p className="adm-hint">Built-in apps keep their ID.</p>
                     </div>
                   ) : (
@@ -194,7 +194,14 @@ export default function AppsEditor({ apps }: { apps: AppConfig[] }) {
                   <RouteSelect value={app.url} onChange={(url) => editor.set(`${base}.url`, url)} error={editor.issue(`${base}.url`)} />
                 )}
                 {app.kind === "link" && (
-                  <TextField label="Link URL" type="url" {...editor.field(`${base}.url`)} placeholder="https://…" hint="Opens in a new browser tab." />
+                  <TextField
+                    label="Link URL"
+                    type="url"
+                    {...editor.field(`${base}.url`)}
+                    placeholder="https://…"
+                    hint="Opens in a new browser tab."
+                    mono
+                  />
                 )}
 
                 <IconPicker value={app.icon} onChange={(icon) => editor.set(`${base}.icon`, icon)} error={editor.issue(`${base}.icon`)} />

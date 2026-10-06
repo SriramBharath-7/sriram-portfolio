@@ -57,21 +57,25 @@ function describe(response: CommandResponse, apps: AppConfig[]): string {
   }
 }
 
+/** How the command looks when a visitor runs it, in the desktop terminal's colours. */
 function Preview({ command, apps }: { command: CustomCommand; apps: AppConfig[] }) {
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[#06080d] px-4 py-3 font-mono text-[12.5px] leading-relaxed">
-      <div>
-        <span className="text-[#5aa9ff]">┌──(</span>
-        <span className="text-[#5aa9ff] font-bold">kali㉿kali</span>
-        <span className="text-[#5aa9ff]">)-[</span>
-        <span className="text-white font-semibold">~</span>
-        <span className="text-[#5aa9ff]">]</span>
-      </div>
-      <div>
-        <span className="text-[#5aa9ff] font-bold">└─$</span> <span className="text-[#d6dae2]">{command.name || "command"}</span>
-      </div>
-      <div className="text-[#8b93a3] whitespace-pre-wrap">
-        {command.response.type === "text" ? command.response.text || " " : describe(command.response, apps)}
+    <div className="adm-term">
+      <div className="adm-term-bar">kali@kali: ~</div>
+      <div className="adm-term-body !text-[length:var(--fs-sm)]">
+        <p>
+          <span className="adm-p-br">┌──(</span>
+          <span className="adm-p-user">kali㉿kali</span>
+          <span className="adm-p-br">)-[</span>
+          <span className="adm-p-path">~</span>
+          <span className="adm-p-br">]</span>
+        </p>
+        <p>
+          <span className="adm-p-user">└─$</span> <span className="adm-p-cmd">{command.name || "command"}</span>
+        </p>
+        <p className="whitespace-pre-wrap text-[var(--term-dim)]">
+          {command.response.type === "text" ? command.response.text || " " : describe(command.response, apps)}
+        </p>
       </div>
     </div>
   );
@@ -110,13 +114,15 @@ export default function CommandsEditor({
   };
 
   return (
-    <div className="space-y-5">
+    <div className="adm-stack">
       <Notice tone="accent" title="Safe by design">
         Custom commands are declarative: they print text or content, or open a page, app or link. Nothing you
         enter here is executed as code, and built-in commands like ls, cd and cat cannot be replaced.
       </Notice>
 
       <Card
+        doc="commands"
+        icon="commands"
         title="Custom commands"
         description="Listed under “Custom” in help, with tab completion. Run name --help to see the help text."
         actions={
@@ -133,7 +139,7 @@ export default function CommandsEditor({
             action={<Button icon="plus" onClick={add}>New command</Button>}
           />
         ) : (
-          <div className="space-y-2.5">
+          <div className="adm-sortable">
             {list.items.map((command, index) => {
               const base = String(index);
               const nameError = editor.issue(`${base}.name`) ?? editor.issue(`${base}.id`) ?? reservedError(command.name);
@@ -143,7 +149,7 @@ export default function CommandsEditor({
               return (
                 <ItemCard
                   key={index}
-                  title={<span className="font-mono">{command.name || "new-command"}</span>}
+                  title={<span className="adm-mono">{command.name || "new-command"}</span>}
                   subtitle={command.description || describe(command.response, apps)}
                   badges={command.enabled ? <Badge tone="success">Enabled</Badge> : <Badge>Disabled</Badge>}
                   open={open.isOpen(base)}
@@ -158,7 +164,7 @@ export default function CommandsEditor({
                     checked={command.enabled}
                     onChange={(checked) => editor.set(`${base}.enabled`, checked)}
                   />
-                  <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="adm-form-grid">
                     <TextField
                       label="Command name"
                       value={command.name}
@@ -191,7 +197,7 @@ export default function CommandsEditor({
                     hint={`Printed by: ${command.name || "name"} --help`}
                   />
 
-                  <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="adm-form-grid">
                     <SelectField
                       label="What it does"
                       value={command.response.type}
@@ -231,6 +237,7 @@ export default function CommandsEditor({
                         type="url"
                         {...editor.field(`${base}.response.url`)}
                         placeholder="https://… or mailto:…"
+                        mono
                       />
                     )}
                   </div>

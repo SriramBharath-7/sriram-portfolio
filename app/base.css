@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* One responsive knob for every route (the Kali desktop and the admin).
+
+   The root font-size follows the viewport; everything sized in rem follows
+   it, so both surfaces keep the same perceived scale:
+
+     1366×650   14px    (0.875×, floor)    1920×950   16px  (1080p design size)
+     2560×1310  19.2px  (1.2×)             very large screens cap at 20.8px (1.3×)
+
+   min() of a width curve and a height curve keeps short-but-wide viewports
+   from blowing up. No transform: scale(), no zoom — real sizes. */
+html {
+  font-size: clamp(14px, min(6.4px + 0.5vw, 7.55px + 0.889vh), 20.8px);
+}

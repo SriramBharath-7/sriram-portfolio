@@ -12,9 +12,9 @@ import { getSupabaseEnv } from "./env";
  * would then silently fall back to the static defaults).
  */
 export function createSupabasePublicClient() {
-  const { url, anonKey } = getSupabaseEnv();
+  const { url, publishableKey } = getSupabaseEnv();
 
-  return createClient(url, anonKey, {
+  return createClient(url, publishableKey, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
 }
